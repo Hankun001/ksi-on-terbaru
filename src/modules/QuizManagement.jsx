@@ -2,8 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import { Plus, Edit, Trash2, Eye, EyeOff, Save, X } from 'lucide-react';
-import './QuizManagement.css';
+import { Plus, Edit, Trash2, Eye, EyeOff, Save, X, HelpCircle, BookOpen, AlertCircle, CheckCircle } from 'lucide-react';
 
 const QuizManagement = ({ courses }) => {
   const { user } = useAuth();
@@ -271,90 +270,76 @@ const QuizManagement = ({ courses }) => {
 
   if (error) {
     return (
-      <div className="quiz-error">
-        <h3>Terjadi Kesalahan</h3>
-        <p>{error}</p>
+      <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+        <div className="flex flex-col items-center justify-center min-h-[30vh] gap-md">
+          <AlertCircle className="w-10 h-10 text-error opacity-60" />
+          <h3 className="text-title-md font-display text-on-surface">Terjadi Kesalahan</h3>
+          <p className="text-body-sm text-on-surface-variant">{error}</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="quiz-management">
-      <div className="quiz-header">
-        <h2>Manajemen Quiz</h2>
-        <button
-          className="btn btn-primary"
-          onClick={() => {
-            resetQuizForm();
-            setShowCreateForm(true);
-          }}
-        >
-          <Plus size={16} />
-          Buat Quiz Baru
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto space-y-lg">
+      {/* Header */}
+      <div className="flex items-center justify-between">
+        <h2 className="text-headline-sm md:text-headline-md font-display text-on-surface flex items-center gap-sm">
+          <HelpCircle className="w-6 h-6 text-primary" />
+          Manajemen Quiz
+        </h2>
+        <button onClick={() => { resetQuizForm(); setShowCreateForm(true); }}
+          className="inline-flex items-center gap-xs bg-primary text-on-primary px-lg py-sm rounded-xl font-medium hover:bg-primary-container hover:text-on-primary-container transition-all">
+          <Plus className="w-4 h-4" /> Buat Quiz Baru
         </button>
       </div>
 
       {courses.length === 0 ? (
-        <div className="no-courses">
-          <p>Anda belum memiliki kursus. Buat kursus terlebih dahulu untuk membuat quiz.</p>
+        <div className="flex flex-col items-center py-xl text-on-surface-variant bg-surface rounded-xl">
+          <BookOpen className="w-10 h-10 mb-sm opacity-40" />
+          <p className="text-body-sm">Anda belum memiliki kursus. Buat kursus terlebih dahulu untuk membuat quiz.</p>
         </div>
       ) : (
-        <div className="quizzes-grid">
+        <div className="grid md:grid-cols-2 gap-md">
           {quizzes.map(quiz => (
-            <div key={quiz.id} className="quiz-card">
-              <div className="quiz-card-header">
-                <h3>{quiz.title}</h3>
-                <div className="quiz-status">
-                  {quiz.is_published ? (
-                    <span className="status published">Dipublikasikan</span>
-                  ) : (
-                    <span className="status draft">Draft</span>
-                  )}
-                </div>
+            <div key={quiz.id} className="bg-surface rounded-xl p-md border border-outline-variant/30 hover:border-primary/30 hover:shadow-md transition-all">
+              <div className="flex items-start justify-between gap-md mb-sm">
+                <h3 className="text-title-sm font-display text-on-surface font-semibold">{quiz.title}</h3>
+                <span className={`inline-flex items-center px-sm py-0.5 rounded-full text-label-xs font-medium ${
+                  quiz.is_published ? 'bg-success-container text-on-success-container' : 'bg-surface-dim text-on-surface-variant'
+                }`}>
+                  {quiz.is_published ? 'Dipublikasikan' : 'Draft'}
+                </span>
               </div>
-              <div className="quiz-card-body">
-                <p className="quiz-description">{quiz.description || 'Tidak ada deskripsi'}</p>
-                <div className="quiz-meta">
-                  <span>Kursus: {quiz.courses?.title}</span>
-                  <span>Waktu: {quiz.time_limit} menit</span>
-                  <span>Lulus: {quiz.passing_score}%</span>
-                </div>
+              <p className="text-body-sm text-on-surface-variant mb-sm">{quiz.description || 'Tidak ada deskripsi'}</p>
+              <div className="flex flex-wrap gap-sm text-label-sm text-on-surface-variant mb-md">
+                <span className="inline-flex items-center gap-xs bg-surface-container-low px-sm py-0.5 rounded">📚 {quiz.courses?.title}</span>
+                <span className="inline-flex items-center gap-xs bg-surface-container-low px-sm py-0.5 rounded">⏱️ {quiz.time_limit} menit</span>
+                <span className="inline-flex items-center gap-xs bg-surface-container-low px-sm py-0.5 rounded">📊 Lulus: {quiz.passing_score}%</span>
               </div>
-              <div className="quiz-card-actions">
-                <button
-                  className="btn btn-secondary"
-                  onClick={() => handleManageQuestions(quiz)}
-                >
-                  <Edit size={14} />
-                  Kelola Pertanyaan
+              <div className="flex flex-wrap gap-xs pt-sm border-t border-outline-variant/20">
+                <button onClick={() => handleManageQuestions(quiz)} className="inline-flex items-center gap-xs px-sm py-xs rounded-lg bg-primary-container text-on-primary-container text-label-xs font-medium hover:bg-primary hover:text-on-primary transition-all">
+                  <Edit className="w-3 h-3" /> Kelola Soal
                 </button>
-                <button
-                  className="btn btn-outline"
-                  onClick={() => handleEditQuiz(quiz)}
-                >
-                  <Edit size={14} />
-                  Edit
+                <button onClick={() => handleEditQuiz(quiz)} className="inline-flex items-center gap-xs px-sm py-xs rounded-lg bg-surface-dim text-on-surface-variant text-label-xs font-medium hover:bg-outline-variant transition-all">
+                  <Edit className="w-3 h-3" /> Edit
                 </button>
-                <button
-                  className={`btn ${quiz.is_published ? 'btn-warning' : 'btn-success'}`}
-                  onClick={() => handleTogglePublish(quiz)}
-                >
-                  {quiz.is_published ? <EyeOff size={14} /> : <Eye size={14} />}
+                <button onClick={() => handleTogglePublish(quiz)} className={`inline-flex items-center gap-xs px-sm py-xs rounded-lg text-label-xs font-medium transition-all ${
+                  quiz.is_published ? 'bg-warning-container text-on-warning-container hover:bg-warning hover:text-on-warning' : 'bg-success-container text-on-success-container hover:bg-success hover:text-on-success'
+                }`}>
+                  {quiz.is_published ? <EyeOff className="w-3 h-3" /> : <Eye className="w-3 h-3" />}
                   {quiz.is_published ? 'Sembunyikan' : 'Publikasikan'}
                 </button>
-                <button
-                  className="btn btn-danger"
-                  onClick={() => handleDeleteQuiz(quiz.id)}
-                >
-                  <Trash2 size={14} />
-                  Hapus
+                <button onClick={() => handleDeleteQuiz(quiz.id)} className="inline-flex items-center gap-xs px-sm py-xs rounded-lg bg-error-container text-on-error-container text-label-xs font-medium hover:bg-error hover:text-on-error transition-all">
+                  <Trash2 className="w-3 h-3" /> Hapus
                 </button>
               </div>
             </div>
           ))}
           {quizzes.length === 0 && (
-            <div className="no-quizzes">
-              <p>Belum ada quiz. Klik "Buat Quiz Baru" untuk memulai.</p>
+            <div className="flex flex-col items-center py-xl text-on-surface-variant col-span-2">
+              <HelpCircle className="w-10 h-10 mb-sm opacity-40" />
+              <p className="text-body-sm">Belum ada quiz. Klik "Buat Quiz Baru" untuk memulai.</p>
             </div>
           )}
         </div>
@@ -362,93 +347,47 @@ const QuizManagement = ({ courses }) => {
 
       {/* Quiz Form Modal */}
       {(showCreateForm || editingQuiz) && (
-        <div className="modal-overlay" onClick={(e) => {
-          // Only close if clicking on overlay itself, not on modal content
-          if (e.target === e.currentTarget) {
-            setShowCreateForm(false);
-            setEditingQuiz(null);
-          }
-        }}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{editingQuiz ? 'Edit Quiz' : 'Buat Quiz Baru'}</h3>
-              <button
-                className="close-btn"
-                onClick={() => {
-                  setShowCreateForm(false);
-                  setEditingQuiz(null);
-                }}
-              >
-                <X size={20} />
-              </button>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-md" onClick={() => { setShowCreateForm(false); setEditingQuiz(null); }}>
+          <div className="bg-surface rounded-2xl shadow-xl max-w-lg w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-xl pt-lg pb-md border-b border-outline-variant/30">
+              <h3 className="text-title-lg font-semibold text-on-surface m-0">{editingQuiz ? 'Edit Quiz' : 'Buat Quiz Baru'}</h3>
+              <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant" onClick={() => { setShowCreateForm(false); setEditingQuiz(null); }}><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleQuizSubmit}>
-              <div className="form-group">
-                <label>Kursus</label>
-                <select
-                  value={quizForm.course_id}
-                  onChange={(e) => setQuizForm(prev => ({ ...prev, course_id: e.target.value }))}
-                  required
-                  disabled={!!editingQuiz}
-                >
+            <form onSubmit={handleQuizSubmit} className="p-xl space-y-md">
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Kursus</label>
+                <select value={quizForm.course_id} onChange={(e) => setQuizForm(prev => ({ ...prev, course_id: e.target.value }))} required disabled={!!editingQuiz}
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all disabled:opacity-60">
                   <option value="">Pilih Kursus</option>
-                  {courses.map(course => (
-                    <option key={course.id} value={course.id}>
-                      {course.title}
-                    </option>
-                  ))}
+                  {courses.map(course => (<option key={course.id} value={course.id}>{course.title}</option>))}
                 </select>
               </div>
-              <div className="form-group">
-                <label>Judul Quiz</label>
-                <input
-                  type="text"
-                  value={quizForm.title}
-                  onChange={(e) => setQuizForm(prev => ({ ...prev, title: e.target.value }))}
-                  required
-                />
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Judul Quiz</label>
+                <input type="text" value={quizForm.title} onChange={(e) => setQuizForm(prev => ({ ...prev, title: e.target.value }))} required
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               </div>
-              <div className="form-group">
-                <label>Deskripsi</label>
-                <textarea
-                  value={quizForm.description}
-                  onChange={(e) => setQuizForm(prev => ({ ...prev, description: e.target.value }))}
-                  rows={3}
-                />
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Deskripsi</label>
+                <textarea value={quizForm.description} onChange={(e) => setQuizForm(prev => ({ ...prev, description: e.target.value }))} rows={3}
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none" />
               </div>
-              <div className="form-row">
-                <div className="form-group">
-                  <label>Waktu (menit)</label>
-                  <input
-                    type="number"
-                    min="1"
-                    max="300"
-                    value={quizForm.time_limit}
-                    onChange={(e) => setQuizForm(prev => ({ ...prev, time_limit: parseInt(e.target.value) }))}
-                    required
-                  />
+              <div className="grid grid-cols-2 gap-md">
+                <div className="space-y-1.5">
+                  <label className="block text-label-sm font-medium text-on-surface">Waktu (menit)</label>
+                  <input type="number" min="1" max="300" value={quizForm.time_limit} onChange={(e) => setQuizForm(prev => ({ ...prev, time_limit: parseInt(e.target.value) }))} required
+                    className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
                 </div>
-                <div className="form-group">
-                  <label>Nilai Lulus (%)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    max="100"
-                    value={quizForm.passing_score}
-                    onChange={(e) => setQuizForm(prev => ({ ...prev, passing_score: parseInt(e.target.value) }))}
-                    required
-                  />
+                <div className="space-y-1.5">
+                  <label className="block text-label-sm font-medium text-on-surface">Nilai Lulus (%)</label>
+                  <input type="number" min="0" max="100" value={quizForm.passing_score} onChange={(e) => setQuizForm(prev => ({ ...prev, passing_score: parseInt(e.target.value) }))} required
+                    className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
                 </div>
               </div>
-              <div className="modal-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => {
-                  setShowCreateForm(false);
-                  setEditingQuiz(null);
-                }}>
-                  Batal
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  <Save size={16} />
+              <div className="flex gap-md justify-end pt-sm border-t border-outline-variant/20">
+                <button type="button" className="px-4 py-2 rounded-xl text-label-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors" onClick={() => { setShowCreateForm(false); setEditingQuiz(null); }}>Batal</button>
+                <button type="submit" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm">
+                  <Save className="w-4 h-4" />
                   {editingQuiz ? 'Simpan Perubahan' : 'Buat Quiz'}
                 </button>
               </div>
@@ -459,67 +398,52 @@ const QuizManagement = ({ courses }) => {
 
       {/* Questions Management Modal */}
       {editingQuiz && !showCreateForm && (
-        <div className="modal-overlay" onClick={() => setEditingQuiz(null)}>
-          <div className="modal-content large" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Kelola Pertanyaan - {editingQuiz.title}</h3>
-              <button className="close-btn" onClick={() => setEditingQuiz(null)}>
-                <X size={20} />
-              </button>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-md" onClick={() => setEditingQuiz(null)}>
+          <div className="bg-surface rounded-2xl shadow-xl max-w-2xl w-full max-h-[85vh] flex flex-col" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-xl pt-lg pb-md border-b border-outline-variant/30">
+              <h3 className="text-title-lg font-semibold text-on-surface m-0">Kelola Pertanyaan - {editingQuiz.title}</h3>
+              <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant" onClick={() => setEditingQuiz(null)}><X className="w-5 h-5" /></button>
             </div>
-            <div className="questions-list">
+            <div className="flex-1 overflow-y-auto p-xl space-y-md">
               {questions.map((question, index) => (
-                <div key={question.id} className="question-item">
-                  <div className="question-header">
-                    <span className="question-number">{index + 1}.</span>
-                    <span className="question-text">{question.question_text}</span>
-                    <span className="question-points">{question.points} poin</span>
+                <div key={question.id} className="bg-surface-container-low/50 rounded-xl p-md border border-outline-variant/30">
+                  <div className="flex items-start justify-between gap-sm mb-sm">
+                    <div className="flex items-start gap-2">
+                      <span className="w-6 h-6 rounded-full bg-primary-container text-on-primary-container text-label-sm font-bold flex items-center justify-center shrink-0 mt-0.5">{index + 1}</span>
+                      <span className="text-body-md font-medium text-on-surface">{question.question_text}</span>
+                    </div>
+                    <span className="text-label-sm text-on-surface-variant shrink-0 whitespace-nowrap">{question.points} poin</span>
                   </div>
-                  <div className="question-options">
+                  <div className="ml-8 space-y-1 mb-sm">
                     {question.options.map((option, optIndex) => (
-                      <div key={optIndex} className={`option ${option.is_correct ? 'correct' : ''}`}>
-                        {option.is_correct && '✓'} {option.text}
+                      <div key={optIndex} className={`flex items-center gap-2 text-body-sm ${option.is_correct ? 'text-success font-medium' : 'text-on-surface-variant'}`}>
+                        {option.is_correct && <CheckCircle className="w-3.5 h-3.5 text-success" />}
+                        <span>{String.fromCharCode(65 + optIndex)}. {option.text}</span>
                       </div>
                     ))}
                   </div>
-                  <div className="question-actions">
-                    <button
-                      className="btn btn-outline"
-                      onClick={() => handleEditQuestion(question)}
-                    >
-                      <Edit size={14} />
-                      Edit
+                  <div className="flex gap-sm ml-8">
+                    <button className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-label-xs font-medium text-primary hover:bg-primary-container/40 transition-colors" onClick={() => handleEditQuestion(question)}>
+                      <Edit className="w-3 h-3" /> Edit
                     </button>
-                    <button
-                      className="btn btn-danger"
-                      onClick={() => handleDeleteQuestion(question.id)}
-                    >
-                      <Trash2 size={14} />
-                      Hapus
+                    <button className="inline-flex items-center gap-1 px-3 py-1 rounded-lg text-label-xs font-medium text-error hover:bg-error-container/40 transition-colors" onClick={() => handleDeleteQuestion(question.id)}>
+                      <Trash2 className="w-3 h-3" /> Hapus
                     </button>
                   </div>
                 </div>
               ))}
               {questions.length === 0 && (
-                <div className="no-questions">
-                  <p>Belum ada pertanyaan. Klik "Tambah Pertanyaan" untuk memulai.</p>
+                <div className="text-center py-xl text-on-surface-variant">
+                  <HelpCircle className="w-10 h-10 mx-auto mb-sm opacity-50" />
+                  <p className="text-body-sm">Belum ada pertanyaan. Klik "Tambah Pertanyaan" untuk memulai.</p>
                 </div>
               )}
             </div>
-            <div className="modal-actions">
-              <button
-                className="btn btn-primary"
-                onClick={() => {
-                  resetQuestionForm();
-                  setShowQuestionForm(true);
-                }}
-              >
-                <Plus size={16} />
-                Tambah Pertanyaan
+            <div className="flex items-center justify-between px-xl py-md border-t border-outline-variant/20">
+              <button className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm" onClick={() => { resetQuestionForm(); setShowQuestionForm(true); }}>
+                <Plus className="w-4 h-4" /> Tambah Pertanyaan
               </button>
-              <button className="btn btn-secondary" onClick={() => setEditingQuiz(null)}>
-                Tutup
-              </button>
+              <button className="px-4 py-2 rounded-xl text-label-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors" onClick={() => setEditingQuiz(null)}>Tutup</button>
             </div>
           </div>
         </div>
@@ -527,109 +451,52 @@ const QuizManagement = ({ courses }) => {
 
       {/* Question Form Modal */}
       {showQuestionForm && (
-        <div className="modal-overlay" onClick={(e) => {
-          // Only close if clicking on overlay itself, not on modal content
-          if (e.target === e.currentTarget) {
-            setShowQuestionForm(false);
-            setEditingQuestion(null);
-          }
-        }}>
-          <div className="modal-content large" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>{editingQuestion ? 'Edit Pertanyaan' : 'Tambah Pertanyaan'}</h3>
-              <button
-                className="close-btn"
-                onClick={() => {
-                  setShowQuestionForm(false);
-                  setEditingQuestion(null);
-                }}
-              >
-                <X size={20} />
-              </button>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-md" onClick={() => { setShowQuestionForm(false); setEditingQuestion(null); }}>
+          <div className="bg-surface rounded-2xl shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-xl pt-lg pb-md border-b border-outline-variant/30">
+              <h3 className="text-title-lg font-semibold text-on-surface m-0">{editingQuestion ? 'Edit Pertanyaan' : 'Tambah Pertanyaan'}</h3>
+              <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant" onClick={() => { setShowQuestionForm(false); setEditingQuestion(null); }}><X className="w-5 h-5" /></button>
             </div>
-            <form onSubmit={handleQuestionSubmit}>
-              <div className="form-group">
-                <label>Pertanyaan</label>
-                <textarea
-                  value={questionForm.question_text}
-                  onChange={(e) => setQuestionForm(prev => ({ ...prev, question_text: e.target.value }))}
-                  required
-                  rows={3}
+            <form onSubmit={handleQuestionSubmit} className="p-xl space-y-md">
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Pertanyaan</label>
+                <textarea value={questionForm.question_text} onChange={(e) => setQuestionForm(prev => ({ ...prev, question_text: e.target.value }))} required rows={3} autoFocus
                   placeholder="Ketik pertanyaan di sini..."
-                  autoFocus
-                />
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none" />
               </div>
-              <div className="form-group">
-                <label>Opsi Jawaban</label>
-                <div className="options-container">
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Opsi Jawaban</label>
+                <div className="space-y-2">
                   {questionForm.options.map((option, index) => (
-                    <div 
-                      key={index} 
-                      className={`option-input-row ${option.is_correct ? 'correct-option' : ''}`}
-                    >
-                      <label className="option-radio-label">
-                        <input
-                          type="radio"
-                          name="correct-option"
-                          checked={option.is_correct}
+                    <div key={index} className={`flex items-center gap-md p-md rounded-xl border-2 transition-all ${option.is_correct ? 'border-success bg-success-container/20' : 'border-outline-variant/40'}`}>
+                      <label className="flex items-center gap-2 cursor-pointer shrink-0">
+                        <input type="radio" name="correct-option" checked={option.is_correct}
                           onChange={() => {
-                            const newOptions = questionForm.options.map((opt, i) => ({
-                              ...opt,
-                              is_correct: i === index
-                            }));
+                            const newOptions = questionForm.options.map((opt, i) => ({ ...opt, is_correct: i === index }));
                             setQuestionForm(prev => ({ ...prev, options: newOptions }));
                           }}
-                        />
-                        <span className="option-letter">{String.fromCharCode(65 + index)}</span>
+                          className="w-4 h-4 accent-primary" />
+                        <span className={`w-6 h-6 rounded-full flex items-center justify-center text-label-xs font-bold ${option.is_correct ? 'bg-success text-on-success' : 'bg-surface-container-high text-on-surface-variant'}`}>
+                          {String.fromCharCode(65 + index)}
+                        </span>
                       </label>
-                      <div className="option-input-wrapper">
-                        <input
-                          type="text"
-                          placeholder={`Ketik jawaban untuk opsi ${String.fromCharCode(65 + index)}...`}
-                          value={option.text}
-                          onChange={(e) => handleOptionChange(index, 'text', e.target.value)}
-                          className="option-text-input"
-                          required
-                          style={{
-                            color: '#111827',
-                            WebkitTextFillColor: '#111827',
-                            backgroundColor: '#ffffff',
-                            width: '100%',
-                            padding: '12px 16px',
-                            border: '2px solid #d1d5db',
-                            borderRadius: '8px',
-                            fontSize: '15px',
-                            fontFamily: 'inherit',
-                            outline: 'none',
-                            boxSizing: 'border-box'
-                          }}
-                        />
-                      </div>
+                      <input type="text" placeholder={`Ketik jawaban untuk opsi ${String.fromCharCode(65 + index)}...`}
+                        value={option.text} onChange={(e) => handleOptionChange(index, 'text', e.target.value)} required
+                        className="flex-1 px-3 py-2 rounded-lg border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
                     </div>
                   ))}
                 </div>
-                <p className="form-help">Pilih tombol radio di samping jawaban yang benar</p>
+                <p className="text-label-xs text-on-surface-variant mt-1">Pilih tombol radio di samping jawaban yang benar</p>
               </div>
-              <div className="form-group">
-                <label>Poin</label>
-                <input
-                  type="number"
-                  min="1"
-                  max="100"
-                  value={questionForm.points}
-                  onChange={(e) => setQuestionForm(prev => ({ ...prev, points: parseInt(e.target.value) }))}
-                  required
-                />
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Poin</label>
+                <input type="number" min="1" max="100" value={questionForm.points} onChange={(e) => setQuestionForm(prev => ({ ...prev, points: parseInt(e.target.value) }))} required
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               </div>
-              <div className="modal-actions">
-                <button type="button" className="btn btn-secondary" onClick={() => {
-                  setShowQuestionForm(false);
-                  setEditingQuestion(null);
-                }}>
-                  Batal
-                </button>
-                <button type="submit" className="btn btn-primary">
-                  <Save size={16} />
+              <div className="flex gap-md justify-end pt-sm border-t border-outline-variant/20">
+                <button type="button" className="px-4 py-2 rounded-xl text-label-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors" onClick={() => { setShowQuestionForm(false); setEditingQuestion(null); }}>Batal</button>
+                <button type="submit" className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm">
+                  <Save className="w-4 h-4" />
                   {editingQuestion ? 'Simpan Perubahan' : 'Tambah Pertanyaan'}
                 </button>
               </div>

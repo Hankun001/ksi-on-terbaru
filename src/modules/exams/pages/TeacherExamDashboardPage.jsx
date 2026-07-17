@@ -1,11 +1,10 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { fetchExamWithResults, closeExam, exportResultsToCSV, autoGradeEssay } from '../services/examService';
-import { Eye, Download, Printer, X, Search, Clock, Users, CheckCircle, AlertTriangle, BarChart3, ChevronRight, Filter } from 'lucide-react';
-import '../styles/examStyles.css';
+import { Eye, Download, Printer, X, Search, Clock, Users, AlertTriangle, BarChart3, Filter, Zap } from 'lucide-react';
 
-const TeacherExamDashboardPage = ({ examId, onViewDetail, onViewStudentDetail, onBack }) => {
+const TeacherExamDashboardPage = ({ examId, onViewDetail, onViewStudentDetail }) => {
   const { user } = useAuth();
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -54,10 +53,10 @@ const TeacherExamDashboardPage = ({ examId, onViewDetail, onViewStudentDetail, o
 
   if (loading) {
     return (
-      <div className="dashboard-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div className="loading-spinner" style={{ width: 40, height: 40, border: '4px solid #e5e7eb', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 1rem' }} />
-          <p style={{ color: '#6b7280' }}>Memuat data ujian...</p>
+      <div className="p-margin-mobile md:p-margin-desktop flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-md text-on-surface-variant">
+          <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-body-md">Memuat data ujian...</p>
         </div>
       </div>
     );
@@ -65,9 +64,11 @@ const TeacherExamDashboardPage = ({ examId, onViewDetail, onViewStudentDetail, o
 
   if (error || !data) {
     return (
-      <div className="dashboard-container" style={{ textAlign: 'center', padding: '3rem' }}>
-        <AlertTriangle size={48} style={{ color: '#ef4444', marginBottom: '1rem' }} />
-        <p style={{ color: '#6b7280' }}>{error || 'Data tidak ditemukan'}</p>
+      <div className="p-margin-mobile md:p-margin-desktop flex flex-col items-center justify-center min-h-[60vh] py-3xl">
+        <div className="w-20 h-20 rounded-full bg-error-container flex items-center justify-center mb-lg">
+          <AlertTriangle size={40} className="text-error" />
+        </div>
+        <p className="text-body-lg text-on-surface">{error || 'Data tidak ditemukan'}</p>
       </div>
     );
   }
@@ -104,26 +105,26 @@ const TeacherExamDashboardPage = ({ examId, onViewDetail, onViewStudentDetail, o
   };
 
   return (
-    <div className="dashboard-container">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-6xl mx-auto space-y-xl">
       {/* Header */}
-      <div className="dashboard-header no-print" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+      <div className="print:hidden flex items-start justify-between gap-md flex-wrap">
         <div>
-          <h1 style={{ margin: 0, fontSize: '1.25rem' }}>{exam.title}</h1>
-          <p style={{ margin: '0.25rem 0 0', color: '#6b7280', fontSize: '0.85rem' }}>
+          <h1 className="text-title-md font-semibold text-on-surface m-0">{exam.title}</h1>
+          <p className="text-body-sm text-on-surface-variant mt-1">
             Durasi: {exam.duration_minutes} menit | Total Soal: {questions.length} | Total Poin: {totalPoints}
           </p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem', flexWrap: 'wrap' }}>
-          <button onClick={handlePrint} className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+        <div className="flex items-center gap-sm flex-wrap">
+          <button onClick={handlePrint} className="inline-flex items-center gap-xs px-md py-2 rounded-xl bg-surface border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-higher transition-all duration-200 text-label-sm font-medium">
             <Printer size={18} />
             Cetak
           </button>
-          <button onClick={() => exportResultsToCSV(examId)} className="btn btn-secondary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <button onClick={() => exportResultsToCSV(examId)} className="inline-flex items-center gap-xs px-md py-2 rounded-xl bg-surface border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-higher transition-all duration-200 text-label-sm font-medium">
             <Download size={18} />
             CSV
           </button>
           {exam.status === 'published' && (
-            <button onClick={handleCloseExam} className="btn btn-danger" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <button onClick={handleCloseExam} className="inline-flex items-center gap-xs px-md py-2 rounded-xl bg-error text-on-error text-label-sm font-medium hover:bg-error-hover transition-all duration-200">
               <X size={18} />
               Tutup Ujian
             </button>
@@ -132,134 +133,105 @@ const TeacherExamDashboardPage = ({ examId, onViewDetail, onViewStudentDetail, o
       </div>
 
       {/* Stats */}
-      <div className="exam-dashboard-stats slide-up">
-        <div className="exam-stat-card">
-          <div className="exam-stat-value" style={{ color: '#8b5cf6' }}>{totalStudents}</div>
-          <div className="exam-stat-label">Total Peserta</div>
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-md">
+        <div className="bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30 text-center">
+          <div className="text-title-lg font-bold text-secondary">{totalStudents}</div>
+          <div className="text-label-xs text-on-surface-variant mt-1">Total Peserta</div>
         </div>
-        <div className="exam-stat-card">
-          <div className="exam-stat-value" style={{ color: '#059669' }}>{submitted}</div>
-          <div className="exam-stat-label">Sudah Submit</div>
+        <div className="bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30 text-center">
+          <div className="text-title-lg font-bold text-success">{submitted}</div>
+          <div className="text-label-xs text-on-surface-variant mt-1">Sudah Submit</div>
         </div>
-        <div className="exam-stat-card">
-          <div className="exam-stat-value" style={{ color: '#f59e0b' }}>{inProgress}</div>
-          <div className="exam-stat-label">Sedang Mengerjakan</div>
+        <div className="bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30 text-center">
+          <div className="text-title-lg font-bold text-warning">{inProgress}</div>
+          <div className="text-label-xs text-on-surface-variant mt-1">Sedang Mengerjakan</div>
         </div>
-        <div className="exam-stat-card">
-          <div className="exam-stat-value" style={{ color: '#3b82f6' }}>{avgScore}</div>
-          <div className="exam-stat-label">Rata-rata Nilai</div>
+        <div className="bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30 text-center">
+          <div className="text-title-lg font-bold text-primary">{avgScore}</div>
+          <div className="text-label-xs text-on-surface-variant mt-1">Rata-rata Nilai</div>
         </div>
-        <div className="exam-stat-card">
-          <div className="exam-stat-value" style={{ color: '#059669' }}>{highestScore}</div>
-          <div className="exam-stat-label">Nilai Tertinggi</div>
+        <div className="bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30 text-center">
+          <div className="text-title-lg font-bold text-success">{highestScore}</div>
+          <div className="text-label-xs text-on-surface-variant mt-1">Nilai Tertinggi</div>
         </div>
-        <div className="exam-stat-card">
-          <div className="exam-stat-value" style={{ color: '#ef4444' }}>{lowestScore}</div>
-          <div className="exam-stat-label">Nilai Terendah</div>
+        <div className="bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30 text-center">
+          <div className="text-title-lg font-bold text-error">{lowestScore}</div>
+          <div className="text-label-xs text-on-surface-variant mt-1">Nilai Terendah</div>
         </div>
       </div>
 
       {/* Auto-Grading Section */}
       {questions.some(q => q.type === 'essay' && q.enable_auto_grading) && (
-        <div className="no-print" style={{ marginBottom: '1.5rem' }}>
-          <div style={{
-            background: 'linear-gradient(135deg, #faf5ff 0%, #f3e8ff 100%)',
-            border: '1px solid #d8b4fe',
-            borderRadius: '12px',
-            padding: '1.5rem'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '1rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>🤖</span>
-              <div>
-                <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#7c3aed' }}>Penilaian Otomatis Essay</h3>
-                <p style={{ margin: '0.25rem 0 0', fontSize: '0.85rem', color: '#6b21a8' }}>
-                  Beberapa soal essay menggunakan penilaian otomatis berdasarkan kata kunci
-                </p>
-              </div>
+        <div className="print:hidden bg-gradient-to-br from-secondary-container/30 to-tertiary-container/20 rounded-2xl p-lg border border-secondary/20 space-y-md">
+          <div className="flex items-center gap-md">
+            <div className="w-12 h-12 rounded-xl bg-secondary/20 flex items-center justify-center text-xl">
+              🤖
             </div>
+            <div>
+              <h3 className="text-title-sm font-semibold text-on-surface m-0">Penilaian Otomatis Essay</h3>
+              <p className="text-label-sm text-on-surface-variant mt-1 m-0">
+                Beberapa soal essay menggunakan penilaian otomatis berdasarkan kata kunci
+              </p>
+            </div>
+          </div>
 
-            <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
-              <button
-                onClick={async () => {
-                  if (confirm('Jalankan penilaian otomatis untuk semua jawaban essay?')) {
-                    try {
-                      // Get all essay questions with auto-grading enabled
-                      const autoGradeQuestions = questions.filter(q => q.type === 'essay' && q.enable_auto_grading);
-
-                      for (const question of autoGradeQuestions) {
-                        // Get all attempts for this question
-                        const attemptsForQuestion = attempts.filter(a =>
-                          a.answers?.some(ans => ans.question_id === question.id)
-                        );
-
-                        for (const attempt of attemptsForQuestion) {
-                          const answer = attempt.answers?.find(ans => ans.question_id === question.id);
-                          if (answer && !answer.points_earned) {
-                            try {
-                              await autoGradeEssay(attempt.id, question.id);
-                            } catch (err) {
-                              console.error(`Failed to auto-grade attempt ${attempt.id}:`, err);
-                            }
+          <div className="flex items-center gap-md flex-wrap">
+            <button
+              onClick={async () => {
+                if (confirm('Jalankan penilaian otomatis untuk semua jawaban essay?')) {
+                  try {
+                    const autoGradeQuestions = questions.filter(q => q.type === 'essay' && q.enable_auto_grading);
+                    for (const question of autoGradeQuestions) {
+                      const attemptsForQuestion = attempts.filter(a =>
+                        a.answers?.some(ans => ans.question_id === question.id)
+                      );
+                      for (const attempt of attemptsForQuestion) {
+                        const answer = attempt.answers?.find(ans => ans.question_id === question.id);
+                        if (answer && !answer.points_earned) {
+                          try {
+                            await autoGradeEssay(attempt.id, question.id);
+                          } catch (err) {
+                            console.error(`Failed to auto-grade attempt ${attempt.id}:`, err);
                           }
                         }
                       }
-
-                      alert('Penilaian otomatis selesai!');
-                      loadData(); // Refresh data
-                    } catch (err) {
-                      alert('Gagal menjalankan penilaian otomatis: ' + err.message);
                     }
+                    alert('Penilaian otomatis selesai!');
+                    loadData();
+                  } catch (err) {
+                    alert('Gagal menjalankan penilaian otomatis: ' + err.message);
                   }
-                }}
-                style={{
-                  background: '#7c3aed',
-                  color: 'white',
-                  border: 'none',
-                  padding: '0.75rem 1.25rem',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                  fontWeight: '500',
-                  cursor: 'pointer',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '0.5rem'
-                }}
-              >
-                <span>⚡</span>
-                Jalankan Auto-Grade
-              </button>
+                }
+              }}
+              className="inline-flex items-center gap-xs px-lg py-2.5 rounded-xl bg-secondary text-on-secondary text-label-sm font-medium hover:bg-secondary-hover transition-all duration-200"
+            >
+              <Zap size={18} />
+              Jalankan Auto-Grade
+            </button>
 
-              <div style={{
-                background: 'white',
-                padding: '0.75rem 1rem',
-                borderRadius: '8px',
-                border: '1px solid #d8b4fe',
-                fontSize: '0.85rem',
-                color: '#6b21a8'
-              }}>
-                <strong>{questions.filter(q => q.type === 'essay' && q.enable_auto_grading).length}</strong> soal essay dengan auto-grading
-              </div>
+            <div className="bg-surface rounded-lg px-md py-2 border border-secondary/20 text-label-sm text-on-secondary-container">
+              <strong>{questions.filter(q => q.type === 'essay' && q.enable_auto_grading).length}</strong> soal essay dengan auto-grading
             </div>
           </div>
         </div>
       )}
 
       {/* Search & Filter */}
-      <div className="no-print" style={{ display: 'flex', gap: '1rem', marginBottom: '1.5rem', flexWrap: 'wrap' }}>
-        <div style={{ flex: 1, minWidth: '200px', position: 'relative' }}>
-          <Search size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+      <div className="print:hidden flex items-center gap-md flex-wrap">
+        <div className="flex-1 min-w-[200px] relative">
+          <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
           <input
             type="text"
             placeholder="Cari nama siswa..."
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
-            style={{ width: '100%', padding: '0.65rem 0.75rem 0.65rem 2.5rem', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '0.9rem' }}
+            className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-outline bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
           />
         </div>
         <select
           value={statusFilter}
           onChange={e => setStatusFilter(e.target.value)}
-          style={{ padding: '0.65rem 1rem', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '0.9rem', background: 'white' }}
+          className="px-md py-2.5 rounded-xl border border-outline bg-surface text-body-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
         >
           <option value="all">Semua Status</option>
           <option value="in_progress">Sedang Mengerjakan</option>
@@ -270,30 +242,35 @@ const TeacherExamDashboardPage = ({ examId, onViewDetail, onViewStudentDetail, o
       </div>
 
       {/* Status Badge */}
-      <div style={{ marginBottom: '1rem' }}>
-        <span className={`status-badge status-${exam.status}`}>
+      <div>
+        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-label-xs font-medium ${
+          exam.status === 'draft' ? 'bg-surface-container-high text-on-surface-variant' :
+          exam.status === 'published' ? 'bg-tertiary-container text-on-tertiary-container' :
+          exam.status === 'closed' ? 'bg-error-container text-on-error-container' :
+          'bg-surface-container-high text-on-surface-variant'
+        }`}>
           {exam.status === 'draft' ? 'Draft' : exam.status === 'published' ? 'Dipublikasikan' : exam.status === 'closed' ? 'Ditutup' : 'Diarsipkan'}
         </span>
       </div>
 
       {/* Table */}
-      <div className="attempt-table-wrapper">
-        <table className="attempt-table">
+      <div className="overflow-x-auto rounded-2xl border border-outline-variant/20 bg-surface shadow-sm">
+        <table className="w-full text-left">
           <thead>
-            <tr>
-              <th>Nama Siswa</th>
-              <th>Status</th>
-              <th>Nilai</th>
-              <th>Waktu Mulai</th>
-              <th>Waktu Submit</th>
-              <th>Durasi</th>
-              <th className="no-print">Aksi</th>
+            <tr className="bg-surface-container-low border-b border-outline-variant/20">
+              <th className="px-lg py-md text-label-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nama Siswa</th>
+              <th className="px-lg py-md text-label-xs font-semibold text-on-surface-variant uppercase tracking-wider">Status</th>
+              <th className="px-lg py-md text-label-xs font-semibold text-on-surface-variant uppercase tracking-wider">Nilai</th>
+              <th className="px-lg py-md text-label-xs font-semibold text-on-surface-variant uppercase tracking-wider">Waktu Mulai</th>
+              <th className="px-lg py-md text-label-xs font-semibold text-on-surface-variant uppercase tracking-wider">Waktu Submit</th>
+              <th className="px-lg py-md text-label-xs font-semibold text-on-surface-variant uppercase tracking-wider">Durasi</th>
+              <th className="print:hidden px-lg py-md text-label-xs font-semibold text-on-surface-variant uppercase tracking-wider">Aksi</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="divide-y divide-outline-variant/10">
             {filteredAttempts.length === 0 ? (
               <tr>
-                <td colSpan="7" style={{ textAlign: 'center', padding: '2rem', color: '#6b7280' }}>
+                <td colSpan="7" className="text-center px-lg py-2xl text-body-sm text-on-surface-variant">
                   {searchQuery || statusFilter !== 'all' ? 'Tidak ada hasil filter' : 'Belum ada peserta'}
                 </td>
               </tr>
@@ -304,32 +281,32 @@ const TeacherExamDashboardPage = ({ examId, onViewDetail, onViewStudentDetail, o
                   ? Math.round((new Date(attempt.submitted_at) - new Date(attempt.started_at)) / 60000)
                   : '-';
                 return (
-                  <tr key={attempt.id}>
-                    <td>
-                      <strong>{attempt.profiles?.display_name || attempt.profiles?.full_name || attempt.profiles?.email || 'Unknown'}</strong>
+                  <tr key={attempt.id} className="hover:bg-surface-container-low/50 transition-colors duration-150">
+                    <td className="px-lg py-md text-body-sm font-semibold text-on-surface">
+                      {attempt.profiles?.display_name || attempt.profiles?.full_name || attempt.profiles?.email || 'Unknown'}
                     </td>
-                    <td>
-                      <span style={{ background: status.bg, color: status.color, padding: '0.2rem 0.6rem', borderRadius: '9999px', fontSize: '0.75rem', fontWeight: 500 }}>
+                    <td className="px-lg py-md">
+                      <span className="inline-flex items-center px-md py-0.5 rounded-full text-label-xs font-medium"
+                        style={{ background: status.bg, color: status.color }}>
                         {status.label}
                       </span>
                     </td>
-                    <td>
-                      <strong>{attempt.score !== null ? attempt.score : '-'}</strong>
+                    <td className="px-lg py-md text-body-sm font-semibold text-on-surface">
+                      {attempt.score !== null ? attempt.score : '-'}
                     </td>
-                    <td style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+                    <td className="px-lg py-md text-label-sm text-on-surface-variant">
                       {new Date(attempt.started_at).toLocaleString('id-ID')}
                     </td>
-                    <td style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+                    <td className="px-lg py-md text-label-sm text-on-surface-variant">
                       {attempt.submitted_at ? new Date(attempt.submitted_at).toLocaleString('id-ID') : '-'}
                     </td>
-                    <td style={{ fontSize: '0.85rem', color: '#6b7280' }}>
+                    <td className="px-lg py-md text-label-sm text-on-surface-variant">
                       {duration !== '-' ? `${duration} mnt` : '-'}
                     </td>
-                    <td className="no-print">
+                    <td className="print:hidden px-lg py-md">
                       <button
                         onClick={() => onViewStudentDetail && onViewStudentDetail(examId, attempt.id)}
-                        className="btn btn-secondary btn-sm"
-                        style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
+                        className="inline-flex items-center gap-xs px-md py-1.5 rounded-lg bg-surface border border-outline-variant/30 text-label-sm text-on-surface-variant hover:bg-surface-container-higher transition-all duration-200"
                       >
                         <Eye size={16} />
                         Detail
@@ -344,36 +321,36 @@ const TeacherExamDashboardPage = ({ examId, onViewDetail, onViewStudentDetail, o
       </div>
 
       {/* Printable report hidden */}
-      <div className="printable-report" style={{ display: 'none' }}>
-        <div className="print-header">
-          <h1>{exam.title}</h1>
-          <p>Laporan Hasil Ujian</p>
-          <p>Tanggal Cetak: {new Date().toLocaleDateString('id-ID')}</p>
+      <div className="hidden print:block">
+        <div className="text-center mb-lg pb-lg border-b border-outline-variant/20">
+          <h1 className="text-title-lg font-bold text-on-surface">{exam.title}</h1>
+          <p className="text-body-sm text-on-surface-variant">Laporan Hasil Ujian</p>
+          <p className="text-label-sm text-on-surface-variant">Tanggal Cetak: {new Date().toLocaleDateString('id-ID')}</p>
         </div>
-        <table className="print-table">
+        <table className="w-full text-left border-collapse">
           <thead>
-            <tr>
-              <th>No</th>
-              <th>Nama Siswa</th>
-              <th>Status</th>
-              <th>Nilai</th>
-              <th>Durasi</th>
+            <tr className="bg-surface-container-low border-b border-outline-variant/20">
+              <th className="px-md py-sm text-label-xs font-semibold text-on-surface-variant">No</th>
+              <th className="px-md py-sm text-label-xs font-semibold text-on-surface-variant">Nama Siswa</th>
+              <th className="px-md py-sm text-label-xs font-semibold text-on-surface-variant">Status</th>
+              <th className="px-md py-sm text-label-xs font-semibold text-on-surface-variant">Nilai</th>
+              <th className="px-md py-sm text-label-xs font-semibold text-on-surface-variant">Durasi</th>
             </tr>
           </thead>
           <tbody>
             {attempts.map((a, idx) => (
-              <tr key={a.id}>
-                <td>{idx + 1}</td>
-                <td>{a.profiles?.display_name || a.profiles?.full_name || a.profiles?.email || 'Unknown'}</td>
-                <td>{getStatusLabel(a.status).label}</td>
-                <td>{a.score !== null ? a.score : '-'}</td>
-                <td>{a.submitted_at ? Math.round((new Date(a.submitted_at) - new Date(a.started_at)) / 60000) + ' mnt' : '-'}</td>
+              <tr key={a.id} className="border-b border-outline-variant/10">
+                <td className="px-md py-sm text-body-sm text-on-surface">{idx + 1}</td>
+                <td className="px-md py-sm text-body-sm text-on-surface">{a.profiles?.display_name || a.profiles?.full_name || a.profiles?.email || 'Unknown'}</td>
+                <td className="px-md py-sm text-body-sm text-on-surface">{getStatusLabel(a.status).label}</td>
+                <td className="px-md py-sm text-body-sm text-on-surface">{a.score !== null ? a.score : '-'}</td>
+                <td className="px-md py-sm text-body-sm text-on-surface">{a.submitted_at ? Math.round((new Date(a.submitted_at) - new Date(a.started_at)) / 60000) + ' mnt' : '-'}</td>
               </tr>
             ))}
           </tbody>
         </table>
-        <div className="print-footer">
-          <p>Total Peserta: {totalStudents} | Rata-rata: {avgScore} | Tertinggi: {highestScore} | Terendah: {lowestScore}</p>
+        <div className="text-center pt-md text-label-sm text-on-surface-variant border-t border-outline-variant/20">
+          Total Peserta: {totalStudents} | Rata-rata: {avgScore} | Tertinggi: {highestScore} | Terendah: {lowestScore}
         </div>
       </div>
     </div>

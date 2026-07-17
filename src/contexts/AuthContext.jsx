@@ -14,35 +14,50 @@ export const AuthProvider = ({ children }) => {
   const [profile, setProfile] = useState(null)
 
   useEffect(() => {
+    // Jika Supabase belum dikonfigurasi, langsung selesaikan loading
+    if (!supabase) {
+      console.warn('⚠️ Supabase tidak dikonfigurasi. App berjalan dalam mode terbatas.');
+      setLoading(false);
+      return;
+    }
+
     // Check active session
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession()
+      try {
+        const { data: { session } } = await supabase.auth.getSession()
 
-      if (session) {
-        setUser(session.user)
+        if (session) {
+          setUser(session.user)
 
-        // Get user role from profile table
-        await fetchUserRole(session.user.id, session.user.email)
+          // Get user role from profile table
+          await fetchUserRole(session.user.id, session.user.email)
+        }
+      } catch (err) {
+        console.error('Session check error:', err.message);
+      } finally {
+        setLoading(false)
       }
 
-      setLoading(false)
-
       // Listen for auth changes
-      const { data: { subscription } } = await supabase.auth.onAuthStateChange(
-        (_event, session) => {
-          setUser(session?.user ?? null)
-          if (session?.user) {
-            fetchUserRole(session.user.id, session.user.email)
-          } else {
-            setRole(null)
-            setProfile(null)
+      try {
+        const { data: { subscription } } = await supabase.auth.onAuthStateChange(
+          (_event, session) => {
+            setUser(session?.user ?? null)
+            if (session?.user) {
+              fetchUserRole(session.user.id, session.user.email)
+            } else {
+              setRole(null)
+              setProfile(null)
+            }
+            setLoading(false)
           }
-          setLoading(false)
-        }
-      )
+        )
 
-      return () => {
-        subscription.unsubscribe()
+        return () => {
+          subscription.unsubscribe()
+        }
+      } catch (err) {
+        console.error('Auth state listener error:', err.message);
       }
     }
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { Award, Users, Calendar, Save, BarChart3 } from 'lucide-react';
+import { Award, Calendar, Save, BarChart3, AlertCircle } from 'lucide-react';
 
 const SimpleStudentEvaluation = () => {
   const { user } = useAuth();
@@ -140,52 +140,48 @@ const SimpleStudentEvaluation = () => {
 
   if (loading) {
     return (
-      <div className="dashboard-container">
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
-          <div>Memuat data...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse flex flex-col items-center gap-sm">
+          <div className="w-12 h-12 rounded-full bg-surface-dim"></div>
+          <div className="h-4 w-48 bg-surface-dim rounded"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
         <div>
-          <h1>
-            <Award size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
-            Penilaian Siswa Sederhana
+          <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+            <Award className="w-7 h-7 text-primary" />
+            Penilaian Siswa
           </h1>
-          <p>Beri nilai kepada siswa berdasarkan performa mereka</p>
+          <p className="text-body-md text-on-surface-variant mt-xs">Beri nilai kepada siswa berdasarkan performa mereka</p>
         </div>
       </div>
 
-      <div className="dashboard-content">
-        {/* Evaluation Form */}
-        <div style={{ 
-          background: 'linear-gradient(135deg, #fef7ff 0%, #fae8ff 100%)',
-          borderRadius: '12px',
-          padding: '1.5rem',
-          marginBottom: '1.5rem'
-        }}>
-          <h3 style={{ marginBottom: '1rem', color: '#a855f7' }}>
-            <Award size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Form Penilaian
-          </h3>
+      <div className="bg-surface rounded-2xl shadow-sm border border-outline-variant overflow-hidden">
+        {/* Form Section */}
+        <div className="bg-warning-container/20 p-4 md:p-6 border-b border-outline-variant">
+          <div className="flex items-center gap-sm mb-md">
+            <Award className="w-5 h-5 text-primary" />
+            <h3 className="text-title-sm font-semibold text-on-surface m-0">Form Penilaian</h3>
+          </div>
 
           <form onSubmit={handleSubmitEvaluation}>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-              <div className="form-group">
-                <label htmlFor="class">Kelas *</label>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">Kelas <span className="text-error">*</span></label>
                 <select
-                  id="class"
                   value={selectedClass}
                   onChange={(e) => setSelectedClass(e.target.value)}
-                  style={{ width: '100%' }}
                   required
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
                 >
                   <option value="">
-                    {classes.length === 0 ? 'Belum ada kelas - buat kelas terlebih dahulu' : 'Pilih Kelas'}
+                    {classes.length === 0 ? 'Belum ada kelas' : 'Pilih Kelas'}
                   </option>
                   {classes.map(cls => (
                     <option key={cls.id} value={cls.id}>
@@ -194,31 +190,30 @@ const SimpleStudentEvaluation = () => {
                   ))}
                 </select>
                 {classes.length === 0 && (
-                  <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#ef4444', background: '#fef2f2', padding: '0.5rem', borderRadius: '4px', border: '1px solid #fecaca' }}>
-                    <strong>Info:</strong> Belum ada kelas. Login sebagai Admin dan buat kelas di menu "Data Kelas" terlebih dahulu.
-                  </div>
+                  <p className="mt-1 text-label-xs text-error flex items-center gap-1">
+                    <AlertCircle className="w-3 h-3" />
+                    Buat kelas terlebih dahulu di menu Data Kelas
+                  </p>
                 )}
               </div>
 
-              <div className="form-group">
-                <label htmlFor="date">Tanggal</label>
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">Tanggal</label>
                 <input
                   type="date"
-                  id="date"
                   value={selectedDate}
                   onChange={(e) => setSelectedDate(e.target.value)}
-                  style={{ width: '100%' }}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="student">Pilih Siswa *</label>
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">Pilih Siswa <span className="text-error">*</span></label>
                 <select
-                  id="student"
                   value={selectedStudent}
                   onChange={(e) => setSelectedStudent(e.target.value)}
-                  style={{ width: '100%' }}
                   required
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
                 >
                   <option value="">-- Pilih Siswa --</option>
                   {students.map(student => (
@@ -229,128 +224,107 @@ const SimpleStudentEvaluation = () => {
                 </select>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="subject">Mata Pelajaran *</label>
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">Mata Pelajaran <span className="text-error">*</span></label>
                 <input
                   type="text"
-                  id="subject"
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
-                  placeholder="Contoh: Matematika, Bahasa Indonesia"
-                  style={{ width: '100%' }}
+                  placeholder="Contoh: Matematika"
                   required
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="score">Nilai (0-100) *</label>
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">Nilai (0-100) <span className="text-error">*</span></label>
                 <input
                   type="number"
-                  id="score"
                   value={score}
                   onChange={(e) => setScore(e.target.value)}
-                  min="0"
-                  max="100"
-                  style={{ width: '100%' }}
+                  min="0" max="100"
                   required
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
                 />
                 {score > 0 && (
-                  <div style={{ 
-                    marginTop: '0.5rem', 
-                    padding: '0.25rem', 
-                    borderRadius: '4px', 
-                    background: getGradeColor(score),
-                    color: 'white',
-                    fontSize: '0.8rem',
-                    textAlign: 'center'
-                  }}>
+                  <div className="mt-1 px-2 py-0.5 rounded text-label-xs text-center text-white font-medium"
+                    style={{ background: getGradeColor(score) }}>
                     {getGradeLabel(score)}
                   </div>
                 )}
               </div>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="note">Komentar / Catatan</label>
+            <div className="mt-4">
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Komentar / Catatan</label>
               <textarea
-                id="note"
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 placeholder="Berikan komentar tentang performa siswa..."
-                rows="3"
-                style={{ width: '100%', resize: 'vertical' }}
+                rows={3}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md resize-none"
               />
             </div>
 
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={!selectedStudent || !subject.trim() || score === ''}
-              style={{ marginTop: '1rem' }}
-            >
-              <Save size={18} style={{ marginRight: '8px' }} />
-              Simpan Penilaian
-            </button>
+            <div className="mt-4 flex justify-end">
+              <button
+                type="submit"
+                disabled={!selectedStudent || !subject.trim() || score === ''}
+                className="inline-flex items-center gap-xs px-4 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                <Save className="w-4 h-4" />
+                Simpan Penilaian
+              </button>
+            </div>
           </form>
         </div>
 
-        {/* Evaluations List */}
-        <section className="dashboard-section">
-          <h2>
-            <BarChart3 size={20} style={{ marginRight: '8px' }} />
-            Riwayat Penilaian ({evaluations.length} data)
+        {/* History Table */}
+        <div className="p-4 md:p-6">
+          <h2 className="text-title-md font-semibold text-on-surface flex items-center gap-sm mb-md">
+            <BarChart3 className="w-5 h-5 text-primary" />
+            Riwayat Penilaian
+            <span className="bg-primary-container text-on-primary-container text-label-sm px-2 py-0.5 rounded-full ml-auto">
+              {evaluations.length}
+            </span>
           </h2>
 
           {evaluations.length > 0 ? (
-            <div className="table-responsive">
-              <table className="dashboard-table">
+            <div className="overflow-x-auto">
+              <table className="w-full">
                 <thead>
-                  <tr>
-                    <th>Siswa</th>
-                    <th>Mata Pelajaran</th>
-                    <th>Tanggal</th>
-                    <th>Nilai</th>
-                    <th>Komentar</th>
+                  <tr className="bg-surface-dim/50">
+                    <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Siswa</th>
+                    <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Mata Pelajaran</th>
+                    <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Tanggal</th>
+                    <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Nilai</th>
+                    <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Komentar</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {evaluations.map(evaluation => (
-                    <tr key={evaluation.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{ 
-                            width: '32px', 
-                            height: '32px', 
-                            borderRadius: '50%', 
-                            background: 'linear-gradient(135deg, #a855f7, #7c3aed)', 
-                            display: 'flex', 
-                            alignItems: 'center', 
-                            justifyContent: 'center', 
-                            color: 'white', 
-                            fontWeight: 'bold', 
-                            fontSize: '0.75rem' 
-                          }}>
+                  {evaluations.map((evaluation, idx) => (
+                    <tr key={evaluation.id} className={"border-t border-outline-variant/50 hover:bg-surface-dim/30 transition-colors " + (idx % 2 === 0 ? 'bg-surface' : 'bg-surface-dim/10')}>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-bold text-label-sm shrink-0">
                             {(evaluation.student?.full_name || evaluation.student?.email || 'S').charAt(0).toUpperCase()}
                           </div>
-                          <strong>{evaluation.student?.full_name || evaluation.student?.email || 'N/A'}</strong>
+                          <span className="text-body-sm font-medium text-on-surface">
+                            {evaluation.student?.full_name || evaluation.student?.email || 'N/A'}
+                          </span>
                         </div>
                       </td>
-                      <td>{evaluation.subject}</td>
-                      <td>{new Date(evaluation.date).toLocaleDateString('id-ID')}</td>
-                      <td>
-                        <span style={{ 
-                          display: 'inline-block',
-                          padding: '0.25rem 0.75rem',
-                          borderRadius: '12px',
-                          background: getGradeColor(evaluation.score),
-                          color: 'white',
-                          fontWeight: 'bold',
-                          fontSize: '0.9rem'
-                        }}>
+                      <td className="px-4 py-3 text-body-sm text-on-surface">{evaluation.subject}</td>
+                      <td className="px-4 py-3 text-body-sm text-on-surface-variant">
+                        {new Date(evaluation.date).toLocaleDateString('id-ID')}
+                      </td>
+                      <td className="px-4 py-3 text-center">
+                        <span className="inline-block px-2.5 py-1 rounded-full text-label-sm font-bold text-white"
+                          style={{ background: getGradeColor(evaluation.score) }}>
                           {evaluation.score}
                         </span>
                       </td>
-                      <td style={{ maxWidth: '200px', fontSize: '0.85rem', color: '#6b7280' }}>
+                      <td className="px-4 py-3 text-body-sm text-on-surface-variant max-w-[200px]">
                         {evaluation.note || '-'}
                       </td>
                     </tr>
@@ -359,15 +333,13 @@ const SimpleStudentEvaluation = () => {
               </table>
             </div>
           ) : (
-            <div className="empty-state">
-              <span className="empty-icon"><Award size={48} /></span>
-              <p>Belum ada data penilaian.</p>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                Mulai dengan mengisi form penilaian di atas.
-              </p>
+            <div className="text-center py-12">
+              <Award className="w-16 h-16 mx-auto text-on-surface-variant/30 mb-4" />
+              <p className="text-body-lg text-on-surface-variant mb-2">Belum ada data penilaian.</p>
+              <p className="text-body-sm text-on-surface-variant/70">Mulai dengan mengisi form penilaian di atas.</p>
             </div>
           )}
-        </section>
+        </div>
       </div>
     </div>
   );

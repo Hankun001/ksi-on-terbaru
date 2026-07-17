@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
+import { CheckCircle, AlertCircle } from 'lucide-react';
 
 const ProfileModule = ({ onRefresh }) => {
   const { user, profile, updateProfile, updatePassword } = useAuth();
@@ -194,80 +195,25 @@ const ProfileModule = ({ onRefresh }) => {
   };
 
   return (
-    <div className="dashboard-content">
-      {/* Welcome / Profile Header */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-        borderRadius: '16px',
-        padding: '2rem',
-        color: 'white',
-        marginBottom: '1.5rem',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '1.5rem'
-      }}>
+    <div className="p-margin-mobile md:p-margin-desktop max-w-4xl mx-auto">
+      {/* Profile Header Card */}
+      <div className="bg-gradient-to-r from-primary to-primary-container rounded-2xl p-4 md:p-6 text-white shadow-md mb-xl flex flex-col sm:flex-row items-center gap-4">
         {/* Avatar */}
-        <div style={{ position: 'relative' }}>
+        <div className="relative shrink-0">
           {formData.avatar_url ? (
-            <img 
-              src={formData.avatar_url} 
-              alt="Avatar"
-              style={{ 
-                width: '100px', 
-                height: '100px', 
-                borderRadius: '50%', 
-                objectFit: 'cover',
-                border: '4px solid rgba(255,255,255,0.3)'
-              }}
-            />
+            <img src={formData.avatar_url} alt="Avatar" className="w-24 h-24 rounded-full object-cover border-4 border-white/30" />
           ) : (
-            <div style={{ 
-              width: '100px', 
-              height: '100px', 
-              borderRadius: '50%', 
-              background: 'rgba(255,255,255,0.2)',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              fontSize: '2.5rem',
-              border: '4px solid rgba(255,255,255,0.3)'
-            }}>
-              👤
-            </div>
+            <div className="w-24 h-24 rounded-full bg-white/20 flex items-center justify-center text-4xl border-4 border-white/30">👤</div>
           )}
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleFileChange}
-            accept="image/*"
-            style={{ display: 'none' }}
-          />
-          <button
-            onClick={() => fileInputRef.current?.click()}
-            disabled={uploadingAvatar}
-            style={{
-              position: 'absolute',
-              bottom: 0,
-              right: 0,
-              width: '32px',
-              height: '32px',
-              borderRadius: '50%',
-              background: '#10b981',
-              border: '2px solid white',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            📷
-          </button>
+          <input type="file" ref={fileInputRef} onChange={handleFileChange} accept="image/*" className="hidden" />
+          <button onClick={() => fileInputRef.current?.click()} disabled={uploadingAvatar}
+            className="absolute bottom-0 right-0 w-8 h-8 rounded-full bg-success border-2 border-white flex items-center justify-center hover:bg-success/90 transition-colors text-sm"
+          >📷</button>
         </div>
-        
-        <div>
-          <h2 style={{ margin: 0, fontSize: '1.5rem' }}>👤 {getDisplayName()}</h2>
-          <p style={{ margin: '0.5rem 0 0 0', opacity: 0.9 }}>{user?.email}</p>
-          <p style={{ margin: '0.25rem 0 0 0', opacity: 0.8, fontSize: '0.9rem' }}>
+        <div className="text-center sm:text-left">
+          <h2 className="text-title-lg font-bold m-0">👤 {getDisplayName()}</h2>
+          <p className="text-body-md text-white/90 mt-1 m-0">{user?.email}</p>
+          <p className="text-body-sm text-white/70 mt-0.5 m-0">
             {profile?.role === 'murid' ? '🎓 Murid' : profile?.role === 'guru' ? '👨‍🏫 Guru' : '⚙️ Admin'}
           </p>
         </div>
@@ -275,374 +221,122 @@ const ProfileModule = ({ onRefresh }) => {
 
       {/* Messages */}
       {message && (
-        <div className="success-message" style={{ 
-          background: '#dcfce7', 
-          color: '#166534', 
-          padding: '1rem', 
-          borderRadius: '8px',
-          marginBottom: '1rem'
-        }}>
+        <div className="flex items-center gap-2 text-body-sm text-on-success-container bg-success-container/50 px-4 py-3 rounded-xl mb-md">
+          <CheckCircle className="w-4 h-4 shrink-0" />
           {message}
         </div>
       )}
-      
       {error && (
-        <div className="error-message" style={{ 
-          background: '#fee2e2', 
-          color: '#dc2626', 
-          padding: '1rem', 
-          borderRadius: '8px',
-          marginBottom: '1rem'
-        }}>
+        <div className="flex items-center gap-2 text-body-sm text-on-error-container bg-error-container/50 px-4 py-3 rounded-xl mb-md">
+          <AlertCircle className="w-4 h-4 shrink-0" />
           {error}
         </div>
       )}
 
       {/* Tabs */}
-      <div style={{ 
-        display: 'flex', 
-        gap: '0.5rem', 
-        marginBottom: '1.5rem',
-        borderBottom: '2px solid #e5e7eb',
-        paddingBottom: '0.5rem'
-      }}>
-        <button
-          onClick={() => { setActiveTab('profile'); setMessage(''); setError(''); }}
-          style={{
-            padding: '0.75rem 1.5rem',
-            border: 'none',
-            background: activeTab === 'profile' ? '#8b5cf6' : 'transparent',
-            color: activeTab === 'profile' ? 'white' : '#6b7280',
-            borderRadius: '8px 8px 0 0',
-            cursor: 'pointer',
-            fontWeight: '500',
-            transition: 'all 0.2s'
-          }}
-        >
-          📝 Edit Profil
-        </button>
-        {!isMurid && (
-          <button
-            onClick={() => { setActiveTab('password'); setMessage(''); setError(''); }}
-            style={{
-              padding: '0.75rem 1.5rem',
-              border: 'none',
-              background: activeTab === 'password' ? '#8b5cf6' : 'transparent',
-              color: activeTab === 'password' ? 'white' : '#6b7280',
-              borderRadius: '8px 8px 0 0',
-              cursor: 'pointer',
-              fontWeight: '500',
-              transition: 'all 0.2s'
-            }}
-          >
-            🔒 Ubah Kata Sandi
-          </button>
-        )}
-        <button
-          onClick={() => { setActiveTab('info'); setMessage(''); setError(''); }}
-          style={{
-            padding: '0.75rem 1.5rem',
-            border: 'none',
-            background: activeTab === 'info' ? '#8b5cf6' : 'transparent',
-            color: activeTab === 'info' ? 'white' : '#6b7280',
-            borderRadius: '8px 8px 0 0',
-            cursor: 'pointer',
-            fontWeight: '500',
-            transition: 'all 0.2s'
-          }}
-        >
-          ℹ️ Info Akun
-        </button>
+      <div className="flex gap-1 mb-xl border-b border-outline-variant pb-0.5 overflow-x-auto">
+        {[
+          { id: 'profile', label: '📝 Edit Profil' },
+          ...(!isMurid ? [{ id: 'password', label: '🔒 Ubah Kata Sandi' }] : []),
+          { id: 'info', label: 'ℹ️ Info Akun' }
+        ].map(tab => (
+          <button key={tab.id} onClick={() => { setActiveTab(tab.id); setMessage(''); setError(''); }}
+            className={"px-4 py-2.5 rounded-t-xl text-label-lg font-medium transition-all border-b-2 -mb-px " +
+              (activeTab === tab.id
+                ? 'border-primary text-primary bg-primary-container/20'
+                : 'border-transparent text-on-surface-variant hover:text-on-surface hover:bg-surface-dim/50')}
+          >{tab.label}</button>
+        ))}
       </div>
 
-      {/* Tab Content */}
+      {/* Profile Tab */}
       {activeTab === 'profile' && (
-        <section className="dashboard-section">
-          <h2>📝 Edit Profil</h2>
-          
-          <form onSubmit={handleSaveProfile} style={{ maxWidth: '600px' }}>
-            {/* Avatar Upload Info */}
+        <div className="bg-surface rounded-2xl border border-outline-variant p-4 md:p-6 shadow-sm">
+          <h2 className="text-title-md font-semibold text-on-surface mb-md">📝 Edit Profil</h2>
+          <form onSubmit={handleSaveProfile} className="max-w-xl space-y-5">
             {formData.avatar_url && (
-              <div style={{ 
-                marginBottom: '1.5rem',
-                padding: '1rem',
-                background: '#f0fdf4',
-                borderRadius: '8px',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '1rem'
-              }}>
-                <img 
-                  src={formData.avatar_url} 
-                  alt="Avatar preview"
-                  style={{ 
-                    width: '60px', 
-                    height: '60px', 
-                    borderRadius: '50%', 
-                    objectFit: 'cover' 
-                  }}
-                />
+              <div className="flex items-center gap-4 bg-success-container/20 p-4 rounded-xl">
+                <img src={formData.avatar_url} alt="Preview" className="w-14 h-14 rounded-full object-cover" />
                 <div>
-                  <p style={{ margin: 0, fontWeight: '500' }}>Avatar baru dipilih</p>
-                  <button 
-                    type="button"
-                    onClick={handleRemoveAvatar}
-                    style={{
-                      background: 'none',
-                      border: 'none',
-                      color: '#dc2626',
-                      cursor: 'pointer',
-                      padding: 0,
-                      marginTop: '0.25rem'
-                    }}
-                  >
-                    Hapus avatar
-                  </button>
+                  <p className="text-body-sm font-medium text-on-surface m-0">Avatar baru dipilih</p>
+                  <button type="button" onClick={handleRemoveAvatar} className="text-label-sm text-error hover:text-error/80 mt-0.5 bg-transparent border-none cursor-pointer p-0">Hapus avatar</button>
                 </div>
               </div>
             )}
-
-            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem', 
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Email
-              </label>
-              <input 
-                type="email" 
-                value={user?.email || ''} 
-                disabled
-                style={{ 
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  border: '1px solid #d1d5db',
-                  backgroundColor: '#f3f4f6',
-                  color: '#6b7280'
-                }}
-              />
-              <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
-                Email tidak dapat diubah
-              </small>
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Email</label>
+              <input type="email" value={user?.email || ''} disabled
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface-dim/50 text-on-surface-variant text-body-md cursor-not-allowed" />
+              <p className="text-label-xs text-on-surface-variant mt-1">Email tidak dapat diubah</p>
             </div>
-
-            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem', 
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Nama Lengkap *
-              </label>
-              <input 
-                type="text" 
-                name="full_name"
-                value={formData.full_name} 
-                onChange={handleInputChange}
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Nama Lengkap <span className="text-error">*</span></label>
+              <input type="text" name="full_name" value={formData.full_name} onChange={handleInputChange}
                 placeholder="Masukkan nama lengkap Anda"
-                style={{ 
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '1rem'
-                }}
-              />
-              <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
-                Nama lengkap Anda (akan ditampilkan sebagai nama akun)
-              </small>
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md" />
             </div>
-
-            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem', 
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Nama Tampilan
-              </label>
-              <input 
-                type="text" 
-                name="display_name"
-                value={formData.display_name} 
-                onChange={handleInputChange}
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Nama Tampilan</label>
+              <input type="text" name="display_name" value={formData.display_name} onChange={handleInputChange}
                 placeholder="Masukkan nama tampilan"
-                style={{ 
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '1rem'
-                }}
-              />
-              <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
-                Nama alternatif yang akan ditampilkan (opsional)
-              </small>
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md" />
             </div>
-
-            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem', 
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Bio / Deskripsi Diri
-              </label>
-              <textarea
-                name="bio"
-                value={formData.bio}
-                onChange={handleInputChange}
-                placeholder="Ceritakan tentang diri Anda..."
-                rows="4"
-                style={{ 
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '1rem',
-                  resize: 'vertical'
-                }}
-              />
-              <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
-                Tentang Anda (akan terlihat oleh pengguna lain)
-              </small>
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Bio / Deskripsi Diri</label>
+              <textarea name="bio" value={formData.bio} onChange={handleInputChange}
+                placeholder="Ceritakan tentang diri Anda..." rows={4}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md resize-none" />
             </div>
-
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={saving || uploadingAvatar}
-              style={{ minWidth: '180px' }}
-            >
+            <button type="submit" disabled={saving || uploadingAvatar}
+              className="inline-flex items-center gap-xs px-5 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium disabled:opacity-50">
               {saving ? '⏳ Menyimpan...' : '💾 Simpan Perubahan'}
             </button>
           </form>
-        </section>
+        </div>
       )}
 
+      {/* Password Tab */}
       {activeTab === 'password' && (
-        <section className="dashboard-section">
-          <h2>🔒 Ubah Kata Sandi</h2>
-          
-          <form onSubmit={handleChangePassword} style={{ maxWidth: '500px' }}>
-            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem', 
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Kata Sandi Baru *
-              </label>
-              <input 
-                type="password" 
-                name="newPassword"
-                value={passwordData.newPassword} 
-                onChange={handlePasswordChange}
-                placeholder="Masukkan kata sandi baru (min. 8 karakter)"
-                minLength={8}
-                style={{ 
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '1rem'
-                }}
-              />
-              <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
-                Minimal 8 karakter
-              </small>
+        <div className="bg-surface rounded-2xl border border-outline-variant p-4 md:p-6 shadow-sm">
+          <h2 className="text-title-md font-semibold text-on-surface mb-md">🔒 Ubah Kata Sandi</h2>
+          <form onSubmit={handleChangePassword} className="max-w-md space-y-5">
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Kata Sandi Baru <span className="text-error">*</span></label>
+              <input type="password" name="newPassword" value={passwordData.newPassword} onChange={handlePasswordChange}
+                placeholder="Min. 8 karakter" minLength={8}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md" />
             </div>
-
-            <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-              <label style={{ 
-                display: 'block', 
-                marginBottom: '0.5rem', 
-                fontWeight: '500',
-                color: '#374151'
-              }}>
-                Konfirmasi Kata Sandi *
-              </label>
-              <input 
-                type="password" 
-                name="confirmPassword"
-                value={passwordData.confirmPassword} 
-                onChange={handlePasswordChange}
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Konfirmasi Kata Sandi <span className="text-error">*</span></label>
+              <input type="password" name="confirmPassword" value={passwordData.confirmPassword} onChange={handlePasswordChange}
                 placeholder="Konfirmasi kata sandi baru"
-                style={{ 
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '1rem'
-                }}
-              />
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md" />
             </div>
-
-            <button 
-              type="submit" 
-              className="btn btn-primary"
-              disabled={changingPassword}
-              style={{ minWidth: '180px' }}
-            >
+            <button type="submit" disabled={changingPassword}
+              className="inline-flex items-center gap-xs px-5 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium disabled:opacity-50">
               {changingPassword ? '⏳ Mengubah...' : '🔒 Ubah Kata Sandi'}
             </button>
-
-            <p style={{ 
-              marginTop: '1.5rem', 
-              padding: '1rem', 
-              background: '#fef3c7', 
-              borderRadius: '8px',
-              fontSize: '0.9rem',
-              color: '#92400e'
-            }}>
+            <div className="bg-warning-container/30 p-4 rounded-xl text-body-sm text-on-warning-container">
               💡 <strong>Tips Keamanan:</strong> Gunakan kata sandi yang kuat dengan kombinasi huruf besar, huruf kecil, angka, dan simbol.
-            </p>
+            </div>
           </form>
-        </section>
+        </div>
       )}
 
+      {/* Info Tab */}
       {activeTab === 'info' && (
-        <section className="dashboard-section">
-          <h2>ℹ️ Informasi Akun</h2>
-          
-          <div style={{ 
-            background: '#f9fafb', 
-            padding: '1.5rem', 
-            borderRadius: '12px',
-            maxWidth: '600px'
-          }}>
-            <div style={{ marginBottom: '1rem' }}>
-              <strong>Role:</strong> {
-                profile?.role === 'murid' ? ' 🎓 Murid' : 
-                profile?.role === 'guru' ? ' 👨‍🏫 Guru' : 
-                profile?.role === 'admin' ? ' ⚙️ Admin' : 'Tidak diketahui'
-              }
-            </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <strong>Status:</strong> ✅ Aktif
-            </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <strong>Email:</strong> {user?.email}
-            </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <strong>ID Akun:</strong> <code style={{ fontSize: '0.85rem', background: '#e5e7eb', padding: '0.25rem 0.5rem', borderRadius: '4px' }}>{user?.id}</code>
-            </div>
-            <div style={{ marginBottom: '1rem' }}>
-              <strong>Bergabung:</strong> {profile?.created_at ? new Date(profile.created_at).toLocaleDateString('id-ID', { 
-                year: 'numeric', 
-                month: 'long', 
-                day: 'numeric' 
-              }) : 'Tidak diketahui'}
-            </div>
+        <div className="bg-surface rounded-2xl border border-outline-variant p-4 md:p-6 shadow-sm">
+          <h2 className="text-title-md font-semibold text-on-surface mb-md">ℹ️ Informasi Akun</h2>
+          <div className="bg-surface-dim/30 p-5 rounded-xl max-w-xl space-y-3">
+            <div className="flex justify-between text-body-sm"><span className="font-medium text-on-surface-variant">Role:</span><span>{
+              profile?.role === 'murid' ? '🎓 Murid' : profile?.role === 'guru' ? '👨‍🏫 Guru' : profile?.role === 'admin' ? '⚙️ Admin' : 'Tidak diketahui'
+            }</span></div>
+            <div className="flex justify-between text-body-sm"><span className="font-medium text-on-surface-variant">Status:</span><span className="text-success">✅ Aktif</span></div>
+            <div className="flex justify-between text-body-sm"><span className="font-medium text-on-surface-variant">Email:</span><span>{user?.email}</span></div>
+            <div className="flex justify-between text-body-sm"><span className="font-medium text-on-surface-variant">ID Akun:</span><code className="text-label-xs bg-surface-dim px-2 py-0.5 rounded">{user?.id}</code></div>
+            <div className="flex justify-between text-body-sm"><span className="font-medium text-on-surface-variant">Bergabung:</span><span>{profile?.created_at ? new Date(profile.created_at).toLocaleDateString('id-ID', { year: 'numeric', month: 'long', day: 'numeric' }) : 'Tidak diketahui'}</span></div>
           </div>
-        </section>
+        </div>
       )}
     </div>
   );

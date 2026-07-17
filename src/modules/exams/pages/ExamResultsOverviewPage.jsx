@@ -1,11 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
-import { fetchTeacherExams, fetchExamWithResults } from '../services/examService';
-import { BarChart3, Eye, Printer, Download, Search, ChevronRight, FileSignature, Clock, Users, CheckCircle, AlertTriangle } from 'lucide-react';
-import '../styles/examStyles.css';
+import { fetchTeacherExams } from '../services/examService';
+import { BarChart3, Eye, Search, ChevronRight, FileSignature, Clock, Users } from 'lucide-react';
 
-const ExamResultsOverviewPage = ({ onViewExamResults, onBack }) => {
+const ExamResultsOverviewPage = ({ onViewExamResults }) => {
   const { user } = useAuth();
   const [exams, setExams] = useState([]);
   const [examStats, setExamStats] = useState({});
@@ -57,113 +56,105 @@ const ExamResultsOverviewPage = ({ onViewExamResults, onBack }) => {
 
   if (loading) {
     return (
-      <div className="dashboard-container" style={{ textAlign: 'center', padding: '3rem' }}>
-        <p style={{ color: '#6b7280' }}>Memuat data...</p>
+      <div className="p-margin-mobile md:p-margin-desktop flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-md text-on-surface-variant">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-body-md">Memuat data...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+    <div className="p-margin-mobile md:p-margin-desktop max-w-5xl mx-auto space-y-xl">
+      {/* Header */}
+      <div className="flex items-center gap-lg">
+        <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-secondary/20 to-tertiary/20 flex items-center justify-center">
+          <BarChart3 size={28} className="text-secondary" />
+        </div>
         <div>
-          <h1 style={{ margin: 0, fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <BarChart3 size={28} style={{ color: '#8b5cf6' }} />
-            Rekap Hasil Ujian
-          </h1>
-          <p style={{ margin: '0.25rem 0 0', color: '#6b7280', fontSize: '0.85rem' }}>
-            Pantau, kelola, dan cetak seluruh hasil ujian siswa
-          </p>
+          <h1 className="text-title-md font-semibold text-on-surface m-0">Rekap Hasil Ujian</h1>
+          <p className="text-body-sm text-on-surface-variant mt-1">Pantau, kelola, dan cetak seluruh hasil ujian siswa</p>
         </div>
       </div>
 
       {exams.length === 0 ? (
-        <div style={{ textAlign: 'center', padding: '3rem' }}>
-          <FileSignature size={48} style={{ color: '#d1d5db', marginBottom: '1rem' }} />
-          <p style={{ color: '#6b7280' }}>Belum ada ujian yang sudah dipublikasikan.</p>
+        <div className="flex flex-col items-center justify-center py-3xl text-on-surface-variant">
+          <div className="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-lg">
+            <FileSignature size={40} className="text-outline" />
+          </div>
+          <p className="text-body-lg font-medium text-on-surface">Belum Ada Ujian</p>
+          <p className="text-body-sm text-on-surface-variant mt-1">Belum ada ujian yang sudah dipublikasikan.</p>
         </div>
       ) : (
         <>
           {/* Search */}
-          <div style={{ position: 'relative', marginBottom: '1.5rem', maxWidth: '400px' }}>
-            <Search size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+          <div className="relative max-w-sm">
+            <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
             <input
               type="text"
               placeholder="Cari ujian..."
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
-              style={{ width: '100%', padding: '0.65rem 0.75rem 0.65rem 2.5rem', border: '1px solid #d1d5db', borderRadius: '8px', fontSize: '0.9rem' }}
+              className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-outline bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200"
             />
           </div>
 
-          <div className="exam-grid">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-md">
             {filteredExams.map((exam, idx) => {
               const stats = examStats[exam.id] || {};
               return (
-                <div 
-                  key={exam.id} 
-                  className="exam-card slide-up" 
-                  style={{ animationDelay: `${idx * 0.05}s`, cursor: 'pointer' }}
+                <div
+                  key={exam.id}
+                  className="bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30 hover:shadow-md hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer"
+                  style={{ animationDelay: `${idx * 0.05}s` }}
                   onClick={() => onViewExamResults && onViewExamResults(exam.id)}
                 >
-                  <div className="exam-card-header">
-                    <h3 className="exam-card-title">{exam.title}</h3>
-                    <span className={`status-badge status-${exam.status}`}>
+                  <div className="flex items-start justify-between gap-md mb-md">
+                    <h3 className="text-body-lg font-semibold text-on-surface flex-1 line-clamp-2 m-0">{exam.title}</h3>
+                    <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-label-xs font-medium ${
+                      exam.status === 'published' ? 'bg-tertiary-container text-on-tertiary-container' : 'bg-error-container text-on-error-container'
+                    }`}>
                       {exam.status === 'published' ? 'Dipublikasikan' : 'Ditutup'}
                     </span>
                   </div>
                   {exam.description && (
-                    <p className="exam-card-desc">{exam.description}</p>
+                    <p className="text-label-sm text-on-surface-variant line-clamp-2 mb-md">{exam.description}</p>
                   )}
-                  
-                  {/* Ringkasan Statistik */}
-                  <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(3, 1fr)',
-                    gap: '0.5rem',
-                    marginBottom: '1rem',
-                    padding: '0.75rem',
-                    background: '#f9fafb',
-                    borderRadius: '8px'
-                  }}>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#8b5cf6' }}>{stats.total || 0}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#6b7280' }}>Peserta</div>
+                  <div className="grid grid-cols-3 gap-sm p-md bg-surface-container-low rounded-xl mb-md">
+                    <div className="text-center">
+                      <div className="text-title-sm font-bold text-secondary">{stats.total || 0}</div>
+                      <div className="text-label-xs text-on-surface-variant">Peserta</div>
                     </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#059669' }}>{stats.submitted || 0}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#6b7280' }}>Selesai</div>
+                    <div className="text-center">
+                      <div className="text-title-sm font-bold text-success">{stats.submitted || 0}</div>
+                      <div className="text-label-xs text-on-surface-variant">Selesai</div>
                     </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <div style={{ fontSize: '1.25rem', fontWeight: 700, color: '#3b82f6' }}>{stats.avgScore}</div>
-                      <div style={{ fontSize: '0.7rem', color: '#6b7280' }}>Rata-rata</div>
+                    <div className="text-center">
+                      <div className="text-title-sm font-bold text-primary">{stats.avgScore}</div>
+                      <div className="text-label-xs text-on-surface-variant">Rata-rata</div>
                     </div>
                   </div>
-
-                  <div className="exam-card-meta">
-                    <span className="exam-card-meta-item">
+                  <div className="flex items-center gap-md text-label-sm text-on-surface-variant mb-md flex-wrap">
+                    <span className="inline-flex items-center gap-xs">
                       <Clock size={14} />
                       {exam.duration_minutes} menit
                     </span>
                     {stats.inProgress > 0 && (
-                      <span className="exam-card-meta-item" style={{ color: '#f59e0b' }}>
+                      <span className="inline-flex items-center gap-xs text-warning">
                         <Users size={14} />
                         {stats.inProgress} sedang mengerjakan
                       </span>
                     )}
                   </div>
-
-                  <div className="exam-card-actions">
-                    <button 
-                      onClick={(e) => { e.stopPropagation(); onViewExamResults && onViewExamResults(exam.id); }} 
-                      className="btn btn-primary btn-sm"
-                      style={{ display: 'flex', alignItems: 'center', gap: '0.35rem', width: '100%', justifyContent: 'center' }}
-                    >
-                      <Eye size={16} />
-                      Lihat Hasil Lengkap
-                      <ChevronRight size={16} />
-                    </button>
-                  </div>
+                  <button
+                    onClick={(e) => { e.stopPropagation(); onViewExamResults && onViewExamResults(exam.id); }}
+                    className="w-full inline-flex items-center justify-center gap-xs px-md py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary-hover transition-all duration-200"
+                  >
+                    <Eye size={16} />
+                    Lihat Hasil Lengkap
+                    <ChevronRight size={16} />
+                  </button>
                 </div>
               );
             })}

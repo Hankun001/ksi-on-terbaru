@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { UserCheck, Calendar, Users, Filter, Printer, Search, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
+import { UserCheck, Calendar, Users, Filter, Printer, CheckCircle, XCircle, Clock, AlertTriangle } from 'lucide-react';
 
 const AttendanceMonitoring = () => {
   const { user } = useAuth();
@@ -247,56 +247,51 @@ const AttendanceMonitoring = () => {
   };
 
   if (loading) {
-    return <div className="dashboard-container">
-      <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
-        <div>Memuat data absensi...</div>
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse flex flex-col items-center gap-sm">
+          <div className="w-12 h-12 rounded-full bg-surface-dim"></div>
+          <div className="h-4 w-48 bg-surface-dim rounded"></div>
+        </div>
       </div>
-    </div>;
+    );
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
         <div>
-          <h1>
-            <UserCheck size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
+          <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+            <UserCheck className="w-7 h-7 text-primary" />
             Monitoring Absensi
           </h1>
-          <p>Pantau kehadiran siswa yang dicatat oleh guru</p>
+          <p className="text-body-md text-on-surface-variant mt-xs">Pantau kehadiran siswa yang dicatat oleh guru</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button 
-            className="btn btn-secondary"
-            onClick={printAttendanceReport}
-            disabled={attendanceData.length === 0}
-          >
-            <Printer size={18} style={{ marginRight: '8px' }} />
-            Cetak Laporan
-          </button>
-        </div>
+        <button
+          onClick={printAttendanceReport}
+          disabled={attendanceData.length === 0}
+          className="inline-flex items-center gap-xs px-4 py-2 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors duration-200 text-label-lg disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          <Printer className="w-4 h-4" />
+          Cetak Laporan
+        </button>
       </div>
 
-      {/* Filters */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
-        borderRadius: '12px',
-        padding: '1.25rem',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-          <Filter size={20} style={{ marginRight: '8px', color: '#8b5cf6' }} />
-          <h3 style={{ margin: 0, color: '#7c3aed', fontSize: '1rem' }}>Filter Absensi</h3>
+      {/* Filter Section */}
+      <div className="bg-surface-container-low rounded-2xl p-4 md:p-5 mb-xl border border-outline-variant">
+        <div className="flex items-center gap-sm mb-md">
+          <Filter className="w-5 h-5 text-primary" />
+          <h3 className="text-title-sm font-semibold text-on-surface m-0">Filter Absensi</h3>
         </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          <div className="form-group" style={{ margin: 0 }}>
-            <label htmlFor="teacher_id">Filter Guru</label>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-label-lg font-medium text-on-surface mb-1.5">Filter Guru</label>
             <select
-              id="teacher_id"
               name="teacher_id"
               value={filters.teacher_id}
               onChange={handleFilterChange}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ddd' }}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
             >
               <option value="">Semua Guru</option>
               {teachers.map(t => (
@@ -304,142 +299,143 @@ const AttendanceMonitoring = () => {
               ))}
             </select>
           </div>
-
-          <div className="form-group" style={{ margin: 0 }}>
-            <label htmlFor="date_from">Dari Tanggal</label>
+          <div>
+            <label className="block text-label-lg font-medium text-on-surface mb-1.5">Dari Tanggal</label>
             <input
               type="date"
-              id="date_from"
               name="date_from"
               value={filters.date_from}
               onChange={handleFilterChange}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ddd' }}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
             />
           </div>
-
-          <div className="form-group" style={{ margin: 0 }}>
-            <label htmlFor="date_to">Sampai Tanggal</label>
+          <div>
+            <label className="block text-label-lg font-medium text-on-surface mb-1.5">Sampai Tanggal</label>
             <input
               type="date"
-              id="date_to"
               name="date_to"
               value={filters.date_to}
               onChange={handleFilterChange}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ddd' }}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
             />
           </div>
         </div>
-
-        <button className="btn btn-secondary" onClick={clearFilters} style={{ marginTop: '1rem' }}>
+        <button
+          onClick={clearFilters}
+          className="mt-md inline-flex items-center gap-xs px-3 py-1.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-sm"
+        >
           Hapus Filter
         </button>
       </div>
 
-      {/* Stats Cards */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))', 
-        gap: '0.75rem',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{ background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', color: 'white', padding: '1rem', borderRadius: '10px', textAlign: 'center' }}>
-          <Calendar size={20} style={{ marginBottom: '0.25rem' }} />
-          <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.5rem' }}>{stats.uniqueJournals}</h3>
-          <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.9 }}>Sesi Mengajar</p>
+      {/* Stats Grid */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3 mb-xl">
+        <div className="bg-gradient-to-br from-primary to-primary-container text-white rounded-xl p-3 text-center shadow-sm">
+          <Calendar className="w-5 h-5 mx-auto mb-1 opacity-90" />
+          <div className="text-title-md font-bold">{stats.uniqueJournals}</div>
+          <div className="text-label-xs opacity-80">Sesi Mengajar</div>
         </div>
-        <div style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', padding: '1rem', borderRadius: '10px', textAlign: 'center' }}>
-          <Users size={20} style={{ marginBottom: '0.25rem' }} />
-          <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.5rem' }}>{stats.uniqueStudents}</h3>
-          <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.9 }}>Siswa</p>
+        <div className="bg-gradient-to-br from-success to-success-container text-white rounded-xl p-3 text-center shadow-sm">
+          <Users className="w-5 h-5 mx-auto mb-1 opacity-90" />
+          <div className="text-title-md font-bold">{stats.uniqueStudents}</div>
+          <div className="text-label-xs opacity-80">Siswa</div>
         </div>
-        <div style={{ background: 'linear-gradient(135deg, #10b981, #059669)', color: 'white', padding: '1rem', borderRadius: '10px', textAlign: 'center' }}>
-          <CheckCircle size={20} style={{ marginBottom: '0.25rem' }} />
-          <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.5rem' }}>{stats.totalHadir}</h3>
-          <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.9 }}>Hadir</p>
+        <div className="bg-gradient-to-br from-success to-success-container text-white rounded-xl p-3 text-center shadow-sm">
+          <CheckCircle className="w-5 h-5 mx-auto mb-1 opacity-90" />
+          <div className="text-title-md font-bold">{stats.totalHadir}</div>
+          <div className="text-label-xs opacity-80">Hadir</div>
         </div>
-        <div style={{ background: 'linear-gradient(135deg, #ef4444, #dc2626)', color: 'white', padding: '1rem', borderRadius: '10px', textAlign: 'center' }}>
-          <XCircle size={20} style={{ marginBottom: '0.25rem' }} />
-          <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.5rem' }}>{stats.totalAbsent}</h3>
-          <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.9 }}>Alpha</p>
+        <div className="bg-gradient-to-br from-error to-error-container text-white rounded-xl p-3 text-center shadow-sm">
+          <XCircle className="w-5 h-5 mx-auto mb-1 opacity-90" />
+          <div className="text-title-md font-bold">{stats.totalAbsent}</div>
+          <div className="text-label-xs opacity-80">Alpha</div>
         </div>
-        <div style={{ background: 'linear-gradient(135deg, #f59e0b, #d97706)', color: 'white', padding: '1rem', borderRadius: '10px', textAlign: 'center' }}>
-          <AlertTriangle size={20} style={{ marginBottom: '0.25rem' }} />
-          <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.5rem' }}>{stats.totalSick}</h3>
-          <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.9 }}>Sakit</p>
+        <div className="bg-gradient-to-br from-warning to-warning-container text-white rounded-xl p-3 text-center shadow-sm">
+          <AlertTriangle className="w-5 h-5 mx-auto mb-1 opacity-90" />
+          <div className="text-title-md font-bold">{stats.totalSick}</div>
+          <div className="text-label-xs opacity-80">Sakit</div>
         </div>
-        <div style={{ background: 'linear-gradient(135deg, #3b82f6, #1d4ed8)', color: 'white', padding: '1rem', borderRadius: '10px', textAlign: 'center' }}>
-          <Clock size={20} style={{ marginBottom: '0.25rem' }} />
-          <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.5rem' }}>{stats.totalPermit + stats.totalLate}</h3>
-          <p style={{ margin: 0, fontSize: '0.75rem', opacity: 0.9 }}>Izin/Terlambat</p>
+        <div className="bg-gradient-to-br from-tertiary to-tertiary-container text-white rounded-xl p-3 text-center shadow-sm">
+          <Clock className="w-5 h-5 mx-auto mb-1 opacity-90" />
+          <div className="text-title-md font-bold">{stats.totalPermit + stats.totalLate}</div>
+          <div className="text-label-xs opacity-80">Izin/Terlambat</div>
         </div>
       </div>
 
       {/* Attendance Table */}
-      <div className="dashboard-content">
-        <section className="dashboard-section">
-          <h2>
-            <UserCheck size={20} style={{ marginRight: '8px' }} />
+      <div className="bg-surface rounded-2xl shadow-sm border border-outline-variant overflow-hidden">
+        <div className="px-4 md:px-6 py-4 border-b border-outline-variant flex items-center justify-between">
+          <h2 className="text-title-md font-semibold text-on-surface flex items-center gap-sm">
+            <UserCheck className="w-5 h-5 text-primary" />
             Data Absensi Siswa
-            <span style={{ background: '#f5f3ff', color: '#7c3aed', padding: '2px 8px', borderRadius: '12px', fontSize: '0.875rem', marginLeft: '0.5rem' }}>
-              {stats.totalRecords}
-            </span>
           </h2>
+          <span className="bg-primary-container text-on-primary-container text-label-sm px-2.5 py-1 rounded-full">
+            {stats.totalRecords}
+          </span>
+        </div>
 
-          {attendanceData.length > 0 ? (
-            <div className="table-responsive">
-              <table className="dashboard-table">
-                <thead>
-                  <tr>
-                    <th>Siswa</th>
-                    <th>Status</th>
-                    <th>Tanggal</th>
-                    <th>Guru</th>
-                    <th>Mata Pelajaran</th>
-                    <th>Keterangan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {attendanceData.map(item => {
-                    const badge = getStatusBadge(item.status);
-                    return (
-                      <tr key={item.id}>
-                        <td>
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                            <div style={{ width: '32px', height: '32px', borderRadius: '50%', background: 'linear-gradient(135deg, #8b5cf6, #7c3aed)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', fontWeight: 'bold', fontSize: '0.75rem' }}>
-                              {(item.student?.full_name || item.student?.email || 'S').charAt(0).toUpperCase()}
-                            </div>
-                            <strong>{item.student?.full_name || item.student?.email || 'N/A'}</strong>
+        {attendanceData.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-surface-dim/50">
+                  <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Siswa</th>
+                  <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Status</th>
+                  <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Tanggal</th>
+                  <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Guru</th>
+                  <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Mata Pelajaran</th>
+                  <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Keterangan</th>
+                </tr>
+              </thead>
+              <tbody>
+                {attendanceData.map((item, idx) => {
+                  const badge = getStatusBadge(item.status);
+                  const initial = (item.student?.full_name || item.student?.email || 'S').charAt(0).toUpperCase();
+                  return (
+                    <tr key={item.id} className={"border-t border-outline-variant/50 hover:bg-surface-dim/30 transition-colors " + (idx % 2 === 0 ? 'bg-surface' : 'bg-surface-dim/10')}>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-bold text-label-sm shrink-0">
+                            {initial}
                           </div>
-                        </td>
-                        <td>
-                          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px', padding: '3px 10px', borderRadius: '12px', fontSize: '0.8rem', fontWeight: 500, background: badge.bg, color: badge.color }}>
-                            {badge.icon} {badge.label}
+                          <span className="text-body-sm font-medium text-on-surface">
+                            {item.student?.full_name || item.student?.email || 'N/A'}
                           </span>
-                        </td>
-                        <td>
-                          {item.journal?.date ? new Date(item.journal.date).toLocaleDateString('id-ID') : '-'}
-                        </td>
-                        <td>{item.journal?.teacher?.full_name || 'N/A'}</td>
-                        <td>{item.journal?.subject || '-'}</td>
-                        <td style={{ maxWidth: '200px', fontSize: '0.85rem', color: '#6b7280' }}>
-                          {item.note || '-'}
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="empty-state">
-              <span className="empty-icon"><UserCheck size={48} /></span>
-              <p>Belum ada data absensi.</p>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                Data absensi akan muncul setelah guru mencatat kehadiran siswa.
-              </p>
-            </div>
-          )}
-        </section>
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-label-xs font-medium"
+                          style={{ background: badge.bg, color: badge.color }}>
+                          {badge.icon} {badge.label}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-body-sm text-on-surface-variant">
+                        {item.journal?.date ? new Date(item.journal.date).toLocaleDateString('id-ID') : '-'}
+                      </td>
+                      <td className="px-4 py-3 text-body-sm text-on-surface-variant">
+                        {item.journal?.teacher?.full_name || 'N/A'}
+                      </td>
+                      <td className="px-4 py-3 text-body-sm text-on-surface-variant">
+                        {item.journal?.subject || '-'}
+                      </td>
+                      <td className="px-4 py-3 text-body-sm text-on-surface-variant max-w-[200px]">
+                        {item.note || '-'}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <UserCheck className="w-16 h-16 mx-auto text-on-surface-variant/30 mb-4" />
+            <p className="text-body-lg text-on-surface-variant mb-2">Belum ada data absensi.</p>
+            <p className="text-body-sm text-on-surface-variant/70">
+              Data absensi akan muncul setelah guru mencatat kehadiran siswa.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

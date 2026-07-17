@@ -11,11 +11,11 @@ import TeacherEvaluation from '../modules/TeacherEvaluation';
 import ReportsModule from '../modules/ReportsModule';
 import AttendanceMonitoring from '../modules/AttendanceMonitoring';
 import ClassManagement from '../modules/ClassManagement';
-import { 
-  Users, BookOpen, Bell, Settings, User, 
-  Trash2, Edit, Search, ChevronRight, X,
-  Mail, Calendar, Award, GraduationCap, Eye,
-  Plus, BarChart3, FileText
+import {
+  Users, BookOpen, Settings, User,
+  Trash2, Search, X, Mail, Calendar, Award, Eye,
+  Plus, BarChart3, RefreshCw, TrendingUp, Shield,
+  AlertCircle, CheckCircle
 } from 'lucide-react';
 
 const AdminDashboard = ({ activeSection = 'dashboard-admin', onNavigate }) => {
@@ -36,26 +36,18 @@ const AdminDashboard = ({ activeSection = 'dashboard-admin', onNavigate }) => {
   const [error, setError] = useState('');
   const [systemLogs, setSystemLogs] = useState([]);
 
-  // Fetch all data
   const fetchData = useCallback(async () => {
     if (!user) return;
-
     try {
       setLoading(true);
       setError('');
 
-      // Get total users
       const { count: userCount, error: userError } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
-
+        .from('profiles').select('*', { count: 'exact', head: true });
       if (userError) throw userError;
 
-      // Get users by role
       const { data: usersByRoleData, error: usersByRoleError } = await supabase
-        .from('profiles')
-        .select('role');
-
+        .from('profiles').select('role');
       if (usersByRoleError) throw usersByRoleError;
 
       const usersByRole = usersByRoleData.reduce((acc, u) => {
@@ -63,64 +55,36 @@ const AdminDashboard = ({ activeSection = 'dashboard-admin', onNavigate }) => {
         return acc;
       }, { murid: 0, guru: 0, admin: 0 });
 
-      // Get active users (logged in within last hour)
-      const { count: activeUsers, error: activeError } = await supabase
-        .from('profiles')
-        .select('*', { count: 'exact', head: true });
+      const { count: activeUsers } = await supabase
+        .from('profiles').select('*', { count: 'exact', head: true });
 
-      if (activeError) throw activeError;
-
-      // Get total courses
       const { count: courseCount, error: courseError } = await supabase
-        .from('courses')
-        .select('*', { count: 'exact', head: true });
-
+        .from('courses').select('*', { count: 'exact', head: true });
       if (courseError) throw courseError;
 
-      // Get total assignments
       const { count: assignmentCount, error: assignmentError } = await supabase
-        .from('assignments')
-        .select('*', { count: 'exact', head: true });
-
+        .from('assignments').select('*', { count: 'exact', head: true });
       if (assignmentError) throw assignmentError;
 
-      // Get total submissions
       const { count: submissionCount, error: submissionError } = await supabase
-        .from('submissions')
-        .select('*', { count: 'exact', head: true });
-
+        .from('submissions').select('*', { count: 'exact', head: true });
       if (submissionError) throw submissionError;
 
-      // Get recent submissions
       const { data: recentSubmissions, error: subError } = await supabase
         .from('submissions')
         .select('id, submitted_at, grade, student_id, assignment_id')
         .order('submitted_at', { ascending: false })
         .limit(20);
-
       if (subError) throw subError;
 
-      // Get user and assignment info
       const submissionWithInfo = await Promise.all(
-        recentSubmissions.map(async (submission) => {
+        (recentSubmissions || []).map(async (submission) => {
           const { data: studentData } = await supabase
-            .from('profiles')
-            .select('email, role')
-            .eq('id', submission.student_id)
-            .single();
-
+            .from('profiles').select('email, role').eq('id', submission.student_id).single();
           const { data: assignmentData } = await supabase
-            .from('assignments')
-            .select('title, course_id')
-            .eq('id', submission.assignment_id)
-            .single();
-
+            .from('assignments').select('title, course_id').eq('id', submission.assignment_id).single();
           const { data: courseData } = await supabase
-            .from('courses')
-            .select('title')
-            .eq('id', assignmentData?.course_id)
-            .single();
-
+            .from('courses').select('title').eq('id', assignmentData?.course_id).single();
           return {
             ...submission,
             studentEmail: studentData?.email || 'Unknown',
@@ -131,55 +95,30 @@ const AdminDashboard = ({ activeSection = 'dashboard-admin', onNavigate }) => {
         })
       );
 
-      // Get all users
       const { data: allUsers, error: allUsersError } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+        .from('profiles').select('*').order('created_at', { ascending: false });
       if (allUsersError) throw allUsersError;
 
-      // Get all courses
       const { data: allCourses, error: allCoursesError } = await supabase
-        .from('courses')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+        .from('courses').select('*').order('created_at', { ascending: false });
       if (allCoursesError) throw allCoursesError;
 
-      // Get all assignments
       const { data: allAssignments, error: allAssignmentsError } = await supabase
-        .from('assignments')
-        .select('*')
-        .order('created_at', { ascending: false });
-
+        .from('assignments').select('*').order('created_at', { ascending: false });
       if (allAssignmentsError) throw allAssignmentsError;
 
-      // Calculate system metrics
-      const activityRate = userCount > 0 
-        ? Math.round((activeUsers / userCount) * 100) 
-        : 0;
-      
-      const completionRate = assignmentCount > 0 
-        ? Math.round((submissionCount / assignmentCount) * 100) 
-        : 0;
+      const activityRate = userCount > 0 ? Math.round((activeUsers / userCount) * 100) : 0;
+      const completionRate = assignmentCount > 0 ? Math.round((submissionCount / assignmentCount) * 100) : 0;
 
       setStats({
-        totalUsers: userCount || 0,
-        totalCourses: courseCount || 0,
-        totalAssignments: assignmentCount || 0,
-        totalSubmissions: submissionCount || 0,
-        usersByRole,
-        activeUsers: activeUsers || 0,
-        activityRate,
-        completionRate
+        totalUsers: userCount || 0, totalCourses: courseCount || 0,
+        totalAssignments: assignmentCount || 0, totalSubmissions: submissionCount || 0,
+        usersByRole, activeUsers: activeUsers || 0, activityRate, completionRate
       });
-      
       setRecentActivity(submissionWithInfo);
       setUsers(allUsers || []);
       setCourses(allCourses || []);
-      
-      // Generate system logs
+
       const newLogs = [
         { id: 1, action: 'Data refreshed', timestamp: new Date().toISOString(), status: 'success' },
         { id: 2, action: `${userCount} users loaded`, timestamp: new Date().toISOString(), status: 'info' },
@@ -187,9 +126,7 @@ const AdminDashboard = ({ activeSection = 'dashboard-admin', onNavigate }) => {
         { id: 4, action: `${assignmentCount} assignments loaded`, timestamp: new Date().toISOString(), status: 'info' },
         { id: 5, action: `${submissionCount} submissions tracked`, timestamp: new Date().toISOString(), status: 'info' }
       ];
-      
       setSystemLogs(newLogs);
-      
     } catch (error) {
       console.error('Error fetching data:', error);
       setError('Gagal memuat data: ' + error.message);
@@ -198,232 +135,138 @@ const AdminDashboard = ({ activeSection = 'dashboard-admin', onNavigate }) => {
     }
   }, [user]);
 
-  useEffect(() => {
-    fetchData();
-  }, [fetchData]);
+  useEffect(() => { fetchData(); }, [fetchData]);
 
-  // Refresh data
-  const handleRefresh = () => {
-    setRefreshing(true);
-    fetchData();
-  };
+  const handleRefresh = () => { setRefreshing(true); fetchData().finally(() => setRefreshing(false)); };
 
-  // Handle section change from Quick Actions
-  const handleSectionChange = (section) => {
-    if (onNavigate) {
-      onNavigate(section);
-    }
-  };
-
-  // Subscribe to real-time changes
   useEffect(() => {
     if (!user) return;
-
     fetchData();
-
     const channel = supabase
       .channel('admin-changes')
-      .on('postgres_changes', { event: '*', schema: 'public' }, () => {
-        fetchData();
-      })
+      .on('postgres_changes', { event: '*', schema: 'public' }, () => { fetchData(); })
       .subscribe();
-
-    return () => {
-      supabase.removeChannel(channel);
-    };
+    return () => { supabase.removeChannel(channel); };
   }, [fetchData, user]);
 
-  // Handle create new user
   const handleCreateUser = async (userData) => {
     try {
       setLoading(true);
-      
-      // Create user via Supabase Auth
       const { data, error } = await supabase.auth.signUp({
-        email: userData.email,
-        password: userData.password,
+        email: userData.email, password: userData.password,
         options: {
-          data: { 
-            role: userData.role,
-            display_name: userData.displayName || userData.email.split('@')[0]
-          },
+          data: { role: userData.role, display_name: userData.displayName || userData.email.split('@')[0] },
           emailRedirectTo: `${window.location.origin}/`
         }
       });
-
       if (error) throw error;
-
-      // The profile will be created automatically via trigger or we create it manually
       if (data.user) {
-        // Check if profile exists, if not create it
         const { data: existingProfile } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', data.user.id)
-          .single();
-
+          .from('profiles').select('*').eq('id', data.user.id).single();
         if (!existingProfile) {
           await supabase.from('profiles').insert([{
-            id: data.user.id,
-            email: userData.email,
-            role: userData.role,
+            id: data.user.id, email: userData.email, role: userData.role,
             display_name: userData.displayName || userData.email.split('@')[0]
           }]);
         } else {
-          // Update existing profile with correct role
-          await supabase
-            .from('profiles')
-            .update({ 
-              role: userData.role,
-              display_name: userData.displayName || userData.email.split('@')[0]
-            })
-            .eq('id', data.user.id);
+          await supabase.from('profiles').update({
+            role: userData.role, display_name: userData.displayName || userData.email.split('@')[0]
+          }).eq('id', data.user.id);
         }
       }
-
       alert('Pengguna berhasil dibuat! Email verifikasi telah dikirim ke ' + userData.email);
       fetchData();
       return { success: true };
     } catch (error) {
       console.error('Error creating user:', error);
       return { success: false, error: error.message };
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  // Handle user role update
   const handleUpdateRole = async (userId, newRole) => {
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from('profiles')
-        .update({ role: newRole })
-        .eq('id', userId);
-
+      const { error } = await supabase.from('profiles').update({ role: newRole }).eq('id', userId);
       if (error) throw error;
-
-      // Update local state
       setUsers(users.map(u => u.id === userId ? { ...u, role: newRole } : u));
-      
-      // Update stats
       setStats(prev => ({
-        ...prev,
-        usersByRole: {
-          ...prev.usersByRole,
-          [newRole]: prev.usersByRole[newRole] + 1
-        }
+        ...prev, usersByRole: { ...prev.usersByRole, [newRole]: prev.usersByRole[newRole] + 1 }
       }));
-
       alert('Peran pengguna berhasil diubah!');
       fetchData();
     } catch (error) {
       alert('Gagal mengubah peran: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  // Handle user deletion
   const handleDeleteUser = async (userId) => {
     if (!window.confirm('Apakah Anda yakin ingin menghapus pengguna ini?')) return;
-
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from('profiles')
-        .delete()
-        .eq('id', userId);
-
+      const { error } = await supabase.from('profiles').delete().eq('id', userId);
       if (error) throw error;
-
-      // Update local state
       const deletedUser = users.find(u => u.id === userId);
       setUsers(users.filter(u => u.id !== userId));
-      
-      // Update stats
       if (deletedUser) {
         setStats(prev => ({
-          ...prev,
-          totalUsers: prev.totalUsers - 1,
-          usersByRole: {
-            ...prev.usersByRole,
-            [deletedUser.role]: prev.usersByRole[deletedUser.role] - 1
-          }
+          ...prev, totalUsers: prev.totalUsers - 1,
+          usersByRole: { ...prev.usersByRole, [deletedUser.role]: prev.usersByRole[deletedUser.role] - 1 }
         }));
       }
-
       alert('Pengguna berhasil dihapus!');
       fetchData();
     } catch (error) {
       alert('Gagal menghapus pengguna: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-  // Handle course deletion
   const handleDeleteCourse = async (courseId) => {
     if (!window.confirm('Apakah Anda yakin ingin menghapus kursus ini?')) return;
-
     try {
       setLoading(true);
-      const { error } = await supabase
-        .from('courses')
-        .delete()
-        .eq('id', courseId);
-
+      const { error } = await supabase.from('courses').delete().eq('id', courseId);
       if (error) throw error;
-
       setCourses(courses.filter(c => c.id !== courseId));
-      setStats(prev => ({
-        ...prev,
-        totalCourses: prev.totalCourses - 1
-      }));
-
+      setStats(prev => ({ ...prev, totalCourses: prev.totalCourses - 1 }));
       alert('Kursus berhasil dihapus!');
       fetchData();
     } catch (error) {
       alert('Gagal menghapus kursus: ' + error.message);
-    } finally {
-      setLoading(false);
-    }
+    } finally { setLoading(false); }
   };
 
-   // Render content based on active section
-   const renderContent = () => {
-     switch (activeSection) {
-       case 'users-admin':
-         return <UsersManagementView users={users} onUpdateRole={handleUpdateRole} onDeleteUser={handleDeleteUser} onCreateUser={handleCreateUser} loading={loading} />;
-       case 'courses-admin':
-         return <CoursesAdminView courses={courses} onDeleteCourse={handleDeleteCourse} loading={loading} />;
-       case 'activity-admin':
-         return <ActivityView recentActivity={recentActivity} />;
-       case 'announcements-admin':
-         return <AnnouncementModule />;
-       case 'settings-admin':
-         return <SettingsView />;
-       case 'profile-admin':
-         return <ProfileModule onRefresh={handleRefresh} />;
-        // PKBM Administrative Modules
-        case 'classes-admin':
-          return <ClassManagement />;
-        case 'teachers-admin':
-          return <TeacherManagement />;
-        case 'students-admin':
-          return <StudentManagement />;
-        case 'teacher-eval-admin':
-          return <TeacherEvaluation />;
-         case 'reports-admin':
-           return <ReportsModule />;
+  const renderContent = () => {
+    switch (activeSection) {
+      case 'users-admin':
+        return <UsersManagementView users={users} onUpdateRole={handleUpdateRole} onDeleteUser={handleDeleteUser} onCreateUser={handleCreateUser} loading={loading} />;
+      case 'courses-admin':
+        return <CoursesAdminView courses={courses} onDeleteCourse={handleDeleteCourse} loading={loading} />;
+      case 'activity-admin':
+        return <ActivityView recentActivity={recentActivity} />;
+      case 'announcements-admin':
+        return <AnnouncementModule />;
+      case 'settings-admin':
+        return <SettingsView />;
+      case 'profile-admin':
+        return <ProfileModule onRefresh={handleRefresh} />;
+      case 'classes-admin':
+        return <ClassManagement />;
+      case 'teachers-admin':
+        return <TeacherManagement />;
+      case 'students-admin':
+        return <StudentManagement />;
+      case 'teacher-eval-admin':
+        return <TeacherEvaluation />;
+      case 'reports-admin':
+        return <ReportsModule />;
       case 'exams-admin':
         return <ExamModule role="admin" onNavigate={onNavigate} />;
       case 'attendance-admin':
         return <AttendanceMonitoring />;
-        default:
-          return <DashboardOverview stats={stats} recentActivity={recentActivity} users={users} courses={courses} onRefresh={handleRefresh} refreshing={refreshing} onNavigate={onNavigate} />;
-     }
-   };
+      default:
+        return <DashboardOverview stats={stats} recentActivity={recentActivity} users={users} courses={courses} onRefresh={handleRefresh} refreshing={refreshing} onNavigate={onNavigate} />;
+    }
+  };
 
   if (loading) {
     return <LoadingSpinner message="Memuat data..." />;
@@ -431,481 +274,242 @@ const AdminDashboard = ({ activeSection = 'dashboard-admin', onNavigate }) => {
 
   if (error) {
     return (
-      <div className="dashboard-container">
-        <div className="error-message">
-          <span className="error-icon">⚠️</span>
-          {error}
+      <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+        <div className="flex flex-col items-center justify-center min-h-[40vh] gap-md">
+          <div className="flex items-center gap-sm bg-error-container text-on-error-container px-lg py-md rounded-xl">
+            <AlertCircle className="w-5 h-5" />
+            <span>{error}</span>
+          </div>
+          <button onClick={handleRefresh} className="inline-flex items-center gap-xs bg-primary text-on-primary px-lg py-sm rounded-xl font-medium hover:bg-primary-container hover:text-on-primary-container transition-all duration-200">
+            <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+            Coba Lagi
+          </button>
         </div>
-        <button onClick={handleRefresh} className="btn btn-primary" style={{ marginTop: '1rem' }}>
-          Coba Lagi
-        </button>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <div>
-          <h1>Dasbor Admin</h1>
-          <p>Selamat datang, {profile?.display_name || user?.email?.split('@')[0] || 'Admin'}</p>
-        </div>
-        <button 
-          onClick={handleRefresh} 
-          className="btn btn-secondary"
-          disabled={refreshing}
-        >
-          {refreshing ? '↻ Memuat...' : '↻ Refresh'}
-        </button>
-      </div>
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
       {renderContent()}
     </div>
   );
 };
 
+/* ─── DASHBOARD OVERVIEW ─── */
+const DashboardOverview = ({ stats, recentActivity, users, courses, onRefresh, refreshing, onNavigate }) => {
+  const sections = [
+    { id: 'users-admin', label: 'Tambah Pengguna', icon: '👤', color: 'from-[#3b82f6] to-[#2563eb]' },
+    { id: 'courses-admin', label: 'Buat Kursus', icon: '📚', color: 'from-[#10b981] to-[#059669]' },
+    { id: 'announcements-admin', label: 'Pengumuman', icon: '📢', color: 'from-[#f59e0b] to-[#d97706]' },
+    { id: 'activity-admin', label: 'Aktivitas', icon: '📊', color: 'from-[#8b5cf6] to-[#7c3aed]' },
+    { id: 'settings-admin', label: 'Pengaturan', icon: '⚙️', color: 'from-[#6b7280] to-[#4b5563]' },
+    { id: 'profile-admin', label: 'Profil Saya', icon: '👤', color: 'from-[#ec4899] to-[#db2777]' },
+  ];
 
-const DashboardOverview = ({ stats, recentActivity, users, courses, onRefresh, refreshing, onNavigate }) => (
-  <div className="dashboard-content">
-    {/* Welcome Message */}
-    <div style={{ 
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-      borderRadius: '16px',
-      padding: '2rem',
-      color: 'white',
-      marginBottom: '2rem',
-      textAlign: 'center'
-    }}>
-      <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '1.75rem' }}>Selamat Datang! 👋</h1>
-      <p style={{ margin: 0, fontSize: '1.1rem', opacity: 0.9 }}>
-        Hai Admin! Selamat mengelola platform pembelajaran ini dengan penuh tanggung jawab.
-      </p>
-    </div>
-
-    <section className="dashboard-stats">
-      <h2>Statistik Sistem</h2>
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">👥</div>
-          <h3>{stats.totalUsers}</h3>
-          <p>Total Pengguna</p>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">📚</div>
-          <h3>{stats.totalCourses}</h3>
-          <p>Total Kursus</p>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">📝</div>
-          <h3>{stats.totalAssignments}</h3>
-          <p>Total Tugas</p>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">📤</div>
-          <h3>{stats.totalSubmissions}</h3>
-          <p>Total Pengumpulan</p>
-        </div>
-      </div>
-    </section>
-
-    <section className="dashboard-section">
-      <h2>Pengguna Berdasarkan Peran</h2>
-      <div className="stats-grid">
-        <div className="stat-card">
-          <div className="stat-icon">🎓</div>
-          <h3>{stats.usersByRole.murid}</h3>
-          <p>Murid</p>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">👨‍🏫</div>
-          <h3>{stats.usersByRole.guru}</h3>
-          <p>Guru</p>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon">⚙️</div>
-          <h3>{stats.usersByRole.admin}</h3>
-          <p>Admin</p>
-        </div>
-      </div>
-    </section>
-
-    <section className="dashboard-section">
-      <h2>Aktivitas Terbaru</h2>
-      <div className="table-responsive">
-        <table className="dashboard-table">
-          <thead>
-            <tr>
-              <th>Siswa</th>
-              <th>Tugas</th>
-              <th>Kursus</th>
-              <th>Waktu</th>
-              <th>Nilai</th>
-            </tr>
-          </thead>
-          <tbody>
-            {recentActivity.slice(0, 5).map((activity) => (
-              <tr key={activity.id}>
-                <td>
-                  <span className="role-badge">
-                    {activity.studentRole === 'murid' ? '🎓' : activity.studentRole === 'guru' ? '👨‍🏫' : '⚙️'}
-                    {activity.studentEmail}
-                  </span>
-                </td>
-                <td>{activity.assignmentTitle}</td>
-                <td>{activity.courseTitle}</td>
-                <td>{new Date(activity.submitted_at).toLocaleString()}</td>
-                <td>
-                  <span className={`grade-badge ${activity.grade !== null ? 'graded' : 'pending'}`}>
-                    {activity.grade !== null ? `${activity.grade}/100` : 'Belum dinilai'}
-                  </span>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <div style={{ marginTop: '2rem', textAlign: 'center' }}>
-      <button 
-        onClick={onRefresh} 
-        className="btn btn-primary"
-        disabled={refreshing}
-      >
-        {refreshing ? '↻ Memuat...' : '🔄 Refresh Data'}
-      </button>
-    </div>
-
-    {/* Quick Actions Section - Mobile Only */}
-    <section className="dashboard-section mobile-quick-actions" style={{ marginTop: '2rem' }}>
-      <h2>⚡ Akses Cepat</h2>
-      <div style={{ 
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))',
-        gap: '1rem',
-        marginTop: '1rem'
-      }}>
-        <button
-          onClick={() => onNavigate('users-admin')}
-          style={{
-            background: 'linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            color: 'white',
-            cursor: 'pointer',
-            transition: 'transform 0.2s ease',
-            textAlign: 'center'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>👤➕</div>
-          <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>Tambah Pengguna</div>
-        </button>
-
-        <button
-          onClick={() => onNavigate('courses-admin')}
-          style={{
-            background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            color: 'white',
-            cursor: 'pointer',
-            transition: 'transform 0.2s ease',
-            textAlign: 'center'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📚➕</div>
-          <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>Buat Kursus</div>
-        </button>
-
-        <button
-          onClick={() => onNavigate('announcements-admin')}
-          style={{
-            background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            color: 'white',
-            cursor: 'pointer',
-            transition: 'transform 0.2s ease',
-            textAlign: 'center'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📢➕</div>
-          <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>Buat Pengumuman</div>
-        </button>
-
-        <button
-          onClick={() => onNavigate('activity-admin')}
-          style={{
-            background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            color: 'white',
-            cursor: 'pointer',
-            transition: 'transform 0.2s ease',
-            textAlign: 'center'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>📊</div>
-          <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>Lihat Aktivitas</div>
-        </button>
-
-        <button
-          onClick={() => onNavigate('settings-admin')}
-          style={{
-            background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            color: 'white',
-            cursor: 'pointer',
-            transition: 'transform 0.2s ease',
-            textAlign: 'center'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>⚙️</div>
-          <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>Pengaturan</div>
-        </button>
-
-        <button
-          onClick={() => onNavigate('profile-admin')}
-          style={{
-            background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
-            border: 'none',
-            borderRadius: '12px',
-            padding: '1.25rem',
-            color: 'white',
-            cursor: 'pointer',
-            transition: 'transform 0.2s ease',
-            textAlign: 'center'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.transform = 'scale(1.02)'}
-          onMouseOut={(e) => e.currentTarget.style.transform = 'scale(1)'}
-        >
-          <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>👤</div>
-          <div style={{ fontWeight: '600', fontSize: '0.95rem' }}>Profil Saya</div>
-        </button>
-      </div>
-    </section>
-  </div>
-);
-
-// Stats View Component with Charts
-const StatsView = ({ stats }) => {
   return (
-    <div className="dashboard-content">
-      <section className="dashboard-stats">
-        <h2>Statistik Detail</h2>
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">👥</div>
-            <h3>{stats.totalUsers}</h3>
-            <p>Total Pengguna</p>
+    <div className="space-y-lg">
+      {/* Welcome Banner */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary to-[#764ba2] rounded-2xl p-xl md:p-2xl text-white">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/3" />
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/3 -translate-x-1/4" />
+        <div className="relative">
+          <div className="flex items-center gap-sm mb-sm">
+            <Shield className="w-8 h-8" />
+            <h1 className="text-headline-sm md:text-headline-md font-display">Dasbor Admin</h1>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon">📚</div>
-            <h3>{stats.totalCourses}</h3>
-            <p>Total Kursus</p>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon">📝</div>
-            <h3>{stats.totalAssignments}</h3>
-            <p>Total Tugas</p>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon">📤</div>
-            <h3>{stats.totalSubmissions}</h3>
-            <p>Total Pengumpulan</p>
-          </div>
+          <p className="text-body-lg opacity-90 max-w-xl">
+            Hai Admin! Selamat mengelola platform pembelajaran ini dengan penuh tanggung jawab.
+          </p>
         </div>
-      </section>
-      
-      <section className="dashboard-section">
-        <h2>Analisis Sistem</h2>
-        <div className="charts-grid">
-          <div className="chart-container">
-            <h3>Distribusi Pengguna</h3>
-            <div className="bar-chart">
-              <div className="bar" style={{ height: stats.usersByRole.murid > 0 ? `${(stats.usersByRole.murid / stats.totalUsers) * 100}%` : '0%', background: '#8b5cf6' }}>
-                <span className="bar-label">Murid</span>
-                <span className="bar-value">{stats.usersByRole.murid}</span>
-              </div>
-              <div className="bar" style={{ height: stats.usersByRole.guru > 0 ? `${(stats.usersByRole.guru / stats.totalUsers) * 100}%` : '0%', background: '#10b981' }}>
-                <span className="bar-label">Guru</span>
-                <span className="bar-value">{stats.usersByRole.guru}</span>
-              </div>
-              <div className="bar" style={{ height: stats.usersByRole.admin > 0 ? `${(stats.usersByRole.admin / stats.totalUsers) * 100}%` : '0%', background: '#f59e0b' }}>
-                <span className="bar-label">Admin</span>
-                <span className="bar-value">{stats.usersByRole.admin}</span>
-              </div>
+      </div>
+
+      {/* Stats Bento Grid */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
+        {[
+          { icon: Users, label: 'Total Pengguna', value: stats.totalUsers, color: 'text-primary', bg: 'bg-primary-container' },
+          { icon: BookOpen, label: 'Total Kursus', value: stats.totalCourses, color: 'text-success', bg: 'bg-success-container' },
+          { icon: BarChart3, label: 'Total Tugas', value: stats.totalAssignments, color: 'text-warning', bg: 'bg-warning-container' },
+          { icon: TrendingUp, label: 'Pengumpulan', value: stats.totalSubmissions, color: 'text-tertiary', bg: 'bg-tertiary-container' },
+        ].map((item, idx) => (
+          <div key={idx} className="bg-surface rounded-xl p-lg border border-outline-variant/30 hover:border-primary/30 hover:shadow-md transition-all duration-200 group">
+            <div className={`${item.bg} w-10 h-10 rounded-lg flex items-center justify-center mb-sm group-hover:scale-110 transition-transform duration-200`}>
+              <item.icon className={`w-5 h-5 ${item.color}`} />
             </div>
+            <p className="text-display-sm font-display font-bold text-on-surface">{item.value}</p>
+            <p className="text-body-sm text-on-surface-variant">{item.label}</p>
           </div>
-          
-          <div className="chart-container">
-            <h3>Metrik Utama</h3>
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-              <div style={{ 
-                background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-                color: 'white',
-                padding: '1rem',
-                borderRadius: '8px'
-              }}>
-                <p style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.25rem' }}>Tingkat Aktivitas</p>
-                <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>{stats.activityRate || 0}%</p>
-              </div>
-              <div style={{ 
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                color: 'white',
-                padding: '1rem',
-                borderRadius: '8px'
-              }}>
-                <p style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.25rem' }}>Tingkat Penyelesaian</p>
-                <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>{stats.completionRate || 0}%</p>
-              </div>
-              <div style={{ 
-                background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-                color: 'white',
-                padding: '1rem',
-                borderRadius: '8px'
-              }}>
-                <p style={{ fontSize: '0.8rem', opacity: 0.9, marginBottom: '0.25rem' }}>Rasio Kursus/Tugas</p>
-                <p style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: 0 }}>
-                  {stats.totalCourses > 0 ? (stats.totalAssignments / stats.totalCourses).toFixed(1) : '0'}
-                </p>
-              </div>
+        ))}
+      </div>
+
+      {/* Role Distribution */}
+      <div className="bg-surface rounded-xl p-lg border border-outline-variant/30">
+        <h2 className="text-title-md font-display text-on-surface mb-md">Pengguna Berdasarkan Peran</h2>
+        <div className="grid grid-cols-3 gap-md">
+          {[
+            { role: 'Murid', count: stats.usersByRole.murid, icon: '🎓', gradient: 'from-primary to-[#5a4fcf]' },
+            { role: 'Guru', count: stats.usersByRole.guru, icon: '👨‍🏫', gradient: 'from-success to-[#059669]' },
+            { role: 'Admin', count: stats.usersByRole.admin, icon: '⚙️', gradient: 'from-warning to-[#d97706]' },
+          ].map((item, idx) => (
+            <div key={idx} className={`bg-gradient-to-br ${item.gradient} rounded-xl p-md text-white text-center`}>
+              <span className="text-3xl block mb-xs">{item.icon}</span>
+              <p className="text-display-sm font-display font-bold">{item.count}</p>
+              <p className="text-body-sm opacity-90">{item.role}</p>
             </div>
-          </div>
+          ))}
         </div>
-      </section>
-      
-      <section className="dashboard-section">
-        <h2>Ringkasan Kartu Peran</h2>
-        <div className="role-cards-grid">
-          <div className="role-card" style={{ borderLeft: '4px solid #8b5cf6' }}>
-            <div className="role-icon">🎓</div>
-            <div className="role-info">
-              <h4>Murid</h4>
-              <p className="role-count">{stats.usersByRole.murid}</p>
-              <p className="role-label">Total Murid</p>
-            </div>
-          </div>
-          <div className="role-card" style={{ borderLeft: '4px solid #10b981' }}>
-            <div className="role-icon">👨‍🏫</div>
-            <div className="role-info">
-              <h4>Guru</h4>
-              <p className="role-count">{stats.usersByRole.guru}</p>
-              <p className="role-label">Total Guru</p>
-            </div>
-          </div>
-          <div className="role-card" style={{ borderLeft: '4px solid #f59e0b' }}>
-            <div className="role-icon">⚙️</div>
-            <div className="role-info">
-              <h4>Admin</h4>
-              <p className="role-count">{stats.usersByRole.admin}</p>
-              <p className="role-label">Total Admin</p>
-            </div>
-          </div>
+      </div>
+
+      {/* Recent Activity */}
+      <div className="bg-surface rounded-xl border border-outline-variant/30 overflow-hidden">
+        <div className="px-lg py-md border-b border-outline-variant/30 bg-surface-container-low">
+          <h2 className="text-title-md font-display text-on-surface">Aktivitas Terbaru</h2>
         </div>
-      </section>
-      
-      <section className="dashboard-section">
-        <h2>Metrik Cepat</h2>
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          <div style={{ 
-            background: 'white',
-            padding: '1.25rem',
-            borderRadius: '12px',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.03)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>👥</span>
-              <h4 style={{ fontWeight: '600', color: '#374151' }}>Total Pengguna</h4>
-            </div>
-            <p style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1f2937' }}>
-              {stats.totalUsers}
-            </p>
-            <p style={{ fontSize: '0.8rem', color: '#6b7280' }}>Terdaftar di sistem</p>
-          </div>
-          
-          <div style={{ 
-            background: 'white',
-            padding: '1.25rem',
-            borderRadius: '12px',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.03)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>📚</span>
-              <h4 style={{ fontWeight: '600', color: '#374151' }}>Total Kursus</h4>
-            </div>
-            <p style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1f2937' }}>
-              {stats.totalCourses}
-            </p>
-            <p style={{ fontSize: '0.8rem', color: '#6b7280' }}>Kursus aktif</p>
-          </div>
-          
-          <div style={{ 
-            background: 'white',
-            padding: '1.25rem',
-            borderRadius: '12px',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.03)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>📝</span>
-              <h4 style={{ fontWeight: '600', color: '#374151' }}>Rata-rata Tugas</h4>
-            </div>
-            <p style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1f2937' }}>
-              {stats.totalCourses > 0 ? (stats.totalAssignments / stats.totalCourses).toFixed(1) : '0'}
-            </p>
-            <p style={{ fontSize: '0.8rem', color: '#6b7280' }}>Tugas per Kursus</p>
-          </div>
-          
-          <div style={{ 
-            background: 'white',
-            padding: '1.25rem',
-            borderRadius: '12px',
-            border: '1px solid #e5e7eb',
-            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.03)'
-          }}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.75rem' }}>
-              <span style={{ fontSize: '1.5rem' }}>📤</span>
-              <h4 style={{ fontWeight: '600', color: '#374151' }}>Rata-rata Submission</h4>
-            </div>
-            <p style={{ fontSize: '1.75rem', fontWeight: '700', color: '#1f2937' }}>
-              {stats.totalAssignments > 0 ? (stats.totalSubmissions / stats.totalAssignments).toFixed(1) : '0'}
-            </p>
-            <p style={{ fontSize: '0.8rem', color: '#6b7280' }}>Submission per Tugas</p>
-          </div>
+        <div className="overflow-x-auto">
+          <table className="w-full text-body-sm">
+            <thead>
+              <tr className="border-b border-outline-variant/20">
+                <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Siswa</th>
+                <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Tugas</th>
+                <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Kursus</th>
+                <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Waktu</th>
+                <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Nilai</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentActivity.slice(0, 5).map((activity, idx) => (
+                <tr key={activity.id} className={`border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors ${idx % 2 === 0 ? '' : 'bg-surface-container-low/30'}`}>
+                  <td className="px-lg py-sm">
+                    <span className="inline-flex items-center gap-xs">
+                      <span>{activity.studentRole === 'murid' ? '🎓' : activity.studentRole === 'guru' ? '👨‍🏫' : '⚙️'}</span>
+                      <span className="text-on-surface">{activity.studentEmail}</span>
+                    </span>
+                  </td>
+                  <td className="px-lg py-sm text-on-surface">{activity.assignmentTitle}</td>
+                  <td className="px-lg py-sm text-on-surface-variant">{activity.courseTitle}</td>
+                  <td className="px-lg py-sm text-on-surface-variant">{new Date(activity.submitted_at).toLocaleString()}</td>
+                  <td className="px-lg py-sm">
+                    <span className={`inline-flex items-center px-sm py-0.5 rounded-full text-label-sm font-medium ${
+                      activity.grade !== null ? 'bg-success-container text-on-success-container' : 'bg-warning-container text-on-warning-container'
+                    }`}>
+                      {activity.grade !== null ? `${activity.grade}/100` : 'Belum dinilai'}
+                    </span>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
         </div>
-      </section>
+      </div>
+
+      {/* Quick Actions */}
+      <div className="bg-surface rounded-xl p-lg border border-outline-variant/30">
+        <h2 className="text-title-md font-display text-on-surface mb-md">⚡ Akses Cepat</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-md">
+          {sections.map((sec) => (
+            <button
+              key={sec.id}
+              onClick={() => onNavigate && onNavigate(sec.id)}
+              className="flex flex-col items-center gap-xs bg-surface-container-low hover:bg-primary-container hover:text-on-primary-container rounded-xl p-md border border-outline-variant/20 hover:border-primary/30 transition-all duration-200 group"
+            >
+              <span className="text-2xl group-hover:scale-110 transition-transform">{sec.icon}</span>
+              <span className="text-label-lg font-medium">{sec.label}</span>
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Refresh Button */}
+      <div className="flex justify-center">
+        <button
+          onClick={onRefresh}
+          disabled={refreshing}
+          className="inline-flex items-center gap-xs bg-primary text-on-primary px-lg py-sm rounded-xl font-medium hover:bg-primary-container hover:text-on-primary-container transition-all duration-200 disabled:opacity-50"
+        >
+          <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
+          {refreshing ? 'Memuat...' : 'Refresh Data'}
+        </button>
+      </div>
     </div>
   );
 };
 
-// Users Management View Component
+/* ─── STATS VIEW ─── */
+const StatsView = ({ stats }) => (
+  <div className="space-y-lg">
+    <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
+      {[
+        { icon: '👥', label: 'Total Pengguna', value: stats.totalUsers },
+        { icon: '📚', label: 'Total Kursus', value: stats.totalCourses },
+        { icon: '📝', label: 'Total Tugas', value: stats.totalAssignments },
+        { icon: '📤', label: 'Total Pengumpulan', value: stats.totalSubmissions },
+      ].map((item, idx) => (
+        <div key={idx} className="bg-surface rounded-xl p-lg border border-outline-variant/30 text-center">
+          <div className="text-3xl mb-xs">{item.icon}</div>
+          <p className="text-display-sm font-display font-bold text-on-surface">{item.value}</p>
+          <p className="text-body-sm text-on-surface-variant">{item.label}</p>
+        </div>
+      ))}
+    </div>
+
+    <div className="grid md:grid-cols-2 gap-md">
+      <div className="bg-surface rounded-xl p-lg border border-outline-variant/30">
+        <h3 className="text-title-md font-display text-on-surface mb-md">Distribusi Pengguna</h3>
+        <div className="flex items-end gap-md h-40">
+          {[
+            { label: 'Murid', value: stats.usersByRole.murid, color: 'bg-primary' },
+            { label: 'Guru', value: stats.usersByRole.guru, color: 'bg-success' },
+            { label: 'Admin', value: stats.usersByRole.admin, color: 'bg-warning' },
+          ].map((bar, idx) => {
+            const maxVal = Math.max(stats.usersByRole.murid, stats.usersByRole.guru, stats.usersByRole.admin, 1);
+            const height = (bar.value / maxVal) * 100;
+            return (
+              <div key={idx} className="flex-1 flex flex-col items-center gap-xs">
+                <span className="text-display-xs font-display font-bold text-on-surface">{bar.value}</span>
+                <div className="w-full rounded-t-lg relative" style={{ height: `${Math.max(height, 5)}%` }}>
+                  <div className={`absolute bottom-0 left-0 right-0 ${bar.color} rounded-t-lg transition-all duration-500`} style={{ height: '100%' }} />
+                </div>
+                <span className="text-label-sm text-on-surface-variant">{bar.label}</span>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="space-y-sm">
+        {[
+          { label: 'Tingkat Aktivitas', value: `${stats.activityRate || 0}%`, gradient: 'from-[#3b82f6] to-[#1d4ed8]' },
+          { label: 'Tingkat Penyelesaian', value: `${stats.completionRate || 0}%`, gradient: 'from-[#10b981] to-[#059669]' },
+          { label: 'Rasio Kursus/Tugas', value: stats.totalCourses > 0 ? (stats.totalAssignments / stats.totalCourses).toFixed(1) : '0', gradient: 'from-[#8b5cf6] to-[#6d28d9]' },
+        ].map((metric, idx) => (
+          <div key={idx} className={`bg-gradient-to-br ${metric.gradient} rounded-xl p-md text-white`}>
+            <p className="text-label-sm opacity-90 mb-xs">{metric.label}</p>
+            <p className="text-display-sm font-display font-bold">{metric.value}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+
+    <div className="grid grid-cols-3 gap-md">
+      {[
+        { icon: '🎓', label: 'Murid', value: stats.usersByRole.murid, color: 'border-l-primary' },
+        { icon: '👨‍🏫', label: 'Guru', value: stats.usersByRole.guru, color: 'border-l-success' },
+        { icon: '⚙️', label: 'Admin', value: stats.usersByRole.admin, color: 'border-l-warning' },
+      ].map((role, idx) => (
+        <div key={idx} className={`bg-surface rounded-xl p-md border border-outline-variant/30 border-l-4 ${role.color}`}>
+          <span className="text-2xl block mb-xs">{role.icon}</span>
+          <p className="text-display-sm font-display font-bold text-on-surface">{role.value}</p>
+          <p className="text-label-sm text-on-surface-variant">Total {role.label}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+);
+
+/* ─── USERS MANAGEMENT VIEW ─── */
 const UsersManagementView = ({ users, onUpdateRole, onDeleteUser, onCreateUser, loading }) => {
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [newUser, setNewUser] = useState({
-    email: '',
-    password: '',
-    confirmPassword: '',
-    role: 'murid',
-    displayName: ''
-  });
+  const [newUser, setNewUser] = useState({ email: '', password: '', confirmPassword: '', role: 'murid', displayName: '' });
   const [createError, setCreateError] = useState('');
   const [createLoading, setCreateLoading] = useState(false);
   const [selectedUser, setSelectedUser] = useState(null);
@@ -913,512 +517,237 @@ const UsersManagementView = ({ users, onUpdateRole, onDeleteUser, onCreateUser, 
   const [searchQuery, setSearchQuery] = useState('');
   const [roleFilter, setRoleFilter] = useState('all');
 
-  // Filter users based on search and role
   const filteredUsers = users.filter(user => {
-    const matchesSearch = 
-      user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    const matchesSearch = user.email?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.display_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       user.full_name?.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesRole = roleFilter === 'all' || user.role === roleFilter;
     return matchesSearch && matchesRole;
   });
 
-  const handleViewProfile = (user) => {
-    setSelectedUser(user);
-    setShowProfileModal(true);
-  };
+  const handleViewProfile = (user) => { setSelectedUser(user); setShowProfileModal(true); };
 
   const getRoleBadge = (role) => {
-    switch(role) {
-      case 'murid': return { icon: '🎓', label: 'Murid', color: '#10b981', bg: '#d1fae5' };
-      case 'guru': return { icon: '👨‍🏫', label: 'Guru', color: '#3b82f6', bg: '#dbeafe' };
-      case 'admin': return { icon: '⚙️', label: 'Admin', color: '#6366f1', bg: '#e0e7ff' };
-      default: return { icon: '❓', label: role, color: '#6b7280', bg: '#f3f4f6' };
+    switch (role) {
+      case 'murid': return { icon: '🎓', label: 'Murid', badgeClass: 'bg-success-container text-on-success-container' };
+      case 'guru': return { icon: '👨‍🏫', label: 'Guru', badgeClass: 'bg-primary-container text-on-primary-container' };
+      case 'admin': return { icon: '⚙️', label: 'Admin', badgeClass: 'bg-tertiary-container text-on-tertiary-container' };
+      default: return { icon: '❓', label: role, badgeClass: 'bg-surface-dim text-on-surface-variant' };
     }
   };
 
-  const validateEmail = (email) => {
-    const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return re.test(email);
-  };
+  const validateEmail = (email) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
   const validatePassword = (password) => {
-    const minLength = 8;
-    const hasUpperCase = /[A-Z]/.test(password);
-    const hasLowerCase = /[a-z]/.test(password);
-    const hasNumbers = /\d/.test(password);
-    const hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
-
     const errors = [];
-    if (password.length < minLength) {
-      errors.push('minimal 8 karakter');
-    }
-    if (!hasUpperCase) {
-      errors.push('huruf besar');
-    }
-    if (!hasLowerCase) {
-      errors.push('huruf kecil');
-    }
-    if (!hasNumbers) {
-      errors.push('angka');
-    }
-    if (!hasSpecialChar) {
-      errors.push('karakter khusus (!@#$%^&*)');
-    }
-
-    return {
-      isValid: errors.length === 0,
-      errors: errors
-    };
+    if (password.length < 8) errors.push('minimal 8 karakter');
+    if (!/[A-Z]/.test(password)) errors.push('huruf besar');
+    if (!/[a-z]/.test(password)) errors.push('huruf kecil');
+    if (!/\d/.test(password)) errors.push('angka');
+    if (!/[!@#$%^&*(),.?":{}|<>]/.test(password)) errors.push('karakter khusus');
+    return { isValid: errors.length === 0, errors };
   };
 
   const handleCreateUser = async (e) => {
     e.preventDefault();
     setCreateError('');
-
-    // Validation
-    if (!newUser.email.trim()) {
-      setCreateError('Email wajib diisi');
-      return;
-    }
-
-    if (!validateEmail(newUser.email)) {
-      setCreateError('Format email tidak valid');
-      return;
-    }
-
-    if (!newUser.password) {
-      setCreateError('Kata sandi wajib diisi');
-      return;
-    }
-
+    if (!newUser.email.trim()) { setCreateError('Email wajib diisi'); return; }
+    if (!validateEmail(newUser.email)) { setCreateError('Format email tidak valid'); return; }
+    if (!newUser.password) { setCreateError('Kata sandi wajib diisi'); return; }
     const passwordValidation = validatePassword(newUser.password);
-    if (!passwordValidation.isValid) {
-      setCreateError('Kata sandi harus mengandung: ' + passwordValidation.errors.join(', '));
-      return;
-    }
-
-    if (!newUser.confirmPassword) {
-      setCreateError('Konfirmasi kata sandi wajib diisi');
-      return;
-    }
-
-    if (newUser.password !== newUser.confirmPassword) {
-      setCreateError('Kata sandi tidak cocok');
-      return;
-    }
+    if (!passwordValidation.isValid) { setCreateError('Kata sandi harus mengandung: ' + passwordValidation.errors.join(', ')); return; }
+    if (!newUser.confirmPassword) { setCreateError('Konfirmasi kata sandi wajib diisi'); return; }
+    if (newUser.password !== newUser.confirmPassword) { setCreateError('Kata sandi tidak cocok'); return; }
 
     setCreateLoading(true);
-    const result = await onCreateUser({
-      email: newUser.email,
-      password: newUser.password,
-      role: newUser.role,
-      displayName: newUser.displayName
-    });
-
+    const result = await onCreateUser({ email: newUser.email, password: newUser.password, role: newUser.role, displayName: newUser.displayName });
     setCreateLoading(false);
-
     if (result.success) {
-      // Reset form
-      setNewUser({
-        email: '',
-        password: '',
-        confirmPassword: '',
-        role: 'murid',
-        displayName: ''
-      });
+      setNewUser({ email: '', password: '', confirmPassword: '', role: 'murid', displayName: '' });
       setShowCreateForm(false);
     } else {
-      // Handle specific errors
       let errorMessage = result.error;
-      if (result.error === 'User already registered') {
-        errorMessage = 'Email sudah terdaftar. Gunakan email lain.';
-      } else if (result.error === 'Password should be at least 6 characters') {
-        errorMessage = 'Kata sandi minimal 6 karakter';
-      } else if (result.error === 'Invalid email') {
-        errorMessage = 'Format email tidak valid';
-      }
+      if (result.error === 'User already registered') errorMessage = 'Email sudah terdaftar. Gunakan email lain.';
+      else if (result.error === 'Password should be at least 6 characters') errorMessage = 'Kata sandi minimal 6 karakter';
+      else if (result.error === 'Invalid email') errorMessage = 'Format email tidak valid';
       setCreateError(errorMessage);
     }
   };
 
   return (
-    <div className="dashboard-content">
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '1.5rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>
-          <Users size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-          Manajemen Pengguna
-        </h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Kelola semua pengguna platform termasuk murid, guru, dan admin.
-        </p>
+    <div className="space-y-lg">
+      {/* Header */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary to-[#1d4ed8] rounded-2xl p-xl text-white">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/4 translate-x-1/4" />
+        <div className="relative flex items-center gap-sm">
+          <Users className="w-7 h-7" />
+          <div>
+            <h2 className="text-title-lg font-display">Manajemen Pengguna</h2>
+            <p className="text-body-sm opacity-90">Kelola semua pengguna platform termasuk murid, guru, dan admin.</p>
+          </div>
+        </div>
       </div>
 
-      {/* Create New User Section */}
-      <section className="dashboard-section" style={{ marginBottom: '1.5rem' }}>
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          marginBottom: '1rem'
-        }}>
-          <h2 style={{ margin: 0 }}>
-            <Plus size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Tambah Pengguna Baru
-          </h2>
+      {/* Create User Section */}
+      <div className="bg-surface rounded-xl p-lg border border-outline-variant/30">
+        <div className="flex items-center justify-between mb-md">
+          <h3 className="text-title-md font-display text-on-surface flex items-center gap-xs">
+            <Plus className="w-5 h-5" /> Tambah Pengguna Baru
+          </h3>
           <button
             onClick={() => setShowCreateForm(!showCreateForm)}
-            className="btn btn-primary"
-            style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '0.5rem',
-              background: showCreateForm ? '#6b7280' : '#3b82f6'
-            }}
+            className={`inline-flex items-center gap-xs px-md py-sm rounded-xl font-medium text-label-lg transition-all duration-200 ${
+              showCreateForm ? 'bg-surface-dim text-on-surface-variant hover:bg-outline-variant' : 'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container'
+            }`}
           >
-            {showCreateForm ? <X size={18} /> : <Plus size={18} />}
+            {showCreateForm ? <X className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
             {showCreateForm ? 'Batal' : 'Tambah Pengguna'}
           </button>
         </div>
 
         {showCreateForm && (
-          <div style={{ 
-            background: '#f8fafc', 
-            padding: '1.5rem', 
-            borderRadius: '12px',
-            border: '1px solid #e2e8f0'
-          }}>
+          <div className="bg-surface-container-low rounded-xl p-lg border border-outline-variant/30">
             {createError && (
-              <div style={{ 
-                background: '#fef2f2', 
-                color: '#dc2626', 
-                padding: '0.75rem', 
-                borderRadius: '8px',
-                marginBottom: '1rem',
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.5rem'
-              }}>
-                <span>⚠️</span>
-                {createError}
+              <div className="flex items-center gap-xs bg-error-container text-on-error-container px-md py-sm rounded-lg mb-md">
+                <AlertCircle className="w-4 h-4" />
+                <span className="text-label-lg">{createError}</span>
               </div>
             )}
-
             <form onSubmit={handleCreateUser}>
-              <div style={{ 
-                display: 'grid', 
-                gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', 
-                gap: '1rem' 
-              }}>
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '0.5rem', 
-                    fontWeight: '500',
-                    color: '#374151'
-                  }}>
-                    Email *
-                  </label>
-                  <input
-                    type="email"
-                    value={newUser.email}
-                    onChange={(e) => setNewUser({ ...newUser, email: e.target.value })}
-                    placeholder="contoh@email.com"
-                    disabled={createLoading}
-                    style={{ 
-                      width: '100%', 
-                      padding: '0.75rem', 
-                      borderRadius: '8px', 
-                      border: '1px solid #d1d5db',
-                      fontSize: '1rem'
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '0.5rem', 
-                    fontWeight: '500',
-                    color: '#374151'
-                  }}>
-                    Nama Tampilan
-                  </label>
-                  <input
-                    type="text"
-                    value={newUser.displayName}
-                    onChange={(e) => setNewUser({ ...newUser, displayName: e.target.value })}
-                    placeholder="Nama pengguna"
-                    disabled={createLoading}
-                    style={{ 
-                      width: '100%', 
-                      padding: '0.75rem', 
-                      borderRadius: '8px', 
-                      border: '1px solid #d1d5db',
-                      fontSize: '1rem'
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '0.5rem', 
-                    fontWeight: '500',
-                    color: '#374151'
-                  }}>
-                    Kata Sandi *
-                  </label>
-                  <input
-                    type="password"
-                    value={newUser.password}
-                    onChange={(e) => setNewUser({ ...newUser, password: e.target.value })}
-                    placeholder="Masukkan kata sandi"
-                    disabled={createLoading}
-                    style={{ 
-                      width: '100%', 
-                      padding: '0.75rem', 
-                      borderRadius: '8px', 
-                      border: '1px solid #d1d5db',
-                      fontSize: '1rem'
-                    }}
-                  />
-                  <small style={{ color: '#6b7280', fontSize: '0.75rem' }}>
-                    Minimal 8 karakter, huruf besar/kecil, angka, dan karakter khusus
-                  </small>
-                </div>
-
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '0.5rem', 
-                    fontWeight: '500',
-                    color: '#374151'
-                  }}>
-                    Konfirmasi Kata Sandi *
-                  </label>
-                  <input
-                    type="password"
-                    value={newUser.confirmPassword}
-                    onChange={(e) => setNewUser({ ...newUser, confirmPassword: e.target.value })}
-                    placeholder="Ulangi kata sandi"
-                    disabled={createLoading}
-                    style={{ 
-                      width: '100%', 
-                      padding: '0.75rem', 
-                      borderRadius: '8px', 
-                      border: '1px solid #d1d5db',
-                      fontSize: '1rem'
-                    }}
-                  />
-                </div>
-
-                <div>
-                  <label style={{ 
-                    display: 'block', 
-                    marginBottom: '0.5rem', 
-                    fontWeight: '500',
-                    color: '#374151'
-                  }}>
-                    Peran *
-                  </label>
-                  <select
-                    value={newUser.role}
-                    onChange={(e) => setNewUser({ ...newUser, role: e.target.value })}
-                    disabled={createLoading}
-                    style={{ 
-                      width: '100%', 
-                      padding: '0.75rem', 
-                      borderRadius: '8px', 
-                      border: '1px solid #d1d5db',
-                      fontSize: '1rem',
-                      background: 'white'
-                    }}
-                  >
-                    <option value="murid">🎓 Murid</option>
-                    <option value="guru">👨‍🏫 Guru</option>
-                    <option value="admin">⚙️ Admin</option>
-                  </select>
-                </div>
+              <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-md mb-lg">
+                {[
+                  { id: 'email', label: 'Email *', type: 'email', placeholder: 'contoh@email.com', value: newUser.email, onChange: (v) => setNewUser({ ...newUser, email: v }) },
+                  { id: 'displayName', label: 'Nama Tampilan', type: 'text', placeholder: 'Nama pengguna', value: newUser.displayName, onChange: (v) => setNewUser({ ...newUser, displayName: v }) },
+                  { id: 'password', label: 'Kata Sandi *', type: 'password', placeholder: 'Masukkan kata sandi', value: newUser.password, onChange: (v) => setNewUser({ ...newUser, password: v }), hint: 'Minimal 8 karakter, huruf besar/kecil, angka, dan karakter khusus' },
+                  { id: 'confirmPassword', label: 'Konfirmasi Kata Sandi *', type: 'password', placeholder: 'Ulangi kata sandi', value: newUser.confirmPassword, onChange: (v) => setNewUser({ ...newUser, confirmPassword: v }) },
+                  {
+                    id: 'role', label: 'Peran *', type: 'select',
+                    value: newUser.role, onChange: (v) => setNewUser({ ...newUser, role: v }),
+                    options: [
+                      { value: 'murid', label: '🎓 Murid' },
+                      { value: 'guru', label: '👨‍🏫 Guru' },
+                      { value: 'admin', label: '⚙️ Admin' },
+                    ]
+                  },
+                ].map((field) => (
+                  <div key={field.id}>
+                    <label className="block text-label-lg font-medium text-on-surface mb-xs">{field.label}</label>
+                    {field.type === 'select' ? (
+                      <select
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        disabled={createLoading}
+                        className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                      >
+                        {field.options.map(opt => (
+                          <option key={opt.value} value={opt.value}>{opt.label}</option>
+                        ))}
+                      </select>
+                    ) : (
+                      <input
+                        type={field.type}
+                        value={field.value}
+                        onChange={(e) => field.onChange(e.target.value)}
+                        placeholder={field.placeholder}
+                        disabled={createLoading}
+                        className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                      />
+                    )}
+                    {field.hint && <p className="text-label-sm text-on-surface-variant mt-xs">{field.hint}</p>}
+                  </div>
+                ))}
               </div>
-
-              <div style={{ marginTop: '1.5rem', display: 'flex', gap: '1rem' }}>
-                <button
-                  type="submit"
-                  className="btn btn-primary"
-                  disabled={createLoading}
-                  style={{ minWidth: '150px' }}
-                >
+              <div className="flex gap-sm">
+                <button type="submit" disabled={createLoading} className="inline-flex items-center gap-xs bg-primary text-on-primary px-lg py-sm rounded-xl font-medium hover:bg-primary-container hover:text-on-primary-container transition-all disabled:opacity-50">
                   {createLoading ? '⏳ Membuat...' : '✓ Buat Pengguna'}
                 </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setShowCreateForm(false);
-                    setNewUser({
-                      email: '',
-                      password: '',
-                      confirmPassword: '',
-                      role: 'murid',
-                      displayName: ''
-                    });
-                    setCreateError('');
-                  }}
-                  className="btn btn-secondary"
-                  disabled={createLoading}
-                >
+                <button type="button" onClick={() => { setShowCreateForm(false); setNewUser({ email: '', password: '', confirmPassword: '', role: 'murid', displayName: '' }); setCreateError(''); }} disabled={createLoading} className="inline-flex items-center gap-xs bg-surface-dim text-on-surface-variant px-lg py-sm rounded-xl font-medium hover:bg-outline-variant transition-all">
                   Batal
                 </button>
               </div>
             </form>
           </div>
         )}
-      </section>
+      </div>
 
-      {/* Users List Section */}
-      <section className="dashboard-section">
-        <div style={{ 
-          display: 'flex', 
-          justifyContent: 'space-between', 
-          alignItems: 'center',
-          flexWrap: 'wrap',
-          gap: '1rem',
-          marginBottom: '1rem'
-        }}>
-          <h2 style={{ margin: 0 }}>
-            <User size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Daftar Pengguna ({filteredUsers.length} pengguna)
-          </h2>
-          <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
-            <div style={{ position: 'relative' }}>
-              <Search size={18} style={{ 
-                position: 'absolute', 
-                left: '12px', 
-                top: '50%', 
-                transform: 'translateY(-50%)',
-                color: '#6b7280'
-              }} />
-              <input
-                type="text"
-                placeholder="Cari pengguna..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  padding: '0.5rem 1rem 0.5rem 2.5rem',
-                  borderRadius: '8px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '0.95rem',
-                  minWidth: '200px'
-                }}
-              />
+      {/* Users List */}
+      <div className="bg-surface rounded-xl border border-outline-variant/30 overflow-hidden">
+        <div className="px-lg py-md border-b border-outline-variant/30 bg-surface-container-low">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-md">
+            <h3 className="text-title-md font-display text-on-surface flex items-center gap-xs">
+              <User className="w-5 h-5" /> Daftar Pengguna ({filteredUsers.length})
+            </h3>
+            <div className="flex items-center gap-sm">
+              <div className="relative">
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
+                <input
+                  type="text" placeholder="Cari pengguna..."
+                  value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-xl pr-md py-sm rounded-xl border border-outline-variant bg-surface text-on-surface text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all w-full sm:w-48"
+                />
+              </div>
+              <select
+                value={roleFilter} onChange={(e) => setRoleFilter(e.target.value)}
+                className="px-md py-sm rounded-xl border border-outline-variant bg-surface text-on-surface text-body-sm focus:outline-none focus:ring-2 focus:ring-primary/30 transition-all"
+              >
+                <option value="all">Semua Peran</option>
+                <option value="murid">Murid</option>
+                <option value="guru">Guru</option>
+                <option value="admin">Admin</option>
+              </select>
             </div>
-            <select
-              value={roleFilter}
-              onChange={(e) => setRoleFilter(e.target.value)}
-              style={{
-                padding: '0.5rem 1rem',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                fontSize: '0.95rem'
-              }}
-            >
-              <option value="all">Semua Peran</option>
-              <option value="murid">Murid</option>
-              <option value="guru">Guru</option>
-              <option value="admin">Admin</option>
-            </select>
           </div>
         </div>
+
         {filteredUsers.length > 0 ? (
-          <div className="table-responsive">
-            <table className="dashboard-table">
+          <div className="overflow-x-auto">
+            <table className="w-full text-body-sm">
               <thead>
-                <tr>
-                  <th>Pengguna</th>
-                  <th>Email</th>
-                  <th>Nama</th>
-                  <th>Peran</th>
-                  <th>Dibuat</th>
-                  <th>Aksi</th>
+                <tr className="border-b border-outline-variant/20">
+                  <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Pengguna</th>
+                  <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Email</th>
+                  <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Nama</th>
+                  <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Peran</th>
+                  <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Dibuat</th>
+                  <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Aksi</th>
                 </tr>
               </thead>
               <tbody>
-                {filteredUsers.map(userItem => {
+                {filteredUsers.map((userItem, idx) => {
                   const roleInfo = getRoleBadge(userItem.role);
                   return (
-                    <tr key={userItem.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                          <div style={{
-                            width: '40px',
-                            height: '40px',
-                            borderRadius: '50%',
-                            background: userItem.avatar_url ? `url(${userItem.avatar_url})` : roleInfo.bg,
-                            backgroundSize: 'cover',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            fontSize: '1.2rem',
-                            color: roleInfo.color
-                          }}>
-                            {!userItem.avatar_url && (userItem.display_name || userItem.email)?.charAt(0).toUpperCase()}
-                          </div>
+                    <tr key={userItem.id} className={`border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors ${idx % 2 === 0 ? '' : 'bg-surface-container-low/30'}`}>
+                      <td className="px-lg py-sm">
+                        <div className="w-9 h-9 rounded-full bg-primary-container text-on-primary-container flex items-center justify-center text-label-lg font-bold">
+                          {(userItem.display_name || userItem.email)?.charAt(0).toUpperCase()}
                         </div>
                       </td>
-                      <td>{userItem.email}</td>
-                      <td>{userItem.display_name || userItem.full_name || '-'}</td>
-                      <td>
-                        <span style={{
-                          display: 'inline-flex',
-                          alignItems: 'center',
-                          gap: '4px',
-                          padding: '4px 12px',
-                          borderRadius: '20px',
-                          fontSize: '0.85rem',
-                          fontWeight: '500',
-                          background: roleInfo.bg,
-                          color: roleInfo.color
-                        }}>
+                      <td className="px-lg py-sm text-on-surface">{userItem.email}</td>
+                      <td className="px-lg py-sm text-on-surface-variant">{userItem.display_name || userItem.full_name || '-'}</td>
+                      <td className="px-lg py-sm">
+                        <span className={`inline-flex items-center gap-xs px-sm py-0.5 rounded-full text-label-sm font-medium ${roleInfo.badgeClass}`}>
                           {roleInfo.icon} {roleInfo.label}
                         </span>
                       </td>
-                      <td>{new Date(userItem.created_at).toLocaleDateString()}</td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '0.5rem' }}>
-                          <button
-                            className="btn btn-secondary btn-sm"
-                            onClick={() => handleViewProfile(userItem)}
-                            title="Lihat Profil"
-                            style={{ padding: '0.4rem 0.6rem' }}
-                          >
-                            <Eye size={16} />
+                      <td className="px-lg py-sm text-on-surface-variant">{new Date(userItem.created_at).toLocaleDateString()}</td>
+                      <td className="px-lg py-sm">
+                        <div className="flex items-center gap-xs">
+                          <button onClick={() => handleViewProfile(userItem)} title="Lihat Profil"
+                            className="p-xs rounded-lg bg-surface-container-low text-on-surface-variant hover:bg-primary-container hover:text-on-primary-container transition-all">
+                            <Eye className="w-4 h-4" />
                           </button>
                           <select
-                            value={userItem.role}
-                            onChange={(e) => onUpdateRole(userItem.id, e.target.value)}
+                            value={userItem.role} onChange={(e) => onUpdateRole(userItem.id, e.target.value)}
                             disabled={loading}
-                            className="role-select"
-                            style={{ padding: '0.3rem 0.5rem', fontSize: '0.85rem' }}
+                            className="px-sm py-0.5 rounded-lg border border-outline-variant bg-surface text-on-surface text-label-sm focus:outline-none transition-all"
                           >
                             <option value="murid">Murid</option>
                             <option value="guru">Guru</option>
                             <option value="admin">Admin</option>
                           </select>
-                          <button
-                            className="btn btn-danger btn-sm"
-                            onClick={() => onDeleteUser(userItem.id)}
-                            disabled={loading}
-                            style={{ padding: '0.4rem 0.6rem' }}
-                          >
-                            <Trash2 size={16} />
+                          <button onClick={() => onDeleteUser(userItem.id)} disabled={loading} title="Hapus"
+                            className="p-xs rounded-lg bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-all">
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </td>
@@ -1429,184 +758,55 @@ const UsersManagementView = ({ users, onUpdateRole, onDeleteUser, onCreateUser, 
             </table>
           </div>
         ) : (
-          <div className="empty-state">
-            <Users size={48} className="empty-icon" />
+          <div className="flex flex-col items-center py-2xl text-on-surface-variant">
+            <Users className="w-12 h-12 mb-sm opacity-40" />
             <p>{searchQuery || roleFilter !== 'all' ? 'Tidak ada pengguna yang cocok dengan pencarian.' : 'Belum ada pengguna.'}</p>
           </div>
         )}
-      </section>
+      </div>
 
       {/* Profile Modal */}
       {showProfileModal && selectedUser && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'rgba(0, 0, 0, 0.5)',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-          zIndex: 1000,
-          padding: '1rem'
-        }}>
-          <div style={{
-            background: 'white',
-            borderRadius: '16px',
-            maxWidth: '500px',
-            width: '100%',
-            maxHeight: '90vh',
-            overflow: 'auto',
-            boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)'
-          }}>
-            {/* Modal Header */}
-            <div style={{
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-              padding: '1.5rem',
-              color: 'white',
-              borderRadius: '16px 16px 0 0',
-              position: 'relative'
-            }}>
-              <button
-                onClick={() => setShowProfileModal(false)}
-                style={{
-                  position: 'absolute',
-                  top: '1rem',
-                  right: '1rem',
-                  background: 'rgba(255,255,255,0.2)',
-                  border: 'none',
-                  borderRadius: '50%',
-                  width: '32px',
-                  height: '32px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  color: 'white'
-                }}
-              >
-                <X size={18} />
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-md">
+          <div className="bg-surface rounded-2xl max-w-md w-full max-h-[90vh] overflow-auto shadow-2xl animate-scaleIn">
+            <div className="relative bg-gradient-to-br from-primary to-[#1d4ed8] rounded-t-2xl p-xl text-white text-center">
+              <button onClick={() => setShowProfileModal(false)}
+                className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all">
+                <X className="w-4 h-4" />
               </button>
-              <div style={{ textAlign: 'center' }}>
-                <div style={{
-                  width: '80px',
-                  height: '80px',
-                  borderRadius: '50%',
-                  background: selectedUser.avatar_url ? `url(${selectedUser.avatar_url})` : 'white',
-                  backgroundSize: 'cover',
-                  margin: '0 auto 1rem',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  fontSize: '2rem',
-                  border: '3px solid white'
-                }}>
-                  {!selectedUser.avatar_url && (selectedUser.display_name || selectedUser.email)?.charAt(0).toUpperCase()}
-                </div>
-                <h3 style={{ margin: '0 0 0.5rem', fontSize: '1.25rem' }}>
-                  {selectedUser.display_name || selectedUser.full_name || 'Pengguna'}
-                </h3>
-                <span style={{
-                  display: 'inline-flex',
-                  alignItems: 'center',
-                  gap: '4px',
-                  padding: '4px 12px',
-                  borderRadius: '20px',
-                  fontSize: '0.85rem',
-                  background: 'rgba(255,255,255,0.2)'
-                }}>
-                  {getRoleBadge(selectedUser.role).icon} {getRoleBadge(selectedUser.role).label}
-                </span>
+              <div className="w-20 h-20 rounded-full bg-white/20 mx-auto mb-md flex items-center justify-center text-3xl font-bold border-2 border-white">
+                {(selectedUser.display_name || selectedUser.email)?.charAt(0).toUpperCase()}
               </div>
+              <h3 className="text-title-lg font-display">{selectedUser.display_name || selectedUser.full_name || 'Pengguna'}</h3>
+              <span className={`inline-flex items-center gap-xs px-sm py-0.5 rounded-full text-label-sm font-medium mt-xs bg-white/20`}>
+                {getRoleBadge(selectedUser.role).icon} {getRoleBadge(selectedUser.role).label}
+              </span>
             </div>
-            {/* Modal Body */}
-            <div style={{ padding: '1.5rem' }}>
-              <div style={{ display: 'grid', gap: '1rem' }}>
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  padding: '1rem',
-                  background: '#f8fafc',
-                  borderRadius: '8px'
-                }}>
-                  <Mail size={20} style={{ color: '#3b82f6' }} />
+            <div className="p-lg space-y-sm">
+              {[
+                { icon: Mail, label: 'Email', value: selectedUser.email, color: 'text-primary' },
+                { icon: User, label: 'Nama Lengkap', value: selectedUser.full_name || '-', color: 'text-success' },
+                { icon: Award, label: 'Nama Tampilan', value: selectedUser.display_name || '-', color: 'text-warning' },
+                { icon: Calendar, label: 'Tanggal Dibuat', value: new Date(selectedUser.created_at).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }), color: 'text-tertiary' },
+              ].map((item, idx) => (
+                <div key={idx} className="flex items-center gap-md p-md rounded-xl bg-surface-container-low">
+                  <item.icon className={`w-5 h-5 ${item.color}`} />
                   <div>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280' }}>Email</p>
-                    <p style={{ margin: 0, fontWeight: '500' }}>{selectedUser.email}</p>
+                    <p className="text-label-sm text-on-surface-variant">{item.label}</p>
+                    <p className="text-body-sm font-medium text-on-surface">{item.value}</p>
                   </div>
                 </div>
-                
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  padding: '1rem',
-                  background: '#f8fafc',
-                  borderRadius: '8px'
-                }}>
-                  <User size={20} style={{ color: '#10b981' }} />
-                  <div>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280' }}>Nama Lengkap</p>
-                    <p style={{ margin: 0, fontWeight: '500' }}>{selectedUser.full_name || '-'}</p>
-                  </div>
+              ))}
+              {selectedUser.bio && (
+                <div className="p-md rounded-xl bg-surface-container-low">
+                  <p className="text-label-sm text-on-surface-variant mb-xs">Bio</p>
+                  <p className="text-body-sm text-on-surface">{selectedUser.bio}</p>
                 </div>
-                
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  padding: '1rem',
-                  background: '#f8fafc',
-                  borderRadius: '8px'
-                }}>
-                  <Award size={20} style={{ color: '#f59e0b' }} />
-                  <div>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280' }}>Nama Tampilan</p>
-                    <p style={{ margin: 0, fontWeight: '500' }}>{selectedUser.display_name || '-'}</p>
-                  </div>
-                </div>
-                
-                <div style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '1rem',
-                  padding: '1rem',
-                  background: '#f8fafc',
-                  borderRadius: '8px'
-                }}>
-                  <Calendar size={20} style={{ color: '#6366f1' }} />
-                  <div>
-                    <p style={{ margin: 0, fontSize: '0.85rem', color: '#6b7280' }}>Tanggal Dibuat</p>
-                    <p style={{ margin: 0, fontWeight: '500' }}>{new Date(selectedUser.created_at).toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                  </div>
-                </div>
-                
-                {selectedUser.bio && (
-                  <div style={{
-                    padding: '1rem',
-                    background: '#f8fafc',
-                    borderRadius: '8px'
-                  }}>
-                    <p style={{ margin: '0 0 0.5rem', fontSize: '0.85rem', color: '#6b7280' }}>Bio</p>
-                    <p style={{ margin: 0, lineHeight: '1.5' }}>{selectedUser.bio}</p>
-                  </div>
-                )}
-              </div>
+              )}
             </div>
-            {/* Modal Footer */}
-            <div style={{
-              padding: '1rem 1.5rem',
-              borderTop: '1px solid #e5e7eb',
-              display: 'flex',
-              justifyContent: 'flex-end',
-              gap: '0.5rem'
-            }}>
-              <button
-                onClick={() => setShowProfileModal(false)}
-                className="btn btn-secondary"
-              >
+            <div className="px-lg py-md border-t border-outline-variant/30 flex justify-end">
+              <button onClick={() => setShowProfileModal(false)}
+                className="px-lg py-sm rounded-xl bg-surface-dim text-on-surface-variant font-medium hover:bg-outline-variant transition-all">
                 Tutup
               </button>
             </div>
@@ -1617,291 +817,127 @@ const UsersManagementView = ({ users, onUpdateRole, onDeleteUser, onCreateUser, 
   );
 };
 
-// Courses Admin View Component
+/* ─── COURSES ADMIN VIEW ─── */
 const CoursesAdminView = ({ courses, onDeleteCourse, loading }) => (
-  <div className="dashboard-content">
-    {/* Welcome Message */}
-    <div style={{ 
-      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-      borderRadius: '16px',
-      padding: '1.5rem',
-      color: 'white',
-      marginBottom: '1.5rem',
-      textAlign: 'center'
-    }}>
-      <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>📚 Manajemen Kursus</h2>
-      <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-        Pantau dan kelola semua kursus yang tersedia di platform.
-      </p>
+  <div className="space-y-lg">
+    <div className="relative overflow-hidden bg-gradient-to-br from-success to-[#059669] rounded-2xl p-xl text-white">
+      <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/4 translate-x-1/4" />
+      <div className="relative flex items-center gap-sm">
+        <BookOpen className="w-7 h-7" />
+        <div>
+          <h2 className="text-title-lg font-display">Manajemen Kursus</h2>
+          <p className="text-body-sm opacity-90">Pantau dan kelola semua kursus yang tersedia di platform.</p>
+        </div>
+      </div>
     </div>
 
-    <section className="dashboard-section">
-      <h2>Manajemen Kursus ({courses.length} kursus)</h2>
+    <div className="bg-surface rounded-xl p-lg border border-outline-variant/30">
+      <h3 className="text-title-md font-display text-on-surface mb-md">Kursus ({courses.length})</h3>
       {courses.length > 0 ? (
-        <div className="cards-grid">
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-md">
           {courses.map(course => (
-            <div key={course.id} className="card">
-              <div className="card-header">
-                <span className="course-code">{course.title?.substring(0, 3).toUpperCase() || 'KURSUS'}</span>
-                <span className="course-icon">📚</span>
+            <div key={course.id} className="bg-surface-container-low rounded-xl p-md border border-outline-variant/30 hover:border-primary/30 hover:shadow-md transition-all duration-200 group">
+              <div className="flex items-center justify-between mb-sm">
+                <span className="w-10 h-10 rounded-xl bg-primary-container text-on-primary-container flex items-center justify-center text-title-md font-bold group-hover:scale-110 transition-transform">
+                  {course.title?.substring(0, 2).toUpperCase() || 'KS'}
+                </span>
+                <span className="text-2xl">📚</span>
               </div>
-              <h3>{course.title}</h3>
-              <p>{course.description}</p>
-              <div className="card-footer">
-                <small>Dibuat: {new Date(course.created_at).toLocaleDateString()}</small>
-                <button
-                  className="btn btn-danger btn-sm"
-                  onClick={() => onDeleteCourse(course.id)}
-                  disabled={loading}
-                  style={{ marginTop: '0.5rem' }}
-                >
-                  Hapus Kursus
+              <h4 className="text-title-sm font-display text-on-surface mb-xs font-semibold">{course.title}</h4>
+              <p className="text-body-sm text-on-surface-variant line-clamp-2 mb-sm">{course.description}</p>
+              <div className="flex items-center justify-between pt-sm border-t border-outline-variant/20">
+                <span className="text-label-sm text-on-surface-variant">Dibuat: {new Date(course.created_at).toLocaleDateString()}</span>
+                <button onClick={() => onDeleteCourse(course.id)} disabled={loading}
+                  className="text-label-sm font-medium text-error hover:text-error-container transition-all px-sm py-0.5 rounded-lg hover:bg-error-container">
+                  Hapus
                 </button>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="empty-state">
-          <span className="empty-icon">📚</span>
+        <div className="flex flex-col items-center py-2xl text-on-surface-variant">
+          <BookOpen className="w-12 h-12 mb-sm opacity-40" />
           <p>Belum ada kursus.</p>
         </div>
       )}
-    </section>
+    </div>
   </div>
 );
 
-// Activity View Component
+/* ─── ACTIVITY VIEW ─── */
 const ActivityView = ({ recentActivity }) => {
-  // Calculate activity stats
   const gradedCount = recentActivity.filter(a => a.grade !== null).length;
   const pendingCount = recentActivity.filter(a => a.grade === null).length;
   const today = new Date().toDateString();
-  const todayActivity = recentActivity.filter(a => 
-    new Date(a.submitted_at).toDateString() === today
-  ).length;
-  
+  const todayActivity = recentActivity.filter(a => new Date(a.submitted_at).toDateString() === today).length;
+
   return (
-    <div className="dashboard-content" style={{ padding: '1.5rem' }}>
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '2rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>📝 Aktivitas Sistem</h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Lacak semua aktivitas dan interaksi pengguna dalam platform.
-        </p>
-      </div>
-      
-      {/* Activity Stats */}
-      <div style={{ 
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-        gap: '1rem',
-        marginBottom: '2rem'
-      }}>
-        <div style={{ 
-          background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-          color: 'white',
-          padding: '1.25rem',
-          borderRadius: '12px',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>📊</div>
-          <h3 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem' }}>{recentActivity.length}</h3>
-          <p style={{ opacity: 0.9, fontSize: '0.8rem' }}>Total Aktivitas</p>
-        </div>
-        
-        <div style={{ 
-          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-          color: 'white',
-          padding: '1.25rem',
-          borderRadius: '12px',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>✅</div>
-          <h3 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem' }}>{gradedCount}</h3>
-          <p style={{ opacity: 0.9, fontSize: '0.8rem' }}>Sudah Dinilai</p>
-        </div>
-        
-        <div style={{ 
-          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-          color: 'white',
-          padding: '1.25rem',
-          borderRadius: '12px',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>⏳</div>
-          <h3 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem' }}>{pendingCount}</h3>
-          <p style={{ opacity: 0.9, fontSize: '0.8rem' }}>Menunggu Nilai</p>
-        </div>
-        
-        <div style={{ 
-          background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-          color: 'white',
-          padding: '1.25rem',
-          borderRadius: '12px',
-          textAlign: 'center'
-        }}>
-          <div style={{ fontSize: '2rem', marginBottom: '0.25rem' }}>📅</div>
-          <h3 style={{ fontSize: '1.75rem', fontWeight: '700', marginBottom: '0.25rem' }}>{todayActivity}</h3>
-          <p style={{ opacity: 0.9, fontSize: '0.8rem' }}>Aktivitas Hari Ini</p>
+    <div className="space-y-lg">
+      <div className="relative overflow-hidden bg-gradient-to-br from-tertiary to-[#5b21b6] rounded-2xl p-xl text-white">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/4 translate-x-1/4" />
+        <div className="relative flex items-center gap-sm">
+          <BarChart3 className="w-7 h-7" />
+          <div>
+            <h2 className="text-title-lg font-display">Aktivitas Sistem</h2>
+            <p className="text-body-sm opacity-90">Lacak semua aktivitas dan interaksi pengguna dalam platform.</p>
+          </div>
         </div>
       </div>
-      
-      {/* Activity Table */}
-      <div style={{ 
-        background: 'white',
-        borderRadius: '16px',
-        border: '1px solid #e5e7eb',
-        overflow: 'hidden',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)'
-      }}>
-        <div style={{ 
-          padding: '1.25rem 1.5rem',
-          borderBottom: '1px solid #e5e7eb',
-          background: '#f9fafb'
-        }}>
-          <h3 style={{ 
-            fontSize: '1.1rem', 
-            fontWeight: '600', 
-            color: '#1f2937',
-            margin: 0
-          }}>
-            📋 Riwayat Aktivitas Terbaru
-          </h3>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
+        {[
+          { icon: '📊', label: 'Total Aktivitas', value: recentActivity.length, gradient: 'from-[#3b82f6] to-[#1d4ed8]' },
+          { icon: '✅', label: 'Sudah Dinilai', value: gradedCount, gradient: 'from-[#10b981] to-[#059669]' },
+          { icon: '⏳', label: 'Menunggu Nilai', value: pendingCount, gradient: 'from-[#f59e0b] to-[#d97706]' },
+          { icon: '📅', label: 'Hari Ini', value: todayActivity, gradient: 'from-[#8b5cf6] to-[#6d28d9]' },
+        ].map((stat, idx) => (
+          <div key={idx} className={`bg-gradient-to-br ${stat.gradient} rounded-xl p-md text-white text-center`}>
+            <div className="text-2xl mb-xs">{stat.icon}</div>
+            <p className="text-display-sm font-display font-bold">{stat.value}</p>
+            <p className="text-label-sm opacity-90">{stat.label}</p>
+          </div>
+        ))}
+      </div>
+
+      <div className="bg-surface rounded-xl border border-outline-variant/30 overflow-hidden">
+        <div className="px-lg py-md border-b border-outline-variant/30 bg-surface-container-low">
+          <h3 className="text-title-md font-display text-on-surface">📋 Riwayat Aktivitas Terbaru</h3>
         </div>
-        
         {recentActivity.length > 0 ? (
-          <div style={{ overflowX: 'auto' }}>
-            <table style={{ 
-              width: '100%', 
-              borderCollapse: 'collapse',
-              fontSize: '0.9rem'
-            }}>
-              <thead style={{ background: '#f9fafb' }}>
-                <tr>
-                  <th style={{ 
-                    padding: '1rem 1.5rem', 
-                    textAlign: 'left',
-                    fontWeight: '600',
-                    color: '#374151',
-                    borderBottom: '1px solid #e5e7eb'
-                  }}>
-                    Siswa
-                  </th>
-                  <th style={{ 
-                    padding: '1rem 1.5rem', 
-                    textAlign: 'left',
-                    fontWeight: '600',
-                    color: '#374151',
-                    borderBottom: '1px solid #e5e7eb'
-                  }}>
-                    Tugas
-                  </th>
-                  <th style={{ 
-                    padding: '1rem 1.5rem', 
-                    textAlign: 'left',
-                    fontWeight: '600',
-                    color: '#374151',
-                    borderBottom: '1px solid #e5e7eb'
-                  }}>
-                    Kursus
-                  </th>
-                  <th style={{ 
-                    padding: '1rem 1.5rem', 
-                    textAlign: 'left',
-                    fontWeight: '600',
-                    color: '#374151',
-                    borderBottom: '1px solid #e5e7eb'
-                  }}>
-                    Waktu
-                  </th>
-                  <th style={{ 
-                    padding: '1rem 1.5rem', 
-                    textAlign: 'left',
-                    fontWeight: '600',
-                    color: '#374151',
-                    borderBottom: '1px solid #e5e7eb'
-                  }}>
-                    Status
-                  </th>
+          <div className="overflow-x-auto">
+            <table className="w-full text-body-sm">
+              <thead>
+                <tr className="border-b border-outline-variant/20">
+                  <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Siswa</th>
+                  <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Tugas</th>
+                  <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Kursus</th>
+                  <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Waktu</th>
+                  <th className="text-left px-lg py-sm font-medium text-on-surface-variant">Status</th>
                 </tr>
               </thead>
               <tbody>
-                {recentActivity.map((activity, index) => (
-                  <tr key={activity.id} style={{ 
-                    background: index % 2 === 0 ? 'white' : '#f9fafb',
-                    transition: 'background 0.15s ease'
-                  }}>
-                    <td style={{ 
-                      padding: '1rem 1.5rem',
-                      borderBottom: '1px solid #e5e7eb'
-                    }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                        <span style={{ 
-                          fontSize: '1.25rem'
-                        }}>
-                          {activity.studentRole === 'murid' ? '🎓' : 
-                           activity.studentRole === 'guru' ? '👨‍🏫' : '⚙️'}
-                        </span>
-                        <span style={{ 
-                          color: '#1f2937',
-                          fontWeight: '500'
-                        }}>
-                          {activity.studentEmail}
-                        </span>
+                {recentActivity.map((activity, idx) => (
+                  <tr key={activity.id} className={`border-b border-outline-variant/10 hover:bg-surface-container-low transition-colors ${idx % 2 === 0 ? '' : 'bg-surface-container-low/30'}`}>
+                    <td className="px-lg py-sm">
+                      <span className="inline-flex items-center gap-xs">
+                        <span>{activity.studentRole === 'murid' ? '🎓' : activity.studentRole === 'guru' ? '👨‍🏫' : '⚙️'}</span>
+                        <span className="text-on-surface font-medium">{activity.studentEmail}</span>
+                      </span>
+                    </td>
+                    <td className="px-lg py-sm text-on-surface">{activity.assignmentTitle}</td>
+                    <td className="px-lg py-sm text-on-surface-variant">{activity.courseTitle}</td>
+                    <td className="px-lg py-sm">
+                      <div className="flex flex-col">
+                        <span className="text-on-surface font-medium">{new Date(activity.submitted_at).toLocaleDateString('id-ID')}</span>
+                        <span className="text-label-sm text-on-surface-variant">{new Date(activity.submitted_at).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' })}</span>
                       </div>
                     </td>
-                    <td style={{ 
-                      padding: '1rem 1.5rem',
-                      borderBottom: '1px solid #e5e7eb',
-                      color: '#374151'
-                    }}>
-                      {activity.assignmentTitle}
-                    </td>
-                    <td style={{ 
-                      padding: '1rem 1.5rem',
-                      borderBottom: '1px solid #e5e7eb',
-                      color: '#6b7280'
-                    }}>
-                      {activity.courseTitle}
-                    </td>
-                    <td style={{ 
-                      padding: '1rem 1.5rem',
-                      borderBottom: '1px solid #e5e7eb',
-                      color: '#6b7280'
-                    }}>
-                      <div style={{ display: 'flex', flexDirection: 'column' }}>
-                        <span style={{ color: '#1f2937', fontWeight: '500' }}>
-                          {new Date(activity.submitted_at).toLocaleDateString('id-ID')}
-                        </span>
-                        <span style={{ fontSize: '0.8rem', color: '#9ca3af' }}>
-                          {new Date(activity.submitted_at).toLocaleTimeString('id-ID', { 
-                            hour: '2-digit', 
-                            minute: '2-digit' 
-                          })}
-                        </span>
-                      </div>
-                    </td>
-                    <td style={{ 
-                      padding: '1rem 1.5rem',
-                      borderBottom: '1px solid #e5e7eb'
-                    }}>
-                      <span style={{ 
-                        padding: '0.35rem 0.75rem',
-                        borderRadius: '9999px',
-                        fontSize: '0.75rem',
-                        fontWeight: '500',
-                        background: activity.grade !== null ? '#d1fae5' : '#fef3c7',
-                        color: activity.grade !== null ? '#059669' : '#d97706'
-                      }}>
-                        {activity.grade !== null ? `✅ Dinilai: ${activity.grade}` : '⏳ Menunggu'}
+                    <td className="px-lg py-sm">
+                      <span className={`inline-flex items-center gap-xs px-sm py-0.5 rounded-full text-label-sm font-medium ${
+                        activity.grade !== null ? 'bg-success-container text-on-success-container' : 'bg-warning-container text-on-warning-container'
+                      }`}>
+                        {activity.grade !== null ? `✅ ${activity.grade}` : '⏳ Menunggu'}
                       </span>
                     </td>
                   </tr>
@@ -1910,13 +946,9 @@ const ActivityView = ({ recentActivity }) => {
             </table>
           </div>
         ) : (
-          <div style={{ 
-            padding: '3rem 1.5rem',
-            textAlign: 'center',
-            color: '#6b7280'
-          }}>
-            <span style={{ fontSize: '3rem', display: 'block', marginBottom: '1rem' }}>📭</span>
-            <p style={{ fontSize: '1rem', margin: 0 }}>Belum ada aktivitas.</p>
+          <div className="flex flex-col items-center py-2xl text-on-surface-variant">
+            <span className="text-5xl mb-sm">📭</span>
+            <p>Belum ada aktivitas.</p>
           </div>
         )}
       </div>
@@ -1924,428 +956,154 @@ const ActivityView = ({ recentActivity }) => {
   );
 };
 
-// Settings View Component
-const SettingsView = () => {
-  return (
-    <div className="dashboard-content" style={{ padding: '1.5rem' }}>
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '2rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>⚙️ Pengaturan Sistem</h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Kelola notifikasi, keamanan, dan konfigurasi platform.
-        </p>
+/* ─── SETTINGS VIEW ─── */
+const SettingsView = () => (
+  <div className="space-y-lg">
+    <div className="relative overflow-hidden bg-gradient-to-br from-surface-dim to-[#4b5563] rounded-2xl p-xl text-white">
+      <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/4 translate-x-1/4" />
+      <div className="relative flex items-center gap-sm">
+        <Settings className="w-7 h-7" />
+        <div>
+          <h2 className="text-title-lg font-display">Pengaturan Sistem</h2>
+          <p className="text-body-sm opacity-90">Kelola notifikasi, keamanan, dan konfigurasi platform.</p>
+        </div>
       </div>
-      
-      <div style={{ display: 'grid', gap: '1.5rem' }}>
-      {/* General Settings */}
-      <div style={{ 
-        background: 'white',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-        border: '1px solid #e5e7eb'
-      }}>
-        <h3 style={{ 
-          fontSize: '1.1rem', 
-          fontWeight: '600', 
-          color: '#1f2937',
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
+    </div>
+
+    <div className="space-y-md">
+      {/* Notification Settings */}
+      <div className="bg-surface rounded-xl p-lg border border-outline-variant/30">
+        <h3 className="text-title-md font-display text-on-surface flex items-center gap-xs mb-md">
           🔔 Notifikasi
         </h3>
-        
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between',
-            padding: '1rem',
-            background: '#f9fafb',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}>
-            <div>
-              <span style={{ fontWeight: '500', color: '#374151' }}>Notifikasi Email</span>
-              <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
-                Kirim notifikasi ke email pengguna
-              </p>
-            </div>
-            <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px' }} />
-          </label>
-          
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between',
-            padding: '1rem',
-            background: '#f9fafb',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}>
-            <div>
-              <span style={{ fontWeight: '500', color: '#374151' }}>Notifikasi Tugas Baru</span>
-              <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
-                Beritahu siswa saat tugas baru ditambahkan
-              </p>
-            </div>
-            <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px' }} />
-          </label>
-          
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between',
-            padding: '1rem',
-            background: '#f9fafb',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}>
-            <div>
-              <span style={{ fontWeight: '500', color: '#374151' }}>Notifikasi Nilai</span>
-              <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
-                Beritahu siswa saat tugas dinilai
-              </p>
-            </div>
-            <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px' }} />
-          </label>
+        <div className="space-y-sm">
+          {[
+            { label: 'Notifikasi Email', desc: 'Kirim notifikasi ke email pengguna' },
+            { label: 'Notifikasi Tugas Baru', desc: 'Beritahu siswa saat tugas baru ditambahkan' },
+            { label: 'Notifikasi Nilai', desc: 'Beritahu siswa saat tugas dinilai' },
+          ].map((item, idx) => (
+            <label key={idx} className="flex items-center justify-between p-md rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-all">
+              <div>
+                <span className="text-label-lg font-medium text-on-surface">{item.label}</span>
+                <p className="text-label-sm text-on-surface-variant">{item.desc}</p>
+              </div>
+              <input type="checkbox" defaultChecked className="w-5 h-5 rounded accent-primary" />
+            </label>
+          ))}
         </div>
       </div>
-      
+
       {/* Security Settings */}
-      <div style={{ 
-        background: 'white',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-        border: '1px solid #e5e7eb'
-      }}>
-        <h3 style={{ 
-          fontSize: '1.1rem', 
-          fontWeight: '600', 
-          color: '#1f2937',
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
+      <div className="bg-surface rounded-xl p-lg border border-outline-variant/30">
+        <h3 className="text-title-md font-display text-on-surface flex items-center gap-xs mb-md">
           🔒 Keamanan
         </h3>
-        
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between',
-            padding: '1rem',
-            background: '#f9fafb',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}>
-            <div>
-              <span style={{ fontWeight: '500', color: '#374151' }}>Verifikasi Email</span>
-              <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
-                Wajibkan verifikasi email saat daftar
-              </p>
-            </div>
-            <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px' }} />
-          </label>
-          
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between',
-            padding: '1rem',
-            background: '#f9fafb',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}>
-            <div>
-              <span style={{ fontWeight: '500', color: '#374151' }}>Reset Password</span>
-              <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
-                Izinkan pengguna reset password
-              </p>
-            </div>
-            <input type="checkbox" defaultChecked style={{ width: '20px', height: '20px' }} />
-          </label>
+        <div className="space-y-sm">
+          {[
+            { label: 'Verifikasi Email', desc: 'Wajibkan verifikasi email saat daftar' },
+            { label: 'Reset Password', desc: 'Izinkan pengguna reset password' },
+          ].map((item, idx) => (
+            <label key={idx} className="flex items-center justify-between p-md rounded-xl bg-surface-container-low cursor-pointer hover:bg-surface-container transition-all">
+              <div>
+                <span className="text-label-lg font-medium text-on-surface">{item.label}</span>
+                <p className="text-label-sm text-on-surface-variant">{item.desc}</p>
+              </div>
+              <input type="checkbox" defaultChecked className="w-5 h-5 rounded accent-primary" />
+            </label>
+          ))}
         </div>
       </div>
-      
+
       {/* System Settings */}
-      <div style={{ 
-        background: 'white',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        boxShadow: '0 4px 6px rgba(0, 0, 0, 0.05)',
-        border: '1px solid #e5e7eb'
-      }}>
-        <h3 style={{ 
-          fontSize: '1.1rem', 
-          fontWeight: '600', 
-          color: '#1f2937',
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
+      <div className="bg-surface rounded-xl p-lg border border-outline-variant/30">
+        <h3 className="text-title-md font-display text-on-surface flex items-center gap-xs mb-md">
           🖥️ Sistem
         </h3>
-        
-        <div style={{ display: 'grid', gap: '1rem' }}>
-          <label style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between',
-            padding: '1rem',
-            background: '#fef3c7',
-            borderRadius: '8px',
-            cursor: 'pointer'
-          }}>
+        <div className="space-y-sm">
+          <label className="flex items-center justify-between p-md rounded-xl bg-warning-container cursor-pointer hover:bg-warning-container/80 transition-all">
             <div>
-              <span style={{ fontWeight: '500', color: '#92400e' }}>Mode Maintenance</span>
-              <p style={{ fontSize: '0.8rem', color: '#b45309', marginTop: '0.25rem' }}>
-                Matikan akses sementara untuk maintenance
-              </p>
+              <span className="text-label-lg font-medium text-on-warning-container">Mode Maintenance</span>
+              <p className="text-label-sm text-on-warning-container/80">Matikan akses sementara untuk maintenance</p>
             </div>
-            <input type="checkbox" style={{ width: '20px', height: '20px' }} />
+            <input type="checkbox" className="w-5 h-5 rounded accent-primary" />
           </label>
-          
-          <div style={{ 
-            display: 'flex', 
-            alignItems: 'center', 
-            justifyContent: 'space-between',
-            padding: '1rem',
-            background: '#f9fafb',
-            borderRadius: '8px'
-          }}>
+          <div className="flex items-center justify-between p-md rounded-xl bg-surface-container-low">
             <div>
-              <span style={{ fontWeight: '500', color: '#374151' }}>Versi Sistem</span>
-              <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.25rem' }}>
-                v1.0.0 - Build 2024.01
-              </p>
+              <span className="text-label-lg font-medium text-on-surface">Versi Sistem</span>
+              <p className="text-label-sm text-on-surface-variant">v1.0.0 - Build 2024.01</p>
             </div>
-            <span style={{ 
-              background: '#e0e7ff',
-              color: '#4338ca',
-              padding: '0.25rem 0.75rem',
-              borderRadius: '9999px',
-              fontSize: '0.75rem',
-              fontWeight: '500'
-            }}>
-              Terbaru
-            </span>
+            <span className="bg-primary-container text-on-primary-container px-sm py-0.5 rounded-full text-label-sm font-medium">Terbaru</span>
           </div>
         </div>
       </div>
-      
+
       {/* Save Button */}
-      <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '1rem', marginTop: '1rem' }}>
-        <button className="btn btn-secondary">
-          Batal
-        </button>
-        <button className="btn btn-primary">
-          💾 Simpan Pengaturan
-        </button>
+      <div className="flex justify-end gap-sm">
+        <button className="px-lg py-sm rounded-xl bg-surface-dim text-on-surface-variant font-medium hover:bg-outline-variant transition-all">Batal</button>
+        <button className="inline-flex items-center gap-xs bg-primary text-on-primary px-lg py-sm rounded-xl font-medium hover:bg-primary-container hover:text-on-primary-container transition-all">💾 Simpan Pengaturan</button>
       </div>
     </div>
   </div>
- );
-};
+);
 
-// Quick Actions View Component
+/* ─── QUICK ACTIONS VIEW ─── */
 const QuickActionsView = ({ onNavigate }) => {
   const quickActions = [
-    {
-      title: 'Tambah Pengguna Baru',
-      description: 'Buat akun baru untuk murid, guru, atau admin',
-      icon: '👤➕',
-      action: 'users-admin',
-      color: '#3b82f6'
-    },
-    {
-      title: 'Buat Kursus',
-      description: 'Buat kursus baru untuk platform pembelajaran',
-      icon: '📚➕',
-      action: 'courses-admin',
-      color: '#10b981'
-    },
-    {
-      title: 'Buat Pengumuman',
-      description: 'Umum kan informasi penting ke semua pengguna',
-      icon: '📢➕',
-      action: 'announcements-admin',
-      color: '#f59e0b'
-    },
-    {
-      title: 'Lihat Aktivitas',
-      description: 'Pantau aktivitas terbaru di platform',
-      icon: '📊',
-      action: 'activity-admin',
-      color: '#8b5cf6'
-    },
-    {
-      title: 'Kelola Pengaturan',
-      description: 'Konfigurasi notifikasi, keamanan, dan sistem',
-      icon: '⚙️',
-      action: 'settings-admin',
-      color: '#6b7280'
-    },
-    {
-      title: 'Kembali ke Dashboard',
-      description: 'Lihat ringkasan dan statistik utama',
-      icon: '🏠',
-      action: 'dashboard-admin',
-      color: '#1f2937'
-    }
+    { title: 'Tambah Pengguna Baru', description: 'Buat akun baru untuk murid, guru, atau admin', icon: '👤➕', action: 'users-admin', color: '#3b82f6' },
+    { title: 'Buat Kursus', description: 'Buat kursus baru untuk platform pembelajaran', icon: '📚➕', action: 'courses-admin', color: '#10b981' },
+    { title: 'Buat Pengumuman', description: 'Umumkan informasi penting ke semua pengguna', icon: '📢➕', action: 'announcements-admin', color: '#f59e0b' },
+    { title: 'Lihat Aktivitas', description: 'Pantau aktivitas terbaru di platform', icon: '📊', action: 'activity-admin', color: '#8b5cf6' },
+    { title: 'Kelola Pengaturan', description: 'Konfigurasi notifikasi, keamanan, dan sistem', icon: '⚙️', action: 'settings-admin', color: '#6b7280' },
+    { title: 'Kembali ke Dashboard', description: 'Lihat ringkasan dan statistik utama', icon: '🏠', action: 'dashboard-admin', color: '#1f2937' },
   ];
 
   return (
-    <div className="dashboard-content" style={{ padding: '1.5rem' }}>
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '2rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>⚡ Quick Actions</h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Akses cepat ke semua fitur dan tindakan administratif.
-        </p>
+    <div className="space-y-lg">
+      <div className="relative overflow-hidden bg-gradient-to-br from-warning to-[#d97706] rounded-2xl p-xl text-white">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/4 translate-x-1/4" />
+        <div className="relative">
+          <h2 className="text-title-lg font-display">⚡ Quick Actions</h2>
+          <p className="text-body-sm opacity-90">Akses cepat ke semua fitur dan tindakan administratif.</p>
+        </div>
       </div>
-      
-      {/* Quick Actions Grid */}
-      <div style={{ 
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
-        gap: '1.25rem'
-      }}>
-        {quickActions.map((action, index) => (
+
+      <div className="grid md:grid-cols-2 gap-md">
+        {quickActions.map((action, idx) => (
           <button
-            key={index}
+            key={idx}
             onClick={() => onNavigate(action.action)}
-            style={{
-              background: 'white',
-              border: '1px solid #e5e7eb',
-              borderRadius: '16px',
-              padding: '1.5rem',
-              textAlign: 'left',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              boxShadow: '0 2px 4px rgba(0, 0, 0, 0.03)',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '0.75rem'
-            }}
-            onMouseOver={(e) => {
-              e.currentTarget.style.borderColor = action.color;
-              e.currentTarget.style.boxShadow = `0 4px 12px ${action.color}20`;
-              e.currentTarget.style.transform = 'translateY(-2px)';
-            }}
-            onMouseOut={(e) => {
-              e.currentTarget.style.borderColor = '#e5e7eb';
-              e.currentTarget.style.boxShadow = '0 2px 4px rgba(0, 0, 0, 0.03)';
-              e.currentTarget.style.transform = 'translateY(0)';
-            }}
+            className="bg-surface rounded-xl p-lg border border-outline-variant/30 hover:border-primary/30 hover:shadow-md transition-all duration-200 text-left group"
           >
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              gap: '1rem'
-            }}>
-              <div style={{ 
-                width: '48px', 
-                height: '48px', 
-                borderRadius: '12px', 
-                background: `${action.color}15`,
-                display: 'flex', 
-                alignItems: 'center', 
-                justifyContent: 'center',
-                fontSize: '1.5rem'
-              }}>
+            <div className="flex items-start gap-md">
+              <div className="w-12 h-12 rounded-xl bg-primary-container/20 flex items-center justify-center text-xl group-hover:scale-110 transition-transform" style={{ backgroundColor: `${action.color}15` }}>
                 {action.icon}
               </div>
-              <div>
-                <h3 style={{ 
-                  fontSize: '1rem', 
-                  fontWeight: '600', 
-                  color: '#1f2937',
-                  marginBottom: '0.25rem'
-                }}>
-                  {action.title}
-                </h3>
-                <p style={{ 
-                  fontSize: '0.8rem', 
-                  color: '#6b7280',
-                  margin: 0
-                }}>
-                  {action.description}
-                </p>
+              <div className="flex-1">
+                <h3 className="text-title-sm font-display text-on-surface font-semibold mb-xs">{action.title}</h3>
+                <p className="text-body-sm text-on-surface-variant">{action.description}</p>
               </div>
             </div>
-            <div style={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              justifyContent: 'flex-end',
-              marginTop: '0.5rem'
-            }}>
-              <span style={{ 
-                fontSize: '0.8rem', 
-                color: action.color,
-                fontWeight: '500'
-              }}>
-                Klik untuk mengakses →
-              </span>
+            <div className="flex justify-end mt-sm">
+              <span className="text-label-sm font-medium" style={{ color: action.color }}>Klik untuk mengakses →</span>
             </div>
           </button>
         ))}
       </div>
-      
-      {/* Recent Quick Stats */}
-      <div style={{ 
-        marginTop: '2.5rem',
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white'
-      }}>
-        <h3 style={{ 
-          fontSize: '1.1rem', 
-          fontWeight: '600', 
-          marginBottom: '1rem',
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem'
-        }}>
-          📊 Ringkasan Cepat
-        </h3>
-        <div style={{ 
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: '1rem'
-        }}>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '2rem', fontWeight: '700', margin: '0 0 0.25rem 0' }}>6</p>
-            <p style={{ fontSize: '0.8rem', opacity: 0.9, margin: 0 }}>Menu Tersedia</p>
+
+      <div className="bg-gradient-to-br from-primary to-[#764ba2] rounded-2xl p-xl text-white text-center">
+        <h3 className="text-title-md font-display mb-md">📊 Ringkasan Cepat</h3>
+        <div className="grid grid-cols-3 gap-md">
+          <div>
+            <p className="text-display-sm font-display font-bold">6</p>
+            <p className="text-label-sm opacity-90">Menu Tersedia</p>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '2rem', fontWeight: '700', margin: '0 0 0.25rem 0' }}>5</p>
-            <p style={{ fontSize: '0.8rem', opacity: 0.9, margin: 0 }}>Fitur Utama</p>
+          <div>
+            <p className="text-display-sm font-display font-bold">5</p>
+            <p className="text-label-sm opacity-90">Fitur Utama</p>
           </div>
-          <div style={{ textAlign: 'center' }}>
-            <p style={{ fontSize: '2rem', fontWeight: '700', margin: '0 0 0.25rem 0' }}>⚡</p>
-            <p style={{ fontSize: '0.8rem', opacity: 0.9, margin: 0 }}>Akses Cepat</p>
+          <div>
+            <p className="text-display-sm font-display font-bold">⚡</p>
+            <p className="text-label-sm opacity-90">Akses Cepat</p>
           </div>
         </div>
       </div>
@@ -2353,7 +1111,7 @@ const QuickActionsView = ({ onNavigate }) => {
   );
 };
 
-// Profile View Component
+/* ─── PROFILE VIEW ─── */
 const ProfileView = ({ onRefresh }) => {
   const { user, profile, updateProfile } = useAuth();
   const [displayName, setDisplayName] = useState('');
@@ -2362,171 +1120,84 @@ const ProfileView = ({ onRefresh }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (profile?.display_name) {
-      setDisplayName(profile.display_name);
-    } else if (user?.email) {
-      setDisplayName(user.email.split('@')[0]);
-    }
+    if (profile?.display_name) setDisplayName(profile.display_name);
+    else if (user?.email) setDisplayName(user.email.split('@')[0]);
   }, [profile, user]);
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!displayName.trim()) {
-      setError('Nama tampilan tidak boleh kosong');
-      return;
-    }
-
+    if (!displayName.trim()) { setError('Nama tampilan tidak boleh kosong'); return; }
     try {
-      setLoading(true);
-      setError('');
-      setMessage('');
-
+      setLoading(true); setError(''); setMessage('');
       await updateProfile({ display_name: displayName.trim() });
       setMessage('Profil berhasil diperbarui!');
       if (onRefresh) onRefresh();
     } catch (err) {
       console.error('Error updating profile:', err);
-      if (err.message.includes('display_name')) {
-        setError('Kolom display_name belum ada di tabel. Silakan jalankan migration SQL di Supabase.');
-      } else if (err.message.includes('null value in column "email"')) {
-        setError('Email tidak ditemukan. Silakan logout dan login kembali.');
-      } else {
-        setError('Gagal memperbarui profil: ' + err.message);
-      }
-    } finally {
-      setLoading(false);
-    }
+      if (err.message.includes('display_name')) setError('Kolom display_name belum ada di tabel. Silakan jalankan migration SQL di Supabase.');
+      else if (err.message.includes('null value in column "email"')) setError('Email tidak ditemukan. Silakan logout dan login kembali.');
+      else setError('Gagal memperbarui profil: ' + err.message);
+    } finally { setLoading(false); }
   };
 
   return (
-    <div className="dashboard-content">
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '1.5rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>👤 Profil Saya</h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Kelola informasi profil Anda.
-        </p>
+    <div className="space-y-lg">
+      <div className="relative overflow-hidden bg-gradient-to-br from-tertiary to-[#7c3aed] rounded-2xl p-xl text-white">
+        <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/4 translate-x-1/4" />
+        <div className="relative flex items-center gap-sm">
+          <User className="w-7 h-7" />
+          <div>
+            <h2 className="text-title-lg font-display">Profil Saya</h2>
+            <p className="text-body-sm opacity-90">Kelola informasi profil Anda.</p>
+          </div>
+        </div>
       </div>
 
-      <section className="dashboard-section">
-        <h2>📝 Edit Profil</h2>
-        
+      <div className="bg-surface rounded-xl p-lg border border-outline-variant/30 max-w-lg">
+        <h3 className="text-title-md font-display text-on-surface mb-md">📝 Edit Profil</h3>
+
         {message && (
-          <div className="success-message" style={{ 
-            background: '#dcfce7', 
-            color: '#166534', 
-            padding: '0.75rem', 
-            borderRadius: '8px',
-            marginBottom: '1rem'
-          }}>
-            {message}
+          <div className="flex items-center gap-xs bg-success-container text-on-success-container px-md py-sm rounded-lg mb-md">
+            <CheckCircle className="w-4 h-4" />
+            <span className="text-label-lg">{message}</span>
           </div>
         )}
-        
         {error && (
-          <div className="error-message" style={{ 
-            background: '#fee2e2', 
-            color: '#dc2626', 
-            padding: '0.75rem', 
-            borderRadius: '8px',
-            marginBottom: '1rem'
-          }}>
-            {error}
+          <div className="flex items-center gap-xs bg-error-container text-on-error-container px-md py-sm rounded-lg mb-md">
+            <AlertCircle className="w-4 h-4" />
+            <span className="text-label-lg">{error}</span>
           </div>
         )}
 
-        <form onSubmit={handleSave} style={{ maxWidth: '500px' }}>
-          <div className="form-group" style={{ marginBottom: '1rem' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '500',
-              color: '#374151'
-            }}>
-              Email
-            </label>
-            <input 
-              type="email" 
-              value={user?.email || ''} 
-              disabled
-              style={{ 
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                backgroundColor: '#f3f4f6',
-                color: '#6b7280'
-              }}
-            />
-            <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
-              Email tidak dapat diubah
-            </small>
+        <form onSubmit={handleSave} className="space-y-md">
+          <div>
+            <label className="block text-label-lg font-medium text-on-surface mb-xs">Email</label>
+            <input type="email" value={user?.email || ''} disabled
+              className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface-dim text-on-surface-variant text-body-md cursor-not-allowed" />
+            <p className="text-label-sm text-on-surface-variant mt-xs">Email tidak dapat diubah</p>
           </div>
-
-          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '500',
-              color: '#374151'
-            }}>
-              Nama Tampilan
-            </label>
-            <input 
-              type="text" 
-              value={displayName} 
-              onChange={(e) => setDisplayName(e.target.value)}
+          <div>
+            <label className="block text-label-lg font-medium text-on-surface mb-xs">Nama Tampilan</label>
+            <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)}
               placeholder="Masukkan nama tampilan"
-              style={{ 
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                fontSize: '1rem'
-              }}
-            />
-            <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
-              Nama ini akan terlihat oleh semua pengguna
-            </small>
+              className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+            <p className="text-label-sm text-on-surface-variant mt-xs">Nama ini akan terlihat oleh semua pengguna</p>
           </div>
-
-          <button 
-            type="submit" 
-            className="btn btn-primary"
-            disabled={loading}
-            style={{ minWidth: '150px' }}
-          >
+          <button type="submit" disabled={loading}
+            className="inline-flex items-center gap-xs bg-primary text-on-primary px-lg py-sm rounded-xl font-medium hover:bg-primary-container hover:text-on-primary-container transition-all disabled:opacity-50">
             {loading ? '⏳ Menyimpan...' : '💾 Simpan Perubahan'}
           </button>
         </form>
-      </section>
+      </div>
 
-      <section className="dashboard-section" style={{ marginTop: '2rem' }}>
-        <h2>ℹ️ Informasi Akun</h2>
-        <div style={{ 
-          background: '#f9fafb', 
-          padding: '1.5rem', 
-          borderRadius: '12px',
-          maxWidth: '500px'
-        }}>
-          <div style={{ marginBottom: '1rem' }}>
-            <strong>Role:</strong> Admin
-          </div>
-          <div style={{ marginBottom: '1rem' }}>
-            <strong>Status:</strong> Aktif
-          </div>
-          <div>
-            <strong>ID:</strong> <code style={{ fontSize: '0.85rem' }}>{user?.id}</code>
-          </div>
+      <div className="bg-surface rounded-xl p-lg border border-outline-variant/30 max-w-lg">
+        <h3 className="text-title-md font-display text-on-surface mb-md">ℹ️ Informasi Akun</h3>
+        <div className="bg-surface-container-low rounded-xl p-md space-y-sm">
+          <div className="flex items-center gap-sm"><span className="font-medium text-on-surface">Role:</span><span className="text-on-surface-variant">Admin</span></div>
+          <div className="flex items-center gap-sm"><span className="font-medium text-on-surface">Status:</span><span className="inline-flex items-center gap-xs text-success"><CheckCircle className="w-4 h-4" /> Aktif</span></div>
+          <div className="flex items-center gap-sm"><span className="font-medium text-on-surface">ID:</span><code className="text-label-sm text-on-surface-variant bg-surface px-sm py-0.5 rounded">{user?.id}</code></div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

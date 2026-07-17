@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
+import { FileText, Upload, X, CheckCircle, AlertCircle, Send } from 'lucide-react';
 
 const SubmissionModule = () => {
   const { user, role } = useAuth();
@@ -310,317 +311,174 @@ const SubmissionModule = () => {
   };
 
   if (loading) {
-    return <div className="dashboard-container">Memuat tugas...</div>;
+    return (
+      <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+        <div className="flex flex-col items-center justify-center min-h-[30vh]">
+          <div className="w-8 h-8 rounded-full border-[3px] border-outline-variant border-t-primary animate-spin mb-md" />
+          <p className="text-body-sm text-on-surface-variant animate-pulse">Memuat tugas...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="dashboard-container">
-      <h1>Pengumpulan Tugas</h1>
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto space-y-lg">
+      {/* Header */}
+      <h1 className="text-headline-sm md:text-headline-md font-display text-on-surface flex items-center gap-sm">
+        <FileText className="w-6 h-6 text-primary" />
+        Pengumpulan Tugas
+      </h1>
 
+      {/* Submission Form Modal */}
       {showForm && selectedAssignment && (
-        <div className="form-container">
-          <h2>Kumpulkan Tugas: {selectedAssignment.title}</h2>
-          <p><strong>Kursus:</strong> {selectedAssignment.courses?.title}</p>
-          <p><strong>Batas Waktu:</strong> {selectedAssignment.due_date ? new Date(selectedAssignment.due_date).toLocaleDateString() : 'Tidak ada'}</p>
-
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="content">Jawaban Tugas:</label>
-              <textarea
-                id="content"
-                name="content"
-                value={formData.content}
-                onChange={handleInputChange}
-                rows="8"
-                required
-              ></textarea>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-md">
+          <div className="bg-surface rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto shadow-2xl animate-scaleIn">
+            <div className="relative bg-gradient-to-br from-primary to-[#5a4fcf] rounded-t-2xl p-xl text-white">
+              <h2 className="text-title-lg font-display">Kumpulkan Tugas: {selectedAssignment.title}</h2>
+              <p className="text-body-sm opacity-90 mt-xs">{selectedAssignment.courses?.title} • Batas: {selectedAssignment.due_date ? new Date(selectedAssignment.due_date).toLocaleDateString() : 'Tidak ada'}</p>
+              <button onClick={handleCancel} type="button" className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all"><X className="w-4 h-4" /></button>
             </div>
-
-            <div className="form-group">
-              <label htmlFor="attachment_url">Lampiran (opsional):</label>
-              
-              {/* File Upload Section */}
-              <div className="file-upload-container" style={{ 
-                border: '2px dashed #ccc', 
-                padding: '20px', 
-                borderRadius: '8px',
-                marginBottom: '15px',
-                textAlign: 'center',
-                backgroundColor: '#f9fafb'
-              }}>
-                <input
-                  type="file"
-                  id="file-upload"
-                  ref={fileInputRef}
-                  onChange={handleFileChange}
-                  style={{ display: 'none' }}
-                  accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.webp,.mp4,.mov"
-                />
-                
-                {!selectedFile ? (
-                  <label htmlFor="file-upload" style={{ 
-                    cursor: 'pointer',
-                    display: 'block',
-                    color: '#0066cc'
-                  }}>
-                    <div style={{ fontSize: '2rem', marginBottom: '10px' }}>📤</div>
-                    <strong>Klik untuk upload file</strong>
-                    <p style={{ margin: '5px 0', color: '#666', fontSize: '0.9rem' }}>
-                      atau drag & drop file di sini
-                    </p>
-                    <p style={{ margin: '5px 0', color: '#888', fontSize: '0.8rem' }}>
-                      Mendukung: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, TXT, JPG, PNG, GIF, MP4, MOV
-                    </p>
-                  </label>
-                ) : (
-                  <div className="selected-file" style={{ 
-                    background: '#e3f2fd',
-                    padding: '15px',
-                    borderRadius: '8px',
-                    border: '1px solid #2196f3'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '1.5rem' }}>{getFileIcon(selectedFile.name)}</span>
-                        <div>
-                          <strong>{selectedFile.name}</strong>
-                          <p style={{ margin: 0, fontSize: '0.85rem', color: '#666' }}>
-                            {(selectedFile.size / 1024 / 1024).toFixed(2)} MB
-                          </p>
-                        </div>
-                      </div>
-                      <button 
-                        type="button"
-                        onClick={handleRemoveFile}
-                        style={{ 
-                          background: '#f44336',
-                          color: 'white',
-                          border: 'none',
-                          padding: '5px 10px',
-                          borderRadius: '4px',
-                          cursor: 'pointer'
-                        }}
-                      >
-                        Hapus
-                      </button>
-                    </div>
-                    
-                    {uploading && (
-                      <div style={{ marginTop: '15px' }}>
-                        <div style={{ 
-                          background: '#e0e0e0',
-                          borderRadius: '4px',
-                          height: '8px',
-                          overflow: 'hidden'
-                        }}>
-                          <div style={{ 
-                            width: `${uploadProgress}%`,
-                            background: '#2196f3',
-                            height: '100%',
-                            transition: 'width 0.3s ease'
-                          }}></div>
-                        </div>
-                        <p style={{ margin: '5px 0 0 0', fontSize: '0.85rem', color: '#666' }}>
-                          Mengupload... {uploadProgress}%
-                        </p>
-                      </div>
-                    )}
-                    
-                    {uploadError && (
-                      <div style={{ 
-                        marginTop: '10px',
-                        padding: '10px',
-                        background: '#ffebee',
-                        borderRadius: '4px',
-                        color: '#c62828',
-                        fontSize: '0.85rem'
-                      }}>
-                        ❌ Error: {uploadError}
-                      </div>
-                    )}
-                  </div>
-                )}
+            <form onSubmit={handleSubmit} className="p-lg space-y-md">
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-xs">Jawaban Tugas *</label>
+                <textarea name="content" value={formData.content} onChange={handleInputChange} rows="6" required
+                  className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
               </div>
-              
-              {/* Manual URL Input */}
-              <p style={{ fontSize: '0.85rem', color: '#666', margin: '10px 0 5px 0' }}>
-                <strong>ATAU</strong> masukkan URL manual:
-              </p>
-              <input
-                type="url"
-                id="attachment_url"
-                name="attachment_url"
-                value={formData.attachment_url}
-                onChange={handleInputChange}
-                placeholder="https://drive.google.com/..."
-                style={{ width: '100%' }}
-              />
-            </div>
-
-            <div className="form-actions">
-              <button type="submit" className="btn btn-primary">
-                Kumpulkan Tugas
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={handleCancel}>
-                Batal
-              </button>
-            </div>
-          </form>
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-xs">Lampiran (opsional)</label>
+                <div className="border-2 border-dashed border-outline-variant rounded-xl p-lg text-center bg-surface-container-low">
+                  <input type="file" id="file-upload" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept=".pdf,.doc,.docx,.xls,.xlsx,.ppt,.pptx,.txt,.jpg,.jpeg,.png,.gif,.webp,.mp4,.mov" />
+                  {!selectedFile ? (
+                    <label htmlFor="file-upload" className="cursor-pointer block">
+                      <Upload className="w-8 h-8 mx-auto mb-sm text-primary" />
+                      <p className="text-label-lg font-medium text-primary">Klik untuk upload file</p>
+                      <p className="text-label-sm text-on-surface-variant mt-xs">atau drag & drop file di sini</p>
+                      <p className="text-label-xs text-on-surface-variant mt-xs">PDF, DOC, DOCX, JPG, PNG, MP4, MOV (max 10MB)</p>
+                    </label>
+                  ) : (
+                    <div className="bg-primary-container/30 rounded-xl p-md border border-primary">
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-sm">
+                          <FileText className="w-6 h-6 text-primary" />
+                          <div className="text-left">
+                            <p className="text-label-sm font-medium text-on-surface">{selectedFile.name}</p>
+                            <p className="text-label-xs text-on-surface-variant">{(selectedFile.size / 1024 / 1024).toFixed(2)} MB</p>
+                          </div>
+                        </div>
+                        <button type="button" onClick={handleRemoveFile} className="p-xs rounded-lg bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-all"><X className="w-4 h-4" /></button>
+                      </div>
+                      {uploading && (
+                        <div className="mt-sm">
+                          <div className="h-2 bg-surface-dim rounded-full overflow-hidden"><div className="h-full bg-primary rounded-full transition-all" style={{ width: `${uploadProgress}%` }} /></div>
+                          <p className="text-label-xs text-on-surface-variant mt-xs">Mengupload... {uploadProgress}%</p>
+                        </div>
+                      )}
+                      {uploadError && <div className="mt-sm flex items-center gap-xs bg-error-container text-on-error-container px-sm py-xs rounded-lg text-label-xs"><AlertCircle className="w-3 h-3" /> {uploadError}</div>}
+                    </div>
+                  )}
+                </div>
+                <p className="text-label-sm text-on-surface-variant mt-sm mb-xs"><strong>ATAU</strong> masukkan URL manual:</p>
+                <input type="url" name="attachment_url" value={formData.attachment_url} onChange={handleInputChange} placeholder="https://drive.google.com/..."
+                  className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all" />
+              </div>
+              <div className="flex gap-sm pt-sm border-t border-outline-variant/20">
+                <button type="submit" className="inline-flex items-center gap-xs bg-primary text-on-primary px-lg py-sm rounded-xl font-medium hover:bg-primary-container hover:text-on-primary-container transition-all">
+                  <Send className="w-4 h-4" /> Kumpulkan Tugas
+                </button>
+                <button type="button" onClick={handleCancel} className="px-lg py-sm rounded-xl bg-surface-dim text-on-surface-variant font-medium hover:bg-outline-variant transition-all">Batal</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      <div className="dashboard-content">
-        <section className="dashboard-section">
-          <h2>Tugas yang Tersedia</h2>
-          {assignments.length > 0 ? (
-            <div className="assignments-list">
-              {assignments.map(assignment => {
-                const existingSubmission = submissions.find(sub => sub.assignment_id === assignment.id);
-
-                return (
-                  <div key={assignment.id} className="assignment-item card">
-                    <div className="assignment-header">
-                      <h3>{assignment.title}</h3>
-                      <span className="assignment-points">{assignment.max_points} poin</span>
-                    </div>
-
-                    <div className="assignment-content">
-                      <p>{assignment.description}</p>
-                      <div className="assignment-meta">
-                        <strong>Kursus:</strong> {assignment.courses?.title}<br/>
-                        <strong>Batas Waktu:</strong> {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : 'Tidak ada'}
-                      </div>
-
-                      {existingSubmission ? (
-                        <div className="submission-status submitted">
-                          <strong>Status:</strong> Sudah Dikumpulkan
-                          {existingSubmission.grade !== null && (
-                            <div><strong>Nilai:</strong> {existingSubmission.grade}/{assignment.max_points}</div>
-                          )}
-                        </div>
-                      ) : (
-                        <div className="assignment-actions">
-                          <button
-                            className="btn btn-primary"
-                            onClick={() => handleStartSubmission(assignment)}
-                          >
-                            Kumpulkan Tugas
-                          </button>
-                        </div>
-                      )}
-                    </div>
+      {/* Tersedia */}
+      <div>
+        <h2 className="text-title-md font-display text-on-surface mb-md">Tugas yang Tersedia</h2>
+        {assignments.length > 0 ? (
+          <div className="space-y-sm">
+            {assignments.map(assignment => {
+              const existingSubmission = submissions.find(sub => sub.assignment_id === assignment.id);
+              return (
+                <div key={assignment.id} className="bg-surface rounded-xl p-md border border-outline-variant/30 hover:border-primary/30 transition-all">
+                  <div className="flex items-start justify-between gap-md mb-sm">
+                    <h3 className="text-title-sm font-display text-on-surface font-semibold">{assignment.title}</h3>
+                    <span className="inline-flex bg-primary-container text-on-primary-container px-sm py-0.5 rounded-full text-label-sm font-medium">{assignment.max_points} poin</span>
                   </div>
-                );
-              })}
-            </div>
-          ) : (
+                  <p className="text-body-sm text-on-surface-variant mb-sm">{assignment.description}</p>
+                  <div className="text-label-sm text-on-surface-variant space-y-xs mb-sm">
+                    <p>📚 Kursus: {assignment.courses?.title}</p>
+                    <p>📅 Batas: {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : 'Tidak ada'}</p>
+                  </div>
+                  {existingSubmission ? (
+                    <div className="bg-success-container text-on-success-container px-md py-sm rounded-lg flex items-center gap-sm">
+                      <CheckCircle className="w-4 h-4" />
+                      <span className="text-label-sm font-medium">
+                        Sudah Dikumpulkan
+                        {existingSubmission.grade !== null && ` • Nilai: ${existingSubmission.grade}/${assignment.max_points}`}
+                      </span>
+                    </div>
+                  ) : (
+                    <button onClick={() => handleStartSubmission(assignment)}
+                      className="inline-flex items-center gap-xs bg-primary text-on-primary px-md py-sm rounded-xl text-label-sm font-medium hover:bg-primary-container hover:text-on-primary-container transition-all">
+                      Kumpulkan Tugas
+                    </button>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center py-xl text-on-surface-variant">
+            <FileText className="w-10 h-10 mb-sm opacity-40" />
             <p>Belum ada tugas yang tersedia.</p>
-          )}
-        </section>
+          </div>
+        )}
+      </div>
 
-        <section className="dashboard-section">
-          <h2>Tugas yang Telah Dikumpulkan</h2>
-          {submissions.length > 0 ? (
-            <div className="submissions-list">
-              {submissions.map(submission => {
-                const assignment = assignments.find(a => a.id === submission.assignment_id);
-
-                return (
-                  <div key={submission.id} className="submission-item card">
-                    <div className="submission-header">
-                      <h3>{assignment?.title || 'Tugas Tidak Dikenal'}</h3>
-                      {submission?.grade !== null && (
-                        <span className="submission-grade">
-                          Nilai: {submission.grade}/{assignment?.max_points || 100}
-                        </span>
-                      )}
-                    </div>
-
-                    <div className="submission-content">
-                      <div className="submission-meta" style={{ 
-                        display: 'flex', 
-                        gap: '1rem', 
-                        marginBottom: '0.75rem',
-                        flexWrap: 'wrap'
-                      }}>
-                        <span>📅 <strong>Dikumpulkan:</strong> {new Date(submission.submitted_at).toLocaleDateString()}</span>
-                        {submission.graded_at && (
-                          <span>✅ <strong>Dinilai:</strong> {new Date(submission.graded_at).toLocaleDateString()}</span>
-                        )}
-                      </div>
-
-                      {submission.content && (
-                        <div className="submission-preview" style={{ 
-                          background: '#f9fafb', 
-                          padding: '0.75rem', 
-                          borderRadius: '0.5rem',
-                          marginBottom: '0.75rem'
-                        }}>
-                          <strong>📝 Jawaban:</strong>
-                          <p style={{ margin: '0.5rem 0 0 0', whiteSpace: 'pre-wrap' }}>
-                            {submission.content.length > 200 
-                              ? submission.content.substring(0, 200) + '...'
-                              : submission.content}
-                          </p>
-                        </div>
-                      )}
-
-                      {submission.attachment_url && (
-                        <div className="submission-attachment" style={{ 
-                          background: '#ecfdf5', 
-                          padding: '0.75rem', 
-                          borderRadius: '0.5rem',
-                          border: '1px solid #10b981'
-                        }}>
-                          <strong>📎 Lampiran: {getFileIcon(submission.attachment_url)}</strong>
-                          <a 
-                            href={submission.attachment_url} 
-                            target="_blank" 
-                            rel="noopener noreferrer"
-                            style={{ 
-                              display: 'block',
-                              marginTop: '0.25rem',
-                              wordBreak: 'break-all'
-                            }}
-                          >
-                            📥 {getFileName(submission.attachment_url)}
-                          </a>
-                          {isVideoFile(submission.attachment_url) && (
-                            <video 
-                              controls 
-                              style={{ 
-                                width: '100%', 
-                                maxHeight: '200px',
-                                marginTop: '0.5rem',
-                                borderRadius: '0.25rem'
-                              }}
-                            >
-                              <source src={submission.attachment_url} />
-                            </video>
-                          )}
-                          {isImageFile(submission.attachment_url) && (
-                            <img 
-                              src={submission.attachment_url} 
-                              alt="Lampiran"
-                              style={{ 
-                                maxWidth: '100%', 
-                                maxHeight: '200px',
-                                marginTop: '0.5rem',
-                                borderRadius: '0.25rem'
-                              }}
-                            />
-                          )}
-                        </div>
-                      )}
-                    </div>
+      {/* Dikumpulkan */}
+      <div>
+        <h2 className="text-title-md font-display text-on-surface mb-md">Tugas yang Telah Dikumpulkan</h2>
+        {submissions.length > 0 ? (
+          <div className="space-y-sm">
+            {submissions.map(submission => {
+              const assignment = assignments.find(a => a.id === submission.assignment_id);
+              return (
+                <div key={submission.id} className="bg-surface rounded-xl p-md border border-outline-variant/30 hover:border-primary/30 transition-all">
+                  <div className="flex items-start justify-between gap-md mb-sm">
+                    <h3 className="text-title-sm font-display text-on-surface font-semibold">{assignment?.title || 'Tugas'}</h3>
+                    {submission.grade !== null && (
+                      <span className="inline-flex bg-success-container text-on-success-container px-sm py-0.5 rounded-full text-label-sm font-medium">{submission.grade}/{assignment?.max_points || 100}</span>
+                    )}
                   </div>
-                );
-              })}
-            </div>
-          ) : (
+                  <div className="flex gap-md text-label-sm text-on-surface-variant mb-sm">
+                    <span>📅 Dikumpulkan: {new Date(submission.submitted_at).toLocaleDateString()}</span>
+                    {submission.graded_at && <span>✅ Dinilai: {new Date(submission.graded_at).toLocaleDateString()}</span>}
+                  </div>
+                  {submission.content && (
+                    <div className="bg-surface-container-low rounded-lg p-sm mb-sm">
+                      <p className="text-label-sm font-medium text-on-surface mb-xs">📝 Jawaban:</p>
+                      <p className="text-body-sm text-on-surface whitespace-pre-wrap">{submission.content.substring(0, 200)}{submission.content.length > 200 ? '...' : ''}</p>
+                    </div>
+                  )}
+                  {submission.attachment_url && (
+                    <div className="bg-success-container rounded-lg p-sm border border-success">
+                      <p className="text-label-sm font-medium text-on-success-container mb-xs">📎 Lampiran {getFileIcon(submission.attachment_url)}</p>
+                      <a href={submission.attachment_url} target="_blank" rel="noopener noreferrer" className="text-label-sm text-primary hover:underline break-all">📥 {getFileName(submission.attachment_url)}</a>
+                      {isVideoFile(submission.attachment_url) && <video controls className="w-full max-h-48 mt-sm rounded-lg"><source src={submission.attachment_url} /></video>}
+                      {isImageFile(submission.attachment_url) && <img src={submission.attachment_url} alt="Lampiran" className="max-w-full max-h-48 mt-sm rounded-lg" />}
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center py-xl text-on-surface-variant">
+            <FileText className="w-10 h-10 mb-sm opacity-40" />
             <p>Belum ada tugas yang dikumpulkan.</p>
-          )}
-        </section>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
+import { Download, ExternalLink, ZoomIn, ZoomOut, Maximize2, FileText, AlertCircle, Image } from 'lucide-react';
 
 const MaterialViewer = ({ material, materialType }) => {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(true);
   const [zoom, setZoom] = useState(100);
 
-  // Determine the actual material type from props or material data
   const type = materialType || material?.material_type || 'text';
   const content = material?.content || '';
   const resourceUrl = material?.resource_url || '';
@@ -44,63 +44,86 @@ const MaterialViewer = ({ material, materialType }) => {
     setZoom(100);
   };
 
+  const ZoomControls = () => (
+    <div className="flex items-center gap-1 bg-surface/80 backdrop-blur-sm rounded-lg p-1 border border-outline-variant/30 shadow-sm">
+      <button onClick={handleZoomOut} className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-surface-container-high transition-colors text-on-surface-variant" title="Zoom Out">
+        <ZoomOut className="w-4 h-4" />
+      </button>
+      <span className="text-label-sm font-medium text-on-surface min-w-[3rem] text-center select-none">{zoom}%</span>
+      <button onClick={handleZoomIn} className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-surface-container-high transition-colors text-on-surface-variant" title="Zoom In">
+        <ZoomIn className="w-4 h-4" />
+      </button>
+      <div className="w-px h-5 bg-outline-variant/50 mx-1"></div>
+      <button onClick={handleResetZoom} className="w-8 h-8 flex items-center justify-center rounded-md hover:bg-surface-container-high transition-colors text-on-surface-variant" title="Reset Zoom">
+        <Maximize2 className="w-4 h-4" />
+      </button>
+    </div>
+  );
+
+  const ActionButtons = () => (
+    <div className="flex items-center gap-2">
+      <a 
+        href={resourceUrl} 
+        target="_blank" 
+        rel="noopener noreferrer"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-label-sm font-medium text-primary hover:bg-primary-container/40 transition-colors"
+      >
+        <ExternalLink className="w-4 h-4" />
+        Buka di Tab Baru
+      </a>
+      <button 
+        onClick={handleDownload} 
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-label-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors"
+      >
+        <Download className="w-4 h-4" />
+        Unduh
+      </button>
+    </div>
+  );
+
+  const ErrorState = ({ icon: Icon, title, message }) => (
+    <div className="flex flex-col items-center justify-center py-3xl text-center bg-surface-container-low rounded-xl">
+      <div className="w-16 h-16 rounded-full bg-error-container/30 flex items-center justify-center mb-md">
+        <Icon className="w-8 h-8 text-error" />
+      </div>
+      <h3 className="text-title-md font-semibold text-on-surface mb-sm">{title}</h3>
+      <p className="text-body-md text-on-surface-variant mb-lg">{message}</p>
+      <button 
+        onClick={handleDownload}
+        className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm"
+      >
+        <Download className="w-4 h-4" />
+        Unduh File
+      </button>
+    </div>
+  );
+
   const renderContent = () => {
     switch (type) {
       case 'pdf':
         return (
-          <div className="materialviewer-pdf">
-            {/* PDF Toolbar */}
-            <div className="pdf-toolbar">
-              <div className="zoom-controls">
-                <button onClick={handleZoomOut} className="zoom-btn" title="Zoom Out">
-                  <span className="material-icons">zoom_out</span>
-                </button>
-                <span className="zoom-level">{zoom}%</span>
-                <button onClick={handleZoomIn} className="zoom-btn" title="Zoom In">
-                  <span className="material-icons">zoom_in</span>
-                </button>
-                <button onClick={handleResetZoom} className="zoom-btn" title="Reset">
-                  <span className="material-icons">fit_screen</span>
-                </button>
-              </div>
-              <div className="pdf-actions-toolbar">
-                <a 
-                  href={resourceUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="toolbar-btn"
-                >
-                  <span className="material-icons">open_in_new</span>
-                  <span>Buka di Tab Baru</span>
-                </a>
-                <button onClick={handleDownload} className="toolbar-btn">
-                  <span className="material-icons">download</span>
-                  <span>Unduh PDF</span>
-                </button>
-              </div>
+          <div className="space-y-md">
+            <div className="flex flex-wrap items-center justify-between gap-md sticky top-0 z-10 bg-surface/90 backdrop-blur-sm py-md -mx-md px-md border-b border-outline-variant/20">
+              <ZoomControls />
+              <ActionButtons />
             </div>
 
             {error ? (
-              <div className="materialviewer-error">
-                <span className="material-icons error-icon">error_outline</span>
-                <h3>Gagal Memuat PDF</h3>
-                <p>{error}</p>
-                <button className="btn btn-primary" onClick={handleDownload}>
-                  <span className="material-icons">download</span>
-                  Unduh PDF
-                </button>
-              </div>
+              <ErrorState icon={AlertCircle} title="Gagal Memuat PDF" message={error} />
             ) : (
-              <div className="pdf-container" style={{ transform: `scale(${zoom / 100})` }}>
+              <div className="relative bg-surface-container-low rounded-xl overflow-hidden" style={{ minHeight: '500px' }}>
                 {isLoading && (
-                  <div className="loading-overlay">
-                    <div className="loading-spinner"></div>
-                    <p>Memuat PDF...</p>
+                  <div className="absolute inset-0 flex items-center justify-center bg-surface/80 z-10">
+                    <div className="flex flex-col items-center gap-md">
+                      <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+                      <p className="text-body-sm text-on-surface-variant">Memuat PDF...</p>
+                    </div>
                   </div>
                 )}
                 <iframe
                   src={resourceUrl}
-                  className="pdf-frame"
+                  className="w-full border-0"
+                  style={{ height: '600px', transform: `scale(${zoom / 100})`, transformOrigin: 'top left' }}
                   title={material?.title || 'PDF Document'}
                   onError={handleLoadError}
                   onLoad={handleLoadSuccess}
@@ -112,61 +135,27 @@ const MaterialViewer = ({ material, materialType }) => {
 
       case 'image':
         return (
-          <div className="materialviewer-image">
-            {/* Image Toolbar */}
-            <div className="image-toolbar">
-              <div className="zoom-controls">
-                <button onClick={handleZoomOut} className="zoom-btn" title="Zoom Out">
-                  <span className="material-icons">zoom_out</span>
-                </button>
-                <span className="zoom-level">{zoom}%</span>
-                <button onClick={handleZoomIn} className="zoom-btn" title="Zoom In">
-                  <span className="material-icons">zoom_in</span>
-                </button>
-                <button onClick={handleResetZoom} className="zoom-btn" title="Reset">
-                  <span className="material-icons">fit_screen</span>
-                </button>
-              </div>
-              <div className="image-actions-toolbar">
-                <a 
-                  href={resourceUrl} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="toolbar-btn"
-                >
-                  <span className="material-icons">open_in_new</span>
-                  <span>Buka Gambar</span>
-                </a>
-                <button onClick={handleDownload} className="toolbar-btn">
-                  <span className="material-icons">download</span>
-                  <span>Unduh Gambar</span>
-                </button>
-              </div>
+          <div className="space-y-md">
+            <div className="flex flex-wrap items-center justify-between gap-md sticky top-0 z-10 bg-surface/90 backdrop-blur-sm py-md -mx-md px-md border-b border-outline-variant/20">
+              <ZoomControls />
+              <ActionButtons />
             </div>
 
             {error ? (
-              <div className="materialviewer-error">
-                <span className="material-icons error-icon">broken_image</span>
-                <h3>Gagal Memuat Gambar</h3>
-                <p>{error}</p>
-                <button className="btn btn-primary" onClick={handleDownload}>
-                  <span className="material-icons">download</span>
-                  Unduh Gambar
-                </button>
-              </div>
+              <ErrorState icon={Image} title="Gagal Memuat Gambar" message={error} />
             ) : (
-              <div className="image-container">
+              <div className="flex items-center justify-center bg-surface-container-low rounded-xl p-lg min-h-[300px]">
                 {isLoading && (
-                  <div className="loading-overlay">
-                    <div className="loading-spinner"></div>
-                    <p>Memuat gambar...</p>
+                  <div className="flex flex-col items-center gap-md">
+                    <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+                    <p className="text-body-sm text-on-surface-variant">Memuat gambar...</p>
                   </div>
                 )}
                 <img
                   src={resourceUrl}
                   alt={material?.title || 'Materi'}
-                  className="material-image"
-                  style={{ transform: `scale(${zoom / 100})` }}
+                  className="max-w-full object-contain transition-transform duration-200"
+                  style={{ transform: `scale(${zoom / 100})`, maxHeight: '70vh' }}
                   onError={handleLoadError}
                   onLoad={handleLoadSuccess}
                 />
@@ -176,23 +165,26 @@ const MaterialViewer = ({ material, materialType }) => {
         );
 
       case 'video':
-        // Video is handled by VideoPlayer component
         return null;
 
       case 'text':
       default:
         return (
-          <div className="materialviewer-text">
-            <div className="text-toolbar">
-              <h3>{material?.title || 'Materi Teks'}</h3>
+          <div className="bg-surface rounded-xl border border-outline-variant/30 shadow-sm">
+            <div className="flex items-center gap-sm px-lg py-md border-b border-outline-variant/20">
+              <FileText className="w-5 h-5 text-primary" />
+              <h3 className="text-title-md font-semibold text-on-surface m-0">{material?.title || 'Materi Teks'}</h3>
             </div>
-            <div className="text-content">
+            <div className="p-lg">
               {content ? (
-                <div dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br/>') }} />
+                <div 
+                  className="text-body-md text-on-surface leading-relaxed prose prose-sm max-w-none"
+                  dangerouslySetInnerHTML={{ __html: content.replace(/\n/g, '<br/>') }} 
+                />
               ) : (
-                <div className="no-content">
-                  <span className="material-icons">description</span>
-                  <p>Tidak ada konten teks tersedia.</p>
+                <div className="flex flex-col items-center py-2xl text-on-surface-variant">
+                  <FileText className="w-12 h-12 opacity-50 mb-md" />
+                  <p className="text-body-md">Tidak ada konten teks tersedia.</p>
                 </div>
               )}
             </div>
@@ -202,7 +194,7 @@ const MaterialViewer = ({ material, materialType }) => {
   };
 
   return (
-    <div className="materialviewer-wrapper">
+    <div className="w-full">
       {renderContent()}
     </div>
   );

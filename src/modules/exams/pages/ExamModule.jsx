@@ -5,8 +5,7 @@ import ExamBuilderPage from './ExamBuilderPage';
 import ExamPlayerPage from './ExamPlayerPage';
 import TeacherExamDashboardPage from './TeacherExamDashboardPage';
 import StudentResultDetailPage from './StudentResultDetailPage';
-import { Plus, Edit, Eye, Trash2, FileText, Clock, Users, BookOpen, Send, BarChart3, Search, Settings, X } from 'lucide-react';
-import '../styles/examStyles.css';
+import { Plus, Edit, Eye, Trash2, FileText, Clock, Users, Send, BarChart3, Search, Settings, X } from 'lucide-react';
 
 const ExamModule = ({ role, onNavigate }) => {
   const { user } = useAuth();
@@ -137,13 +136,19 @@ const ExamModule = ({ role, onNavigate }) => {
   );
 
   const getStatusBadge = (status) => {
-    switch (status) {
-      case 'draft': return <span className="status-badge status-draft">Draft</span>;
-      case 'published': return <span className="status-badge status-published">Dipublikasikan</span>;
-      case 'closed': return <span className="status-badge status-closed">Ditutup</span>;
-      case 'archived': return <span className="status-badge status-archived">Diarsipkan</span>;
-      default: return null;
-    }
+    const styles = {
+      draft: 'bg-surface-dim text-on-surface-variant',
+      published: 'bg-success-container text-on-success-container',
+      closed: 'bg-error-container text-on-error-container',
+      archived: 'bg-surface-dim text-on-surface-variant'
+    };
+    const labels = {
+      draft: 'Draft',
+      published: 'Dipublikasikan',
+      closed: 'Ditutup',
+      archived: 'Diarsipkan'
+    };
+    return <span className={"inline-flex items-center px-2.5 py-0.5 rounded-full text-label-xs font-medium " + (styles[status] || 'bg-surface-dim text-on-surface-variant')}>{labels[status] || status}</span>;
   };
 
   // --- RENDER VIEWS ---
@@ -152,22 +157,23 @@ const ExamModule = ({ role, onNavigate }) => {
     <>
       {/* Exam List (default) */}
       {view === 'list' && (
-        <div className="dashboard-container">
-          <div className="dashboard-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '1rem' }}>
+        <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+          {/* Header */}
+          <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
             <div>
-              <h1 style={{ margin: 0, fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                <FileText size={28} style={{ color: '#8b5cf6' }} />
+              <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+                <FileText className="w-7 h-7 text-primary" />
                 {role === 'guru' ? 'Ujian Saya' : role === 'admin' ? 'Semua Ujian' : 'Ujian Tersedia'}
               </h1>
-              <p style={{ margin: '0.25rem 0 0', color: '#6b7280', fontSize: '0.85rem' }}>
+              <p className="text-body-md text-on-surface-variant mt-xs">
                 {role === 'guru' ? 'Buat dan kelola ujian untuk murid Anda' :
                  role === 'admin' ? 'Pantau seluruh ujian di sistem' :
                  'Kerjakan ujian yang tersedia'}
               </p>
             </div>
             {(role === 'guru' || role === 'admin') && (
-              <button onClick={handleCreate} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                <Plus size={18} />
+              <button onClick={handleCreate} className="inline-flex items-center gap-xs px-4 py-2 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium">
+                <Plus className="w-4 h-4" />
                 Buat Ujian
               </button>
             )}
@@ -175,32 +181,29 @@ const ExamModule = ({ role, onNavigate }) => {
 
           {/* Search */}
           {exams.length > 0 && (
-            <div style={{ position: 'relative', marginBottom: '1.5rem', maxWidth: '400px', width: '100%' }}>
-              <Search size={18} style={{ position: 'absolute', left: '0.75rem', top: '50%', transform: 'translateY(-50%)', color: '#9ca3af' }} />
+            <div className="relative mb-xl max-w-md">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
               <input
                 type="text"
                 placeholder="Cari ujian..."
                 value={searchQuery}
                 onChange={e => setSearchQuery(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '0.75rem 0.75rem 0.75rem 2.5rem',
-                  border: '1px solid #d1d5db',
-                  borderRadius: '8px',
-                  fontSize: '0.9rem',
-                  minHeight: '44px',
-                  boxSizing: 'border-box'
-                }}
+                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
               />
             </div>
           )}
 
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>Memuat...</div>
+            <div className="flex items-center justify-center min-h-[300px]">
+              <div className="animate-pulse flex items-center gap-sm">
+                <div className="w-8 h-8 rounded-full bg-surface-dim"></div>
+                <div className="h-4 w-32 bg-surface-dim rounded"></div>
+              </div>
+            </div>
           ) : filteredExams.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-              <FileText size={48} style={{ color: '#d1d5db', marginBottom: '1rem' }} />
-              <p style={{ color: '#6b7280', marginBottom: '0.5rem' }}>
+            <div className="text-center py-16">
+              <FileText className="w-16 h-16 mx-auto text-on-surface-variant/30 mb-4" />
+              <p className="text-body-lg text-on-surface-variant mb-2">
                 {searchQuery ? 'Tidak ada ujian yang cocok' :
                  role === 'guru' ? 'Belum ada ujian. Buat ujian pertama Anda!' :
                  role === 'admin' ? 'Belum ada ujian di sistem.' :
@@ -208,65 +211,68 @@ const ExamModule = ({ role, onNavigate }) => {
               </p>
             </div>
           ) : (
-            <div className="exam-grid">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {filteredExams.map(exam => (
-                <div key={exam.id} className="exam-card slide-up">
-                  <div className="exam-card-header">
-                    <h3 className="exam-card-title">{exam.title}</h3>
+                <div key={exam.id} className="bg-surface rounded-xl border border-outline-variant hover:border-primary/30 hover:shadow-md transition-all duration-300 p-4 group">
+                  {/* Card Header */}
+                  <div className="flex items-start justify-between mb-3">
+                    <h3 className="text-title-sm font-semibold text-on-surface flex-1 min-w-0 truncate m-0">{exam.title}</h3>
                     {getStatusBadge(exam.status)}
                   </div>
                   {exam.description && (
-                    <p className="exam-card-desc">{exam.description}</p>
+                    <p className="text-body-sm text-on-surface-variant line-clamp-2 mb-3">{exam.description}</p>
                   )}
-                  <div className="exam-card-meta">
-                    <span className="exam-card-meta-item">
-                      <Clock size={14} />
+                  {/* Meta */}
+                  <div className="flex flex-wrap gap-3 mb-4 text-body-sm text-on-surface-variant">
+                    <span className="inline-flex items-center gap-1">
+                      <Clock className="w-3.5 h-3.5" />
                       {exam.duration_minutes} menit
                     </span>
                     {exam.profiles && (
-                      <span className="exam-card-meta-item">
-                        <Users size={14} />
+                      <span className="inline-flex items-center gap-1">
+                        <Users className="w-3.5 h-3.5" />
                         {exam.profiles.display_name || exam.profiles.email}
                       </span>
                     )}
                   </div>
-                  <div className="exam-card-actions">
+                  {/* Actions */}
+                  <div className="flex items-center gap-2 flex-wrap pt-3 border-t border-outline-variant">
                     {role === 'murid' && exam.status === 'published' && (
-                      <button onClick={() => handlePlay(exam.id)} className="btn btn-primary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <Send size={16} />
+                      <button onClick={() => handlePlay(exam.id)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all text-label-sm font-medium">
+                        <Send className="w-3.5 h-3.5" />
                         Kerjakan
                       </button>
                     )}
                     {(role === 'guru' || role === 'admin') && (
                       <>
-                        {(exam.status === 'draft') && (
-                          <button onClick={() => handleEdit(exam.id)} className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <Edit size={16} />
+                        {exam.status === 'draft' && (
+                          <button onClick={() => handleEdit(exam.id)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-sm">
+                            <Edit className="w-3.5 h-3.5" />
                             Edit
                           </button>
                         )}
                         {(exam.status === 'published' || exam.status === 'closed') && (
                           <>
-                            <button onClick={() => handleViewDashboard(exam.id)} className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                              <BarChart3 size={16} />
+                            <button onClick={() => handleViewDashboard(exam.id)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary-container text-on-primary-container hover:bg-primary-container/80 transition-colors text-label-sm">
+                              <BarChart3 className="w-3.5 h-3.5" />
                               Hasil
                             </button>
-                            <button onClick={() => handleManageExam(exam.id, exam.status)} className="btn btn-info btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                              <Settings size={16} />
+                            <button onClick={() => handleManageExam(exam.id, exam.status)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-sm">
+                              <Settings className="w-3.5 h-3.5" />
                               Kelola
                             </button>
                           </>
                         )}
                         {exam.status === 'draft' && (
-                          <button onClick={() => handleDelete(exam.id)} className="btn btn-danger btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                            <Trash2 size={16} />
+                          <button onClick={() => handleDelete(exam.id)} className="p-1.5 rounded-full bg-error-container text-on-error-container hover:bg-error-container/80 transition-colors ml-auto">
+                            <Trash2 className="w-4 h-4" />
                           </button>
                         )}
                       </>
                     )}
                     {role === 'murid' && exam.status === 'closed' && (
-                      <button onClick={() => handleViewDashboard(exam.id)} className="btn btn-secondary btn-sm" style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <Eye size={16} />
+                      <button onClick={() => handleViewDashboard(exam.id)} className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full bg-primary-container text-on-primary-container hover:bg-primary-container/80 transition-colors text-label-sm">
+                        <Eye className="w-3.5 h-3.5" />
                         Lihat Hasil
                       </button>
                     )}
@@ -326,79 +332,54 @@ const ExamModule = ({ role, onNavigate }) => {
 
       {/* Manage Exam Dialog */}
       {showManageDialog && managingExam && (
-        <div className="modal-overlay" onClick={() => setShowManageDialog(false)} role="dialog" aria-modal="true">
-          <div className="modal-content exam-manage-modal" onClick={e => e.stopPropagation()}>
-            <div className="modal-header-mobile">
-              <h3>Kelola Ujian</h3>
-              <button
-                onClick={() => setShowManageDialog(false)}
-                className="modal-close-btn"
-                aria-label="Tutup"
-              >
-                ×
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={() => setShowManageDialog(false)}>
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-md animate-scaleIn" onClick={e => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-primary to-primary-container text-on-primary px-6 py-4 rounded-t-2xl flex items-center justify-between">
+              <h3 className="text-title-md font-semibold text-white flex items-center gap-sm m-0">
+                <Settings className="w-5 h-5" />
+                Kelola Ujian
+              </h3>
+              <button onClick={() => setShowManageDialog(false)} className="p-1.5 rounded-full hover:bg-white/20 transition-colors">
+                <X className="w-5 h-5 text-white" />
               </button>
             </div>
-
-            <div className="modal-body-mobile">
-              <div className="exam-info-mobile">
-                <h4>{managingExam?.title || 'Ujian'}</h4>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                  <span className={`status-badge-mobile ${managingExam?.status || ''}`}>
-                    {managingExam?.status === 'published' ? 'Dipublikasikan' : 'Ditutup'}
-                  </span>
-                </div>
-                <p style={{ fontSize: '0.9rem', color: '#6b7280', margin: '0.5rem 0' }}>
-                  {managingExam?.description || 'Tidak ada deskripsi'}
-                </p>
+            <div className="p-6 space-y-4">
+              <div>
+                <h4 className="text-title-sm font-semibold text-on-surface mb-1">{managingExam?.title || 'Ujian'}</h4>
+                {getStatusBadge(managingExam?.status || 'draft')}
+                {managingExam?.description && (
+                  <p className="mt-2 text-body-sm text-on-surface-variant">{managingExam.description}</p>
+                )}
               </div>
-
-              <div className="exam-actions-mobile">
+              <div className="space-y-2 pt-3 border-t border-outline-variant">
                 {managingExam?.status === 'published' && (
                   <>
-                    <button
-                      onClick={() => managingExam?.id && handleCloseExamDialog(managingExam.id)}
-                      className="btn-mobile btn-warning-mobile"
-                    >
-                      <X size={20} />
-                      <span>Tutup Ujian</span>
+                    <button onClick={() => managingExam?.id && handleCloseExamDialog(managingExam.id)} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-warning-container text-on-warning-container hover:bg-warning-container/80 transition-colors text-label-lg font-medium">
+                      <X className="w-4 h-4" />
+                      Tutup Ujian
                     </button>
-                    <button
-                      onClick={() => managingExam?.id && handleUnpublishExam(managingExam.id)}
-                      className="btn-mobile btn-secondary-mobile"
-                    >
-                      <Eye size={20} />
-                      <span>Unpublish</span>
+                    <button onClick={() => managingExam?.id && handleUnpublishExam(managingExam.id)} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-lg">
+                      <Eye className="w-4 h-4" />
+                      Unpublish
                     </button>
                   </>
                 )}
-
                 {managingExam?.status === 'closed' && (
-                  <button
-                    onClick={() => managingExam?.id && handleReopenExam(managingExam.id)}
-                    className="btn-mobile btn-success-mobile"
-                  >
-                    <Send size={20} />
-                    <span>Buka Kembali</span>
+                  <button onClick={() => managingExam?.id && handleReopenExam(managingExam.id)} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-success-container text-on-success-container hover:bg-success-container/80 transition-colors text-label-lg font-medium">
+                    <Send className="w-4 h-4" />
+                    Buka Kembali
                   </button>
                 )}
-
-                <button
-                  onClick={() => managingExam?.id && handleEdit(managingExam.id)}
-                  className="btn-mobile btn-primary-mobile"
-                >
-                  <Edit size={20} />
-                  <span>Edit Detail</span>
+                <button onClick={() => managingExam?.id && handleEdit(managingExam.id)} className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all text-label-lg font-medium">
+                  <Edit className="w-4 h-4" />
+                  Edit Detail
                 </button>
               </div>
-            </div>
-
-            <div className="modal-footer-mobile">
-              <button
-                onClick={() => setShowManageDialog(false)}
-                className="btn-mobile btn-ghost-mobile"
-              >
-                <span>Batal</span>
-              </button>
+              <div className="pt-2 border-t border-outline-variant">
+                <button onClick={() => setShowManageDialog(false)} className="w-full py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-lg">
+                  Batal
+                </button>
+              </div>
             </div>
           </div>
         </div>

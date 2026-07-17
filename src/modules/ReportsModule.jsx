@@ -1,10 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { 
-  Printer, FileText, Download, Calendar, Users, 
-  BookOpen, Award, TrendingUp, BarChart2, Eye
-} from 'lucide-react';
+import { Printer, FileText, Calendar, BookOpen, Award, TrendingUp, BarChart2, Eye } from 'lucide-react';
 
 const ReportsModule = () => {
   const { user } = useAuth();
@@ -335,24 +332,20 @@ const ReportsModule = () => {
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
         <div>
-          <h1>
-            <FileText size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
+          <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+            <FileText className="w-7 h-7 text-primary" />
             Laporan & Cetak
           </h1>
-          <p>Generasi laporan printable untuk administrasi PKBM</p>
+          <p className="text-body-md text-on-surface-variant mt-xs">Generasi laporan printable untuk administrasi PKBM</p>
         </div>
       </div>
 
-      {/* Report Type Selection */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
-        gap: '1rem',
-        marginBottom: '2rem'
-      }}>
+      {/* Report Type Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mb-xl">
         {reportTypes.map(type => {
           const Icon = type.icon;
           const isSelected = reportType === type.id;
@@ -360,217 +353,158 @@ const ReportsModule = () => {
             <div
               key={type.id}
               onClick={() => setReportType(type.id)}
-              style={{
-                padding: '1.25rem',
-                borderRadius: '12px',
-                border: isSelected ? '2px solid #8b5cf6' : '2px solid #e5e7eb',
-                background: isSelected ? '#f5f3ff' : 'white',
-                cursor: 'pointer',
-                transition: 'all 0.2s ease',
-                transform: isSelected ? 'translateY(-2px)' : 'none',
-                boxShadow: isSelected ? '0 4px 12px rgba(139, 92, 246, 0.3)' : 'none'
-              }}
-              onMouseEnter={(e) => {
-                if (!isSelected) {
-                  e.currentTarget.style.borderColor = '#8b5cf6';
-                  e.currentTarget.style.background = '#fafafa';
-                }
-              }}
-              onMouseLeave={(e) => {
-                if (!isSelected) {
-                  e.currentTarget.style.borderColor = '#e5e7eb';
-                  e.currentTarget.style.background = 'white';
-                }
-              }}
+              className={"rounded-xl p-5 cursor-pointer border-2 transition-all duration-200 hover:shadow-md " + 
+                (isSelected 
+                  ? 'border-primary bg-primary-container/30 shadow-sm -translate-y-0.5' 
+                  : 'border-outline-variant bg-surface hover:border-primary/50 hover:bg-surface-dim/20')}
             >
-              <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', marginBottom: '0.5rem' }}>
-                <div style={{
-                  width: '40px', height: '40px', borderRadius: '8px',
-                  background: isSelected ? 'linear-gradient(135deg, #8b5cf6, #7c3aed)' : '#f3f4f6',
-                  display: 'flex', alignItems: 'center', justifyContent: 'center',
-                  color: isSelected ? 'white' : '#8b5cf6'
-                }}>
-                  <Icon size={20} />
+              <div className="flex items-center gap-3 mb-2">
+                <div className={"w-10 h-10 rounded-lg flex items-center justify-center transition-colors " +
+                  (isSelected ? 'bg-primary text-on-primary' : 'bg-surface-dim text-primary')}>
+                  <Icon className="w-5 h-5" />
                 </div>
-                <h3 style={{ margin: 0, fontSize: '1rem', color: isSelected ? '#7c3aed' : '#374151' }}>
+                <h3 className={"text-title-sm font-semibold m-0 " + (isSelected ? 'text-primary' : 'text-on-surface')}>
                   {type.name}
                 </h3>
               </div>
-              <p style={{ margin: 0, fontSize: '0.875rem', color: '#6b7280' }}>
-                {type.desc}
-              </p>
+              <p className="text-body-sm text-on-surface-variant m-0">{type.desc}</p>
             </div>
           );
         })}
       </div>
 
       {/* Date Range Filter */}
-      <div className="form-container" style={{ marginBottom: '2rem' }}>
-        <h3>Filter Tanggal (Opsional)</h3>
-        <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end' }}>
-          <div className="form-group" style={{ margin: 0, flex: 1 }}>
-            <label htmlFor="start">Dari Tanggal</label>
+      <div className="bg-surface-container-low rounded-2xl p-4 md:p-5 mb-xl border border-outline-variant">
+        <h3 className="text-title-sm font-semibold text-on-surface mb-4 flex items-center gap-sm">
+          <Calendar className="w-5 h-5 text-primary" />
+          Filter Tanggal (Opsional)
+        </h3>
+        <div className="flex flex-col sm:flex-row gap-4 items-end">
+          <div className="flex-1 w-full">
+            <label className="block text-label-lg font-medium text-on-surface mb-1.5">Dari Tanggal</label>
             <input
               type="date"
-              id="start"
               value={dateRange.start}
               onChange={(e) => setDateRange(prev => ({ ...prev, start: e.target.value }))}
-              style={{ width: '100%', padding: '0.75rem' }}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
             />
           </div>
-          <div className="form-group" style={{ margin: 0, flex: 1 }}>
-            <label htmlFor="end">Sampai Tanggal</label>
+          <div className="flex-1 w-full">
+            <label className="block text-label-lg font-medium text-on-surface mb-1.5">Sampai Tanggal</label>
             <input
               type="date"
-              id="end"
               value={dateRange.end}
               onChange={(e) => setDateRange(prev => ({ ...prev, end: e.target.value }))}
-              style={{ width: '100%', padding: '0.75rem' }}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
             />
           </div>
-          <button className="btn btn-primary" onClick={generateReport}>
-            <BarChart2 size={18} style={{ marginRight: '8px' }} />
+          <button onClick={generateReport} className="inline-flex items-center gap-xs px-4 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium shrink-0">
+            <BarChart2 className="w-4 h-4" />
             Generate
           </button>
         </div>
       </div>
 
-      {/* Report Preview & Actions */}
+      {/* Report Preview */}
       {reportData && (
-        <div className="dashboard-content">
-          <div style={{ 
-            background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-            color: 'white', padding: '1.5rem', borderRadius: '12px',
-            marginBottom: '1.5rem', display: 'flex',
-            justifyContent: 'space-between', alignItems: 'center'
-          }}>
+        <div className="bg-surface rounded-2xl shadow-sm border border-outline-variant overflow-hidden">
+          {/* Preview Banner */}
+          <div className="bg-gradient-to-r from-primary to-primary-container px-4 md:px-6 py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 style={{ margin: '0 0 0.5rem 0' }}>
-                <Printer size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+              <h2 className="text-title-md font-semibold text-white flex items-center gap-sm m-0">
+                <Printer className="w-5 h-5" />
                 Preview Laporan
               </h2>
-              <p style={{ margin: 0, opacity: 0.9 }}>
+              <p className="text-body-sm text-white/80 mt-1">
                 {reportTypes.find(r => r.id === reportType)?.desc} • Total: {reportData.length} record
               </p>
             </div>
-            <button className="btn btn-secondary" onClick={printReport}
-              style={{ background: 'white', color: '#8b5cf6' }}>
-              <Printer size={18} style={{ marginRight: '8px' }} />
+            <button onClick={printReport} className="inline-flex items-center gap-xs px-4 py-2 rounded-full bg-white text-primary hover:bg-white/90 transition-all text-label-lg font-medium shadow-sm">
+              <Printer className="w-4 h-4" />
               Cetak Sekarang
             </button>
           </div>
 
-          {/* Data Preview */}
-          <section className="dashboard-section">
-            <h2>
-              <Eye size={20} style={{ marginRight: '8px' }} />
+          {/* Data Preview Table */}
+          <div className="p-4 md:p-6">
+            <h3 className="text-title-sm font-semibold text-on-surface flex items-center gap-sm mb-md">
+              <Eye className="w-5 h-5 text-primary" />
               Preview Data
-            </h2>
-            
+            </h3>
+
             {reportData.length > 0 ? (
-              <div className="table-responsive">
-                <table className="dashboard-table">
+              <div className="overflow-x-auto">
+                <table className="w-full">
                   <thead>
-                    {reportType === 'attendance' && (
-                      <tr>
-                        <th>Tanggal</th>
-                        <th>Guru</th>
-                        <th>Kelas</th>
-                        <th>Mata Pelajaran</th>
-                        <th>Hadir</th>
-                        <th>Alpha</th>
-                      </tr>
-                    )}
-                    {reportType === 'grades' && (
-                      <tr>
-                        <th>Tanggal</th>
-                        <th>Siswa</th>
-                        <th>Kelas</th>
-                        <th>Aspek</th>
-                        <th>Nilai</th>
-                      </tr>
-                    )}
-                    {reportType === 'teacher' && (
-                      <tr>
-                        <th>Tanggal</th>
-                        <th>Guru</th>
-                        <th>📚</th>
-                        <th>👔</th>
-                        <th>😊</th>
-                        <th>🎯</th>
-                        <th>Rata</th>
-                      </tr>
-                    )}
-                    {reportType === 'classes' && (
-                      <tr>
-                        <th>Nama Kelas</th>
-                        <th>Jenjang</th>
-                        <th>Tingkat</th>
-                        <th>Wali Kelas</th>
-                        <th>Siswa</th>
-                        <th>Status</th>
-                      </tr>
-                    )}
-                    {reportType === 'activity' && (
-                      <tr>
-                        <th>Tanggal</th>
-                        <th>Guru</th>
-                        <th>Kelas</th>
-                        <th>Mata Pelajaran</th>
-                        <th>Durasi</th>
-                      </tr>
-                    )}
+                    <tr className="bg-surface-dim/50">
+                      {reportType === 'attendance' && (
+                        <><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Tanggal</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Guru</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Kelas</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Mata Pelajaran</th><th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Hadir</th><th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Alpha</th></>
+                      )}
+                      {reportType === 'grades' && (
+                        <><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Tanggal</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Siswa</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Kelas</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Aspek</th><th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Nilai</th></>
+                      )}
+                      {reportType === 'teacher' && (
+                        <><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Tanggal</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Guru</th><th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">📚</th><th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">👔</th><th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">😊</th><th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">🎯</th><th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Rata</th></>
+                      )}
+                      {reportType === 'classes' && (
+                        <><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Nama Kelas</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Jenjang</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Tingkat</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Wali Kelas</th><th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Siswa</th><th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Status</th></>
+                      )}
+                      {reportType === 'activity' && (
+                        <><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Tanggal</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Guru</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Kelas</th><th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Mata Pelajaran</th><th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Durasi</th></>
+                      )}
+                    </tr>
                   </thead>
                   <tbody>
                     {reportData.slice(0, 20).map((item, idx) => {
+                      const rowClass = "border-t border-outline-variant/50 hover:bg-surface-dim/30 transition-colors " + (idx % 2 === 0 ? 'bg-surface' : 'bg-surface-dim/10');
                       switch (reportType) {
                         case 'attendance':
                           return (
-                            <tr key={item.id || idx}>
-                              <td>{new Date(item.date).toLocaleDateString('id-ID')}</td>
-                              <td>{item.profiles?.full_name || 'N/A'}</td>
-                              <td>{item.classes?.name || 'N/A'}</td>
-                              <td>{item.subject}</td>
-                              <td style={{ color: '#10b981' }}>
+                            <tr key={item.id || idx} className={rowClass}>
+                              <td className="px-4 py-3 text-body-sm">{new Date(item.date).toLocaleDateString('id-ID')}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.profiles?.full_name || 'N/A'}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.classes?.name || 'N/A'}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.subject}</td>
+                              <td className="px-4 py-3 text-center text-body-sm font-semibold text-success">
                                 {item.student_attendance?.filter(a => a.status === 'hadir').length || 0}
                               </td>
-                              <td style={{ color: '#ef4444' }}>
+                              <td className="px-4 py-3 text-center text-body-sm font-semibold text-error">
                                 {item.student_attendance?.filter(a => a.status === 'absent').length || 0}
                               </td>
                             </tr>
                           );
                         case 'grades':
                           return (
-                            <tr key={item.id || idx}>
-                              <td>{new Date(item.date).toLocaleDateString('id-ID')}</td>
-                              <td>{item.profiles?.full_name || item.profiles?.email || 'N/A'}</td>
-                              <td>{item.classes?.name || 'N/A'}</td>
-                              <td>{item.aspect}</td>
-                              <td style={{ fontWeight: 'bold', color: '#8b5cf6' }}>{item.score}</td>
+                            <tr key={item.id || idx} className={rowClass}>
+                              <td className="px-4 py-3 text-body-sm">{new Date(item.date).toLocaleDateString('id-ID')}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.profiles?.full_name || item.profiles?.email || 'N/A'}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.classes?.name || 'N/A'}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.aspect}</td>
+                              <td className="px-4 py-3 text-center text-body-sm font-bold text-primary">{item.score}</td>
                             </tr>
                           );
                         case 'teacher':
                           return (
-                            <tr key={item.id || idx}>
-                              <td>{new Date(item.date).toLocaleDateString('id-ID')}</td>
-                              <td>{item.profiles?.full_name || item.profiles?.email}</td>
-                              <td style={{ textAlign: 'center' }}>{item.pedagogy_score}</td>
-                              <td style={{ textAlign: 'center' }}>{item.professionalism_score}</td>
-                              <td style={{ textAlign: 'center' }}>{item.personality_score}</td>
-                              <td style={{ textAlign: 'center' }}>{item.leadership_score}</td>
-                              <td style={{ textAlign: 'center', fontWeight: 'bold' }}>{getTeacherAvgScore(item)}</td>
+                            <tr key={item.id || idx} className={rowClass}>
+                              <td className="px-4 py-3 text-body-sm">{new Date(item.date).toLocaleDateString('id-ID')}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.profiles?.full_name || item.profiles?.email}</td>
+                              <td className="px-4 py-3 text-center text-body-sm">{item.pedagogy_score}</td>
+                              <td className="px-4 py-3 text-center text-body-sm">{item.professionalism_score}</td>
+                              <td className="px-4 py-3 text-center text-body-sm">{item.personality_score}</td>
+                              <td className="px-4 py-3 text-center text-body-sm">{item.leadership_score}</td>
+                              <td className="px-4 py-3 text-center text-body-sm font-bold">{getTeacherAvgScore(item)}</td>
                             </tr>
                           );
                         case 'classes':
                           return (
-                            <tr key={item.id || idx}>
-                              <td><strong>{item.name}</strong></td>
-                              <td>{item.education_level?.toUpperCase() || 'N/A'}</td>
-                              <td>Kelas {item.grade_level || 'N/A'}</td>
-                              <td>{item.profiles?.full_name || 'Belum ditetapkan'}</td>
-                              <td>{item.class_students?.length || 0}</td>
-                              <td>
-                                <span style={{ color: item.is_active ? '#10b981' : '#ef4444' }}>
+                            <tr key={item.id || idx} className={rowClass}>
+                              <td className="px-4 py-3 text-body-sm font-medium">{item.name}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.education_level?.toUpperCase() || 'N/A'}</td>
+                              <td className="px-4 py-3 text-body-sm">Kelas {item.grade_level || 'N/A'}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.profiles?.full_name || 'Belum ditetapkan'}</td>
+                              <td className="px-4 py-3 text-center text-body-sm">{item.class_students?.length || 0}</td>
+                              <td className="px-4 py-3 text-center">
+                                <span className={"inline-flex px-2 py-0.5 rounded-full text-label-xs font-medium " + (item.is_active ? 'bg-success-container text-on-success-container' : 'bg-error-container text-on-error-container')}>
                                   {item.is_active ? 'Aktif' : 'Non-aktif'}
                                 </span>
                               </td>
@@ -578,12 +512,12 @@ const ReportsModule = () => {
                           );
                         case 'activity':
                           return (
-                            <tr key={item.id || idx}>
-                              <td>{new Date(item.date || item.created_at).toLocaleDateString('id-ID')}</td>
-                              <td>{item.profiles?.full_name || 'N/A'}</td>
-                              <td>{item.classes?.name || 'N/A'}</td>
-                              <td>{item.subject}</td>
-                              <td>{item.duration_minutes || 0} menit</td>
+                            <tr key={item.id || idx} className={rowClass}>
+                              <td className="px-4 py-3 text-body-sm">{new Date(item.date || item.created_at).toLocaleDateString('id-ID')}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.profiles?.full_name || 'N/A'}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.classes?.name || 'N/A'}</td>
+                              <td className="px-4 py-3 text-body-sm">{item.subject}</td>
+                              <td className="px-4 py-3 text-center text-body-sm">{item.duration_minutes || 0} menit</td>
                             </tr>
                           );
                         default:
@@ -594,15 +528,13 @@ const ReportsModule = () => {
                 </table>
               </div>
             ) : (
-              <div className="empty-state">
-                <span className="empty-icon"><FileText size={48} /></span>
-                <p>Belum ada data untuk laporan ini.</p>
-                <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                  Silakan pilih jenis laporan lain atau tunggu data tersedia.
-                </p>
+              <div className="text-center py-12">
+                <FileText className="w-16 h-16 mx-auto text-on-surface-variant/30 mb-4" />
+                <p className="text-body-lg text-on-surface-variant mb-2">Belum ada data untuk laporan ini.</p>
+                <p className="text-body-sm text-on-surface-variant/70">Silakan pilih jenis laporan lain atau tunggu data tersedia.</p>
               </div>
             )}
-          </section>
+          </div>
         </div>
       )}
     </div>

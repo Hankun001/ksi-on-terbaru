@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { Play, Pause, SkipBack, SkipForward, Volume2, VolumeX, Maximize, Minimize } from 'lucide-react';
 
 const VideoPlayer = ({ url, title }) => {
   const videoRef = useRef(null);
@@ -15,7 +16,6 @@ const VideoPlayer = ({ url, title }) => {
   const controlsTimeoutRef = useRef(null);
 
   useEffect(() => {
-    // Reset state when URL changes
     setIsPlaying(false);
     setCurrentTime(0);
     setDuration(0);
@@ -131,13 +131,20 @@ const VideoPlayer = ({ url, title }) => {
 
   if (error) {
     return (
-      <div className="videoplayer-error">
-        <div className="error-content">
-          <span className="error-icon">🎬</span>
-          <h3>Gagal Memuat Video</h3>
-          <p>{error}</p>
-          <a href={url} target="_blank" rel="noopener noreferrer" className="btn btn-primary">
-            🔗 Buka Video di Tab Baru
+      <div className="bg-surface rounded-xl p-xl text-center border border-outline-variant/30 shadow-sm">
+        <div className="flex flex-col items-center gap-md">
+          <div className="w-16 h-16 rounded-full bg-error-container/30 flex items-center justify-center">
+            <span className="text-3xl">🎬</span>
+          </div>
+          <h3 className="text-title-md font-semibold text-on-surface">Gagal Memuat Video</h3>
+          <p className="text-body-md text-on-surface-variant">{error}</p>
+          <a 
+            href={url} 
+            target="_blank" 
+            rel="noopener noreferrer" 
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm"
+          >
+            Buka Video di Tab Baru
           </a>
         </div>
       </div>
@@ -146,22 +153,25 @@ const VideoPlayer = ({ url, title }) => {
 
   return (
     <div 
-      className={`videoplayer-container ${isFullscreen ? 'fullscreen' : ''}`}
+      className={`relative bg-black rounded-xl overflow-hidden group ${isFullscreen ? 'fixed inset-0 z-[9999] rounded-none' : ''}`}
       ref={containerRef}
       onMouseMove={handleMouseMove}
       onMouseLeave={() => isPlaying && setShowControls(false)}
+      style={{ aspectRatio: '16/9', maxHeight: isFullscreen ? '100vh' : undefined }}
     >
       {isLoading && (
-        <div className="videoplayer-loading">
-          <div className="loading-spinner"></div>
-          <p>Memuat video...</p>
+        <div className="absolute inset-0 flex items-center justify-center bg-black/60 z-10">
+          <div className="flex flex-col items-center gap-md text-white">
+            <div className="w-10 h-10 rounded-full border-3 border-white border-t-transparent animate-spin"></div>
+            <p className="text-body-sm">Memuat video...</p>
+          </div>
         </div>
       )}
 
       <video
         ref={videoRef}
         src={url}
-        className="videoplayer-video"
+        className="w-full h-full object-contain cursor-pointer"
         onClick={togglePlay}
         onLoadedMetadata={handleLoadedMetadata}
         onTimeUpdate={handleTimeUpdate}
@@ -173,77 +183,80 @@ const VideoPlayer = ({ url, title }) => {
 
       {/* Play button overlay */}
       {!isPlaying && !isLoading && (
-        <button className="play-overlay" onClick={togglePlay}>
-          <span className="play-icon">▶</span>
+        <button 
+          className="absolute inset-0 flex items-center justify-center bg-black/30 transition-opacity hover:bg-black/40 z-10"
+          onClick={togglePlay}
+        >
+          <div className="w-16 h-16 rounded-full bg-white/90 flex items-center justify-center shadow-lg hover:scale-110 transition-transform">
+            <Play className="w-8 h-8 text-gray-900 ml-1" fill="currentColor" />
+          </div>
         </button>
       )}
 
       {/* Controls */}
-      <div className={`videoplayer-controls ${showControls ? 'visible' : ''}`}>
+      <div className={`absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pt-12 pb-3 px-4 transition-opacity duration-300 z-20 ${showControls ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
         {/* Progress bar */}
-        <div className="progress-container">
+        <div className="relative mb-3">
           <input
             type="range"
-            className="progress-slider"
+            className="w-full h-1.5 appearance-none bg-white/30 rounded-full cursor-pointer accent-white [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3.5 [&::-webkit-slider-thumb]:h-3.5 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white [&::-webkit-slider-thumb]:shadow-md"
             min={0}
             max={duration || 100}
             value={currentTime}
             onChange={handleSeek}
           />
-          <div 
-            className="progress-buffered"
-            style={{ width: '0%' }}
-          />
-          <div 
-            className="progress-played"
-            style={{ width: `${(currentTime / duration) * 100}%` }}
-          />
         </div>
 
-        <div className="controls-row">
-          <div className="controls-left">
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
             {/* Play/Pause */}
-            <button className="control-btn" onClick={togglePlay}>
-              {isPlaying ? '⏸' : '▶'}
+            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/20 transition-colors text-white" onClick={togglePlay}>
+              {isPlaying ? <Pause className="w-5 h-5" fill="currentColor" /> : <Play className="w-5 h-5 ml-0.5" fill="currentColor" />}
             </button>
 
             {/* Skip buttons */}
-            <button className="control-btn" onClick={() => skip(-10)}>
-              ⏪ 10s
+            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/20 transition-colors text-white" onClick={() => skip(-10)} title="Mundur 10 detik">
+              <SkipBack className="w-4 h-4" />
             </button>
-            <button className="control-btn" onClick={() => skip(10)}>
-              10s ⏩
+            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/20 transition-colors text-white" onClick={() => skip(10)} title="Maju 10 detik">
+              <SkipForward className="w-4 h-4" />
             </button>
 
             {/* Volume */}
-            <div className="volume-control">
-              <button className="control-btn" onClick={toggleMute}>
-                {isMuted || volume === 0 ? '🔇' : volume < 0.5 ? '🔉' : '🔊'}
+            <div className="flex items-center gap-1 group/vol">
+              <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/20 transition-colors text-white" onClick={toggleMute}>
+                {isMuted || volume === 0 ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
               </button>
-              <input
-                type="range"
-                className="volume-slider"
-                min={0}
-                max={1}
-                step={0.1}
-                value={isMuted ? 0 : volume}
-                onChange={handleVolumeChange}
-              />
+              <div className="w-0 overflow-hidden group-hover/vol:w-20 transition-all duration-200">
+                <input
+                  type="range"
+                  className="w-full h-1 appearance-none bg-white/30 rounded-full cursor-pointer accent-white [&::-webkit-slider-thumb]:appearance-none [&::-webkit-slider-thumb]:w-3 [&::-webkit-slider-thumb]:h-3 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-white"
+                  min={0}
+                  max={1}
+                  step={0.1}
+                  value={isMuted ? 0 : volume}
+                  onChange={handleVolumeChange}
+                />
+              </div>
             </div>
 
             {/* Time */}
-            <span className="time-display">
+            <span className="text-label-xs text-white/80 ml-1 select-none">
               {formatTime(currentTime)} / {formatTime(duration)}
             </span>
           </div>
 
-          <div className="controls-right">
+          <div className="flex items-center gap-2">
             {/* Title */}
-            {title && <span className="video-title">{title}</span>}
+            {title && (
+              <span className="text-label-xs text-white/60 max-w-[200px] truncate hidden sm:block select-none">
+                {title}
+              </span>
+            )}
 
             {/* Fullscreen */}
-            <button className="control-btn" onClick={toggleFullscreen}>
-              {isFullscreen ? '⛶' : '⛶'}
+            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/20 transition-colors text-white" onClick={toggleFullscreen}>
+              {isFullscreen ? <Minimize className="w-4 h-4" /> : <Maximize className="w-4 h-4" />}
             </button>
           </div>
         </div>

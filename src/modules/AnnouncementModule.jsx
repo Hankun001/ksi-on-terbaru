@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
+import { Megaphone, Plus, X, Send, Filter, Edit3, Trash2 } from 'lucide-react';
 
 const AnnouncementModule = () => {
   const { user, role } = useAuth();
@@ -252,7 +253,14 @@ const AnnouncementModule = () => {
   };
 
   if (loading) {
-    return <div className="dashboard-container">Memuat pengumuman...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse flex flex-col items-center gap-sm">
+          <div className="w-12 h-12 rounded-full bg-surface-dim"></div>
+          <div className="h-4 w-48 bg-surface-dim rounded"></div>
+        </div>
+      </div>
+    );
   }
 
   // For students, show all announcements by default
@@ -261,149 +269,124 @@ const AnnouncementModule = () => {
     : allAnnouncements;
 
   return (
-    <div className="dashboard-container">
-      <h1>📢 Pengumuman</h1>
-      
-      {/* Course Filter */}
-      <div className="filter-controls">
-        <label htmlFor="course-select">Filter by Course:</label>
-        <select
-          id="course-select"
-          value={selectedCourse}
-          onChange={(e) => setSelectedCourse(e.target.value)}
-        >
-          <option value="all">All Courses</option>
-          {courses.map(course => (
-            <option key={course.id} value={course.id}>{course.title}</option>
-          ))}
-        </select>
+    <div className="p-margin-mobile md:p-margin-desktop max-w-4xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
+        <div>
+          <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+            <Megaphone className="w-7 h-7 text-primary" />
+            Pengumuman
+          </h1>
+          <p className="text-body-md text-on-surface-variant mt-xs">Informasi dan pengumuman kursus</p>
+        </div>
+        {(role === 'guru' || role === 'admin') && (
+          <button onClick={() => { setFormData({ title: '', content: '' }); setEditingAnnouncement(null); setShowForm(true); }}
+            className="inline-flex items-center gap-xs px-4 py-2 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium">
+            <Plus className="w-4 h-4" />
+            Buat Pengumuman
+          </button>
+        )}
       </div>
 
-      {(role === 'guru' || role === 'admin') && (
-        <div className="dashboard-actions">
-          <button 
-            className="btn btn-primary" 
-            onClick={() => {
-              setFormData({ title: '', content: '' });
-              setEditingAnnouncement(null);
-              setShowForm(true);
-            }}
-          >
-            + Buat Pengumuman Baru
-          </button>
+      {/* Course Filter */}
+      <div className="bg-surface-container-low rounded-2xl p-4 md:p-5 mb-xl border border-outline-variant">
+        <div className="flex items-center gap-sm">
+          <Filter className="w-5 h-5 text-primary" />
+          <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}
+            className="flex-1 px-3.5 py-2 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md">
+            <option value="all">Semua Kursus</option>
+            {courses.map(course => (
+              <option key={course.id} value={course.id}>{course.title}</option>
+            ))}
+          </select>
         </div>
-      )}
+      </div>
 
+      {/* Form Modal */}
       {showForm && (
-        <div className="form-container">
-          <h2>{editingAnnouncement ? 'Edit Pengumuman' : 'Buat Pengumuman Baru'}</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="title">Judul Pengumuman:</label>
-              <input
-                type="text"
-                id="title"
-                name="title"
-                value={formData.title}
-                onChange={handleInputChange}
-                required
-              />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={handleCancel}>
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-lg max-h-[90vh] overflow-y-auto animate-scaleIn" onClick={e => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-primary to-primary-container text-on-primary px-6 py-4 rounded-t-2xl flex items-center justify-between">
+              <h2 className="text-title-md font-semibold text-white flex items-center gap-sm">
+                <Megaphone className="w-5 h-5" />
+                {editingAnnouncement ? 'Edit Pengumuman' : 'Buat Pengumuman Baru'}
+              </h2>
+              <button onClick={handleCancel} className="p-1.5 rounded-full hover:bg-white/20 transition-colors">
+                <X className="w-5 h-5 text-white" />
+              </button>
             </div>
-            
-            <div className="form-group">
-              <label htmlFor="content">Isi Pengumuman:</label>
-              <textarea
-                id="content"
-                name="content"
-                value={formData.content}
-                onChange={handleInputChange}
-                rows="6"
-                required
-              ></textarea>
-            </div>
-            
-            {(role === 'guru' || role === 'admin') && (
-              <div className="form-group">
-                <label htmlFor="announcement-course">Kursus:</label>
-                <select
-                  id="announcement-course"
-                  value={selectedCourse}
-                  onChange={(e) => setSelectedCourse(e.target.value)}
-                  required
-                >
-                  <option value="">Pilih Kursus</option>
-                  {courses.map(course => (
-                    <option key={course.id} value={course.id}>{course.title}</option>
-                  ))}
-                </select>
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">Judul Pengumuman <span className="text-error">*</span></label>
+                <input type="text" name="title" value={formData.title} onChange={handleInputChange} required
+                  placeholder="Judul pengumuman..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md" />
               </div>
-            )}
-            
-            <div className="form-actions">
-              <button type="submit" className="btn btn-primary">
-                {editingAnnouncement ? 'Simpan Perubahan' : 'Buat Pengumuman'}
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={handleCancel}>
-                Batal
-              </button>
-            </div>
-          </form>
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">Isi Pengumuman <span className="text-error">*</span></label>
+                <textarea name="content" value={formData.content} onChange={handleInputChange} rows={6} required
+                  placeholder="Tulis isi pengumuman di sini..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md resize-none" />
+              </div>
+              <div className="flex gap-sm pt-2 border-t border-outline-variant">
+                <button type="submit" className="flex-1 inline-flex items-center justify-center gap-xs px-4 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium">
+                  <Send className="w-4 h-4" />
+                  {editingAnnouncement ? 'Simpan Perubahan' : 'Buat Pengumuman'}
+                </button>
+                <button type="button" onClick={handleCancel} className="px-4 py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-lg">Batal</button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      <div className="dashboard-content">
-        <section className="dashboard-section">
-          <h2>
-            {selectedCourse === 'all' 
-              ? 'Semua Pengumuman' 
-              : `Pengumuman: "${courses.find(c => c.id === selectedCourse)?.title}"`}
+      {/* Announcements List */}
+      <div className="bg-surface rounded-2xl border border-outline-variant overflow-hidden shadow-sm">
+        <div className="px-4 md:px-6 py-4 border-b border-outline-variant">
+          <h2 className="text-title-md font-semibold text-on-surface flex items-center gap-sm">
+            <Megaphone className="w-5 h-5 text-primary" />
+            {selectedCourse === 'all' ? 'Semua Pengumuman' : `Pengumuman: ${courses.find(c => c.id === selectedCourse)?.title || ''}`}
           </h2>
-          
-          {displayAnnouncements.length > 0 ? (
-            <div className="announcements-list">
-              {displayAnnouncements.map(announcement => (
-                <div key={announcement.id} className="announcement-item card">
-                  <div className="announcement-header">
-                    <h3>{announcement.title}</h3>
-                    <div className="announcement-meta">
-                      <span>
-                        📚 {announcement.courses?.title || 'Unknown Course'} • 
-                        Oleh: {announcement.profiles?.email || 'Unknown'}
-                      </span>
-                      <span>{new Date(announcement.created_at).toLocaleDateString()}</span>
-                    </div>
+        </div>
+
+        {displayAnnouncements.length > 0 ? (
+          <div className="divide-y divide-outline-variant">
+            {displayAnnouncements.map(announcement => (
+              <div key={announcement.id} className="p-4 md:p-6 hover:bg-surface-dim/30 transition-colors">
+                <div className="flex items-start justify-between gap-4 mb-3">
+                  <div className="flex-1 min-w-0">
+                    <h3 className="text-title-sm font-semibold text-on-surface m-0">{announcement.title}</h3>
+                    <p className="text-label-sm text-on-surface-variant mt-1 flex items-center gap-1.5 flex-wrap">
+                      <span>📚 {announcement.courses?.title || 'Unknown Course'}</span>
+                      <span className="text-outline">•</span>
+                      <span>Oleh: {announcement.profiles?.email || 'Unknown'}</span>
+                      <span className="text-outline">•</span>
+                      <span>{new Date(announcement.created_at).toLocaleDateString('id-ID')}</span>
+                    </p>
                   </div>
-                  
-                  <div className="announcement-content">
-                    <p>{announcement.content}</p>
-                  </div>
-                  
                   {(role === 'guru' || role === 'admin') && (
-                    <div className="announcement-actions">
-                      <button 
-                        className="btn btn-secondary" 
-                        onClick={() => handleEdit(announcement)}
-                      >
-                        Edit
+                    <div className="flex gap-1.5 shrink-0">
+                      <button onClick={() => handleEdit(announcement)} className="p-2 rounded-full bg-primary-container/50 text-on-primary-container hover:bg-primary-container/80 transition-colors" title="Edit">
+                        <Edit3 className="w-4 h-4" />
                       </button>
-                      <button 
-                        className="btn btn-secondary" 
-                        onClick={() => handleDelete(announcement.id)}
-                      >
-                        Hapus
+                      <button onClick={() => handleDelete(announcement.id)} className="p-2 rounded-full bg-error-container/50 text-on-error-container hover:bg-error-container/80 transition-colors" title="Hapus">
+                        <Trash2 className="w-4 h-4" />
                       </button>
                     </div>
                   )}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <span className="empty-icon">📢</span>
-              <p>Belum ada pengumuman.</p>
-            </div>
-          )}
-        </section>
+                <div className="text-body-sm text-on-surface-variant leading-relaxed whitespace-pre-line">
+                  {announcement.content}
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-16">
+            <Megaphone className="w-16 h-16 mx-auto text-on-surface-variant/30 mb-4" />
+            <p className="text-body-lg text-on-surface-variant">Belum ada pengumuman.</p>
+          </div>
+        )}
       </div>
     </div>
   );

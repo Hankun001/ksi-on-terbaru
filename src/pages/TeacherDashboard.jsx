@@ -3,7 +3,6 @@ import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import AnnouncementModule from '../modules/AnnouncementModule';
 import ProfileModule from '../modules/ProfileModule';
-import MessagingPage from '../modules/MessagingModule';
 import QuizManagement from '../modules/QuizManagement';
 import MaterialsModule from '../modules/MaterialsModule';
 import { TeacherCourseManagement } from './CourseManagement';
@@ -18,12 +17,12 @@ import StudentResultDetailPage from '../modules/exams/pages/StudentResultDetailP
 import SimpleStudentEvaluation from '../modules/SimpleStudentEvaluation';
 import AttendanceReport from '../modules/AttendanceReport';
 import EvaluationReport from '../modules/EvaluationReport';
+import MessagingPage from '../modules/MessagingModule';
 import {
-  BookOpen, FileText, FolderOpen, Users, Bell,
-  BarChart3, Mail, User, AlertCircle, CheckCircle,
-  Clock, Trash2, Download, Edit, ChevronRight,
-  GraduationCap, Settings, LogOut, Plus, CloudUpload,
-  Save
+  BookOpen, FileText, Users, Bell,
+  BarChart3, AlertCircle, CheckCircle,
+  Clock, Trash2, RefreshCw,
+  GraduationCap, Plus, Save
 } from 'lucide-react';
 
 const TeacherDashboard = ({ activeSection = 'dashboard-guru', onNavigate }) => {
@@ -421,38 +420,20 @@ const TeacherDashboard = ({ activeSection = 'dashboard-guru', onNavigate }) => {
 
   if (error) {
     return (
-      <div className="dashboard-container">
-        <div className="error-message">
-          <AlertCircle size={20} className="error-icon" />
-          {error}
+      <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+        <div className="flex items-center gap-sm p-md rounded-xl bg-error-container border border-error/20 mb-md">
+          <AlertCircle size={20} className="text-error shrink-0" />
+          <p className="text-body-sm font-body text-on-error-container">{error}</p>
         </div>
-        <button onClick={handleRefresh} className="btn btn-primary" style={{ marginTop: '1rem' }}>
-          Coba Lagi
+        <button onClick={handleRefresh} className="flex items-center gap-sm py-sm px-md rounded-xl bg-primary text-on-primary font-label-md hover:bg-primary-container hover:text-on-primary-container transition-all">
+          <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} /> Coba Lagi
         </button>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <div>
-          <h1>
-            <GraduationCap size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
-            Dasbor Guru
-          </h1>
-          <p>Selamat datang, {profile?.display_name || user?.email?.split('@')[0] || 'Guru'}</p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button 
-            onClick={handleRefresh} 
-            className="btn btn-secondary"
-            disabled={refreshing}
-          >
-            {refreshing ? '↻ Memuat...' : '↻ Refresh'}
-          </button>
-        </div>
-      </div>
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto w-full flex flex-col gap-lg">
       {renderContent()}
     </div>
   );
@@ -468,156 +449,152 @@ const DashboardOverview = ({ stats, courses, assignments, submissions = [], noti
     if (currentHour < 18) return 'Selamat Sore';
     return 'Selamat Malam';
   };
+  const unreadCount = notifications.filter(n => !n.is_read).length;
 
   return (
-    <div className="dashboard-content">
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        borderRadius: '16px',
-        padding: '2rem',
-        color: 'white',
-        marginBottom: '2rem',
-        textAlign: 'center'
-      }}>
-        <h1 style={{ margin: '0 0 0.5rem 0', fontSize: '1.75rem' }}>
-          {getGreeting()}! 👋
-        </h1>
-        <p style={{ margin: 0, fontSize: '1.1rem', opacity: 0.9 }}>
-          Hai Guru! Selamat mengajar. Semoga hari Anda penuh berkah dan inspirasi untuk para murid.
-        </p>
+    <div className="flex flex-col gap-lg">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-md">
+        <div>
+          <h2 className="text-headline-lg font-display text-on-background flex items-center gap-sm">
+            <GraduationCap size={28} className="text-secondary" />
+            Dasbor Guru
+          </h2>
+          <p className="text-body-md font-body text-on-surface-variant mt-1">Selamat datang kembali! Semangat mengajar hari ini!</p>
+        </div>
+        <button onClick={onRefresh} disabled={refreshing} className="flex items-center gap-xs bg-surface-container px-sm py-xs rounded-xl text-primary font-label-md font-label hover:bg-primary/10 transition-colors border border-primary/20">
+          <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} /> Refresh Data
+        </button>
       </div>
 
-      <section className="dashboard-stats">
-        <h2>
-          <BarChart3 size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-          Statistik Saya
-        </h2>
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon"><BookOpen size={24} /></div>
-            <h3>{stats.totalCourses}</h3>
-            <p>Kursus Saya</p>
+      {/* Welcome Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-surface-tint p-xl shadow-[0px_10px_30px_rgba(53,37,205,0.2)]">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+        <div className="absolute bottom-0 left-10 w-40 h-40 bg-secondary-container/20 rounded-full blur-2xl translate-y-1/2" />
+        <div className="relative z-10 flex flex-col items-center justify-center text-center py-sm">
+          <h3 className="text-headline-md font-display text-white mb-2">{getGreeting()}! 👋</h3>
+          <p className="text-body-md font-body text-primary-fixed max-w-xl">Hai Guru! Selamat mengajar. Semoga hari Anda penuh berkah dan inspirasi untuk para murid.</p>
+        </div>
+      </div>
+
+      {/* Stats Grid */}
+      <div>
+        <h3 className="text-title-lg font-title text-on-background flex items-center gap-xs mb-md">
+          <BarChart3 size={20} className="text-outline" /> Statistik Saya
+        </h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-md">
+          <div className="bg-surface rounded-xl p-md border border-outline-variant/30 flex flex-col items-center text-center group hover:shadow-md transition-all">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
+              <BookOpen size={24} className="text-primary" />
+            </div>
+            <p className="text-3xl font-display font-bold text-on-background mb-1">{stats.totalCourses}</p>
+            <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-wider">Kursus Saya</p>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon"><FileText size={24} /></div>
-            <h3>{stats.totalAssignments}</h3>
-            <p>Total Tugas</p>
+          <div className="bg-surface rounded-xl p-md border border-outline-variant/30 flex flex-col items-center text-center group hover:shadow-md transition-all">
+            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
+              <FileText size={24} className="text-emerald-600" />
+            </div>
+            <p className="text-3xl font-display font-bold text-on-background mb-1">{stats.totalAssignments}</p>
+            <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-wider">Total Tugas</p>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon"><CloudUpload size={24} /></div>
-            <h3>{pendingSubmissions}</h3>
-            <p>Menunggu Penilaian</p>
+          <div className="bg-surface rounded-xl p-md border border-outline-variant/30 flex flex-col items-center text-center group hover:shadow-md transition-all">
+            <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
+              <Clock size={24} className="text-amber-600" />
+            </div>
+            <p className="text-3xl font-display font-bold text-on-background mb-1">{pendingSubmissions}</p>
+            <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-wider">Menunggu Penilaian</p>
           </div>
-          <div className="stat-card">
-            <div className="stat-icon"><Users size={24} /></div>
-            <h3>{stats.totalStudents}</h3>
-            <p>Total Murid</p>
+          <div className="bg-surface rounded-xl p-md border border-outline-variant/30 flex flex-col items-center text-center group hover:shadow-md transition-all">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
+              <Users size={24} className="text-primary" />
+            </div>
+            <p className="text-3xl font-display font-bold text-on-background mb-1">{stats.totalStudents}</p>
+            <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-wider">Total Murid</p>
           </div>
         </div>
-      </section>
+      </div>
 
-      {notifications && notifications.length > 0 && (
-        <section className="dashboard-section">
-          <h2>
-            <Bell size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Notifikasi 
-            <span className="badge">{notifications.filter(n => !n.is_read).length}</span>
-          </h2>
-          <div className="notifications-list">
-            {notifications.slice(0, 5).map(notification => (
-              <div 
-                key={notification.id} 
-                className={`notification-item ${!notification.is_read ? 'unread' : ''}`}
-              >
-                <span className="notification-icon">
-                  {notification.type === 'grade' ? <FileText size={20} /> : 
-                   notification.type === 'submission' ? <CloudUpload size={20} /> :
-                   notification.type === 'announcement' ? <Bell size={20} /> : <Bell size={20} />}
-                </span>
-                <div className="notification-content">
-                  <p>{notification.message}</p>
-                  <small>{new Date(notification.created_at).toLocaleString()}</small>
+      {/* Notifications */}
+      {notifications.length > 0 && (
+        <div>
+          <h3 className="text-title-lg font-title text-on-background flex items-center gap-xs mb-md">
+            <Bell size={20} className="text-error" /> Notifikasi
+            {unreadCount > 0 && <span className="bg-error text-on-error text-label-sm font-label px-2 py-0.5 rounded-full">{unreadCount}</span>}
+          </h3>
+          <div className="flex flex-col gap-sm">
+            {notifications.slice(0, 5).map(n => (
+              <div key={n.id} className={`rounded-xl p-md border flex gap-md items-start shadow-sm ${!n.is_read ? 'bg-surface-container-low border-outline-variant/20' : 'bg-surface border-outline-variant/20 opacity-80'}`}>
+                <span className="mt-1">{n.type === 'submission' ? '📤' : n.type === 'announcement' ? '📢' : '🔔'}</span>
+                <div className="flex-1 min-w-0">
+                  <p className="text-body-sm font-body text-on-background">{n.message}</p>
+                  <p className="text-label-sm text-outline mt-1">{new Date(n.created_at).toLocaleString()}</p>
                 </div>
               </div>
             ))}
           </div>
-        </section>
+        </div>
       )}
 
-      <section className="dashboard-section">
-        <h2>📚 Kursus Saya</h2>
+      {/* Courses */}
+      <div className="pb-xl">
+        <h3 className="text-title-lg font-title text-on-background flex items-center gap-xs mb-md">
+          <BookOpen size={20} className="text-outline" /> Kursus Saya
+        </h3>
         {courses.length > 0 ? (
-          <div className="cards-grid">
-            {courses.slice(0, 3).map(course => (
-              <div key={course.id} className="card card-course">
-                {course.thumbnail_url && (
-                  <img 
-                    src={course.thumbnail_url} 
-                    alt={course.title}
-                    style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px 8px 0 0' }}
-                  />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+            {courses.slice(0, 6).map(course => (
+              <div key={course.id} className="bg-surface rounded-xl border border-outline-variant/30 overflow-hidden hover:shadow-md transition-all">
+                {course.thumbnail_url ? (
+                  <img src={course.thumbnail_url} alt={course.title} className="w-full h-32 object-cover" />
+                ) : (
+                  <div className="w-full h-32 bg-gradient-to-br from-primary/10 to-secondary-container/30 flex items-center justify-center">
+                    <BookOpen size={40} className="text-primary/40" />
+                  </div>
                 )}
-                <div className="card-header">
-                  <span className="course-code">{course.title?.substring(0, 3).toUpperCase() || 'KURSUS'}</span>
-                  <span className="course-icon">📚</span>
+                <div className="p-md">
+                  <h4 className="text-title-md font-title text-on-background line-clamp-1">{course.title}</h4>
+                  <p className="text-body-sm font-body text-on-surface-variant line-clamp-2">{course.description}</p>
                 </div>
-                <h3>{course.title}</h3>
-                <p>{course.description?.substring(0, 60)}...</p>
               </div>
             ))}
           </div>
         ) : (
-          <div className="empty-state">
-            <span className="empty-icon">📚</span>
-            <p>Anda belum membuat kursus.</p>
+          <div className="bg-surface rounded-xl border border-dashed border-outline-variant flex flex-col items-center justify-center p-xl text-center">
+            <BookOpen size={48} className="text-outline/60 mb-md" />
+            <p className="text-body-sm font-body text-on-surface-variant">Anda belum membuat kursus.</p>
           </div>
         )}
-      </section>
+      </div>
     </div>
   );
 };
 
 // Materials View with Welcome Message
 const MaterialsView = ({ materials, courses, onRefresh, refreshing }) => (
-  <div className="dashboard-content">
-    {/* Welcome Message */}
-    <div style={{ 
-      background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-      borderRadius: '16px',
-      padding: '1.5rem',
-      color: 'white',
-      marginBottom: '1.5rem',
-      textAlign: 'center'
-    }}>
-      <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>📄 Manajemen Materi</h2>
-      <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-        Bagikan pengetahuan Anda melalui materi pembelajaran yang berkualitas.
-      </p>
+  <div className="flex flex-col gap-lg">
+    <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl p-xl text-center shadow-md">
+      <h2 className="text-headline-md font-display text-white mb-sm">📄 Manajemen Materi</h2>
+      <p className="text-body-md font-body text-white/80">Bagikan pengetahuan Anda melalui materi pembelajaran yang berkualitas.</p>
     </div>
-
-    <section className="dashboard-section">
-      <h2>📄 Materi Pembelajaran</h2>
-      <p style={{ color: '#6b7280' }}>Fitur manajemen materi dalam pengembangan.</p>
+    <div className="bg-surface rounded-2xl p-xl border border-outline-variant/30">
+      <h3 className="text-title-lg font-title text-on-background mb-md">📄 Materi Pembelajaran</h3>
       {materials.length > 0 ? (
-        <div className="cards-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
           {materials.slice(0, 10).map(material => (
-            <div key={material.id} className="card">
-              <h3>{material.title}</h3>
-              <p>{material.content?.substring(0, 100)}...</p>
-              <small style={{ color: '#6b7280' }}>
-                📅 {new Date(material.created_at).toLocaleDateString()}
-              </small>
+            <div key={material.id} className="bg-surface-container-low rounded-xl p-md border border-outline-variant/30">
+              <h4 className="text-title-md font-title text-on-background mb-1">{material.title}</h4>
+              <p className="text-body-sm font-body text-on-surface-variant line-clamp-2">{material.content}</p>
+              <p className="text-label-sm text-outline mt-sm">📅 {new Date(material.created_at).toLocaleDateString()}</p>
             </div>
           ))}
         </div>
       ) : (
-        <div className="empty-state">
-          <span className="empty-icon">📄</span>
-          <p>Belum ada materi.</p>
+        <div className="flex flex-col items-center justify-center py-xl text-center opacity-60">
+          <FileText size={48} className="text-outline mb-sm" />
+          <p className="text-body-sm font-body text-on-surface-variant">Belum ada materi.</p>
         </div>
       )}
-    </section>
+    </div>
   </div>
 );
 
@@ -626,254 +603,126 @@ const AssignmentsView = ({ assignments, submissions, courses, onRefresh, refresh
   const [showCreateForm, setShowCreateForm] = useState(false);
   const [selectedCourseFilter, setSelectedCourseFilter] = useState('all');
   const [newAssignment, setNewAssignment] = useState({
-    title: '',
-    description: '',
-    due_date: '',
-    max_points: 100,
-    external_link: '',
-    external_link_type: '',
-    course_id: ''
+    title: '', description: '', due_date: '', max_points: 100, external_link: '', external_link_type: '', course_id: ''
   });
 
-  // Filter assignments by course
   const filteredAssignments = selectedCourseFilter === 'all' 
-    ? assignments 
-    : assignments.filter(a => a.course_id === selectedCourseFilter);
+    ? assignments : assignments.filter(a => a.course_id === selectedCourseFilter);
 
-  // Get course name by ID
-  const getCourseName = (courseId) => {
-    const course = courses.find(c => c.id === courseId);
-    return course?.title || 'Unknown Course';
-  };
+  const getCourseName = (courseId) => courses.find(c => c.id === courseId)?.title || 'Unknown';
 
   const handleCreate = async (e) => {
     e.preventDefault();
-    
-    if (!newAssignment.course_id) {
-      alert('Silakan pilih kursus terlebih dahulu!');
-      return;
-    }
-    
+    if (!newAssignment.course_id) { alert('Silakan pilih kursus terlebih dahulu!'); return; }
     try {
-      const { error } = await supabase
-        .from('assignments')
-        .insert([{
-          title: newAssignment.title,
-          description: newAssignment.description,
-          due_date: newAssignment.due_date,
-          max_points: parseInt(newAssignment.max_points),
-          external_link: newAssignment.external_link,
-          external_link_type: newAssignment.external_link_type,
-          course_id: newAssignment.course_id,
-          status: 'open',
-          created_at: new Date().toISOString()
-        }]);
-
+      const { error } = await supabase.from('assignments').insert([{
+        title: newAssignment.title, description: newAssignment.description,
+        due_date: newAssignment.due_date, max_points: parseInt(newAssignment.max_points),
+        external_link: newAssignment.external_link, external_link_type: newAssignment.external_link_type,
+        course_id: newAssignment.course_id, status: 'open', created_at: new Date().toISOString()
+      }]);
       if (error) throw error;
       setShowCreateForm(false);
-      setNewAssignment({
-        title: '',
-        description: '',
-        due_date: '',
-        max_points: 100,
-        external_link: '',
-        external_link_type: '',
-        course_id: ''
-      });
-      alert('Tugas berhasil dibuat! Murid akan melihat tugas baru ini.');
+      setNewAssignment({ title: '', description: '', due_date: '', max_points: 100, external_link: '', external_link_type: '', course_id: '' });
+      alert('Tugas berhasil dibuat!');
       onRefresh();
-    } catch (err) {
-      alert('Gagal membuat tugas: ' + err.message);
-    }
+    } catch (err) { alert('Gagal membuat tugas: ' + err.message); }
   };
 
   const handleDelete = async (id) => {
-    if (!confirm('Apakah Anda yakin ingin menghapus tugas ini?')) return;
-    
+    if (!confirm('Yakin ingin menghapus tugas ini?')) return;
     try {
-      const { error } = await supabase
-        .from('assignments')
-        .delete()
-        .eq('id', id);
-
+      const { error } = await supabase.from('assignments').delete().eq('id', id);
       if (error) throw error;
       alert('Tugas berhasil dihapus.');
       onRefresh();
-    } catch (err) {
-      alert('Gagal menghapus tugas: ' + err.message);
-    }
+    } catch (err) { alert('Gagal menghapus tugas: ' + err.message); }
   };
 
   return (
-    <div className="dashboard-content">
-      <div style={{ 
-        background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '1.5rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>
-          <FileText size={24} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-          Manajemen Tugas
-        </h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Buat dan kelola tugas untuk murid Anda.
-        </p>
+    <div className="flex flex-col gap-lg">
+      <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-xl text-center shadow-md">
+        <h2 className="text-headline-md font-display text-white mb-sm">📝 Manajemen Tugas</h2>
+        <p className="text-body-md font-body text-white/80">Buat dan kelola tugas untuk murid Anda.</p>
       </div>
 
-      {/* Course Filter */}
-      <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <label style={{ fontWeight: '500' }}>Filter Kursus:</label>
-        <select
-          value={selectedCourseFilter}
-          onChange={(e) => setSelectedCourseFilter(e.target.value)}
-          style={{
-            padding: '0.5rem 1rem',
-            borderRadius: '8px',
-            border: '1px solid #ddd',
-            fontSize: '0.95rem',
-            minWidth: '200px'
-          }}
-        >
-          <option value="all">Semua Kursus</option>
-          {courses.map(course => (
-            <option key={course.id} value={course.id}>{course.title}</option>
-          ))}
-        </select>
+      <div className="flex flex-col sm:flex-row gap-md items-start sm:items-center justify-between">
+        <div className="flex items-center gap-md">
+          <label className="text-label-sm font-label text-on-surface-variant">Filter Kursus:</label>
+          <select value={selectedCourseFilter} onChange={(e) => setSelectedCourseFilter(e.target.value)} className="px-md py-sm rounded-xl border border-outline-variant bg-surface-container-low text-body-sm font-body text-on-surface outline-none focus:border-primary transition-colors">
+            <option value="all">Semua Kursus</option>
+            {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+          </select>
+        </div>
+        <button onClick={() => setShowCreateForm(true)} className="flex items-center gap-sm py-sm px-md rounded-xl bg-primary text-on-primary font-label-md hover:bg-primary-container hover:text-on-primary-container transition-all shadow-md">
+          <Plus size={18} /> Buat Tugas Baru
+        </button>
       </div>
-
-      <button 
-        className="btn btn-primary"
-        onClick={() => setShowCreateForm(true)}
-        style={{ marginBottom: '1rem' }}
-      >
-        <Plus size={18} style={{ marginRight: '8px' }} />
-        Buat Tugas Baru
-      </button>
 
       {showCreateForm && (
-        <form onSubmit={handleCreate} className="form-container" style={{ marginBottom: '2rem' }}>
-          <h3>
-            <FileText size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Buat Tugas Baru
-          </h3>
-          <div className="form-group">
-            <label>Pilih Kursus <span style={{ color: 'red' }}>*</span></label>
-            <select
-              value={newAssignment.course_id}
-              onChange={(e) => setNewAssignment({ ...newAssignment, course_id: e.target.value })}
-              required
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid #ddd',
-                fontSize: '1rem'
-              }}
-            >
-              <option value="">-- Pilih Kursus --</option>
-              {courses.map(course => (
-                <option key={course.id} value={course.id}>{course.title}</option>
-              ))}
-            </select>
+        <form onSubmit={handleCreate} className="bg-surface rounded-2xl p-xl border border-outline-variant/30">
+          <h3 className="text-title-lg font-title text-on-background mb-md">📝 Buat Tugas Baru</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+            <div className="flex flex-col gap-1">
+              <label className="text-label-sm font-label text-on-surface-variant">Kursus <span className="text-error">*</span></label>
+              <select value={newAssignment.course_id} onChange={(e) => setNewAssignment({...newAssignment, course_id: e.target.value})} required className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface-container-low text-body-md outline-none focus:border-primary">
+                <option value="">-- Pilih --</option>
+                {courses.map(c => <option key={c.id} value={c.id}>{c.title}</option>)}
+              </select>
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-label-sm font-label text-on-surface-variant">Judul Tugas</label>
+              <input type="text" value={newAssignment.title} onChange={(e) => setNewAssignment({...newAssignment, title: e.target.value})} required className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface-container-low text-body-md outline-none focus:border-primary" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-label-sm font-label text-on-surface-variant">Tanggal Jatuh Tempo</label>
+              <input type="datetime-local" value={newAssignment.due_date} onChange={(e) => setNewAssignment({...newAssignment, due_date: e.target.value})} className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface-container-low text-body-md outline-none focus:border-primary" />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-label-sm font-label text-on-surface-variant">Nilai Maksimal</label>
+              <input type="number" value={newAssignment.max_points} onChange={(e) => setNewAssignment({...newAssignment, max_points: parseInt(e.target.value)})} min="1" className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface-container-low text-body-md outline-none focus:border-primary" />
+            </div>
+            <div className="md:col-span-2 flex flex-col gap-1">
+              <label className="text-label-sm font-label text-on-surface-variant">Deskripsi</label>
+              <textarea value={newAssignment.description} onChange={(e) => setNewAssignment({...newAssignment, description: e.target.value})} rows="3" className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface-container-low text-body-md outline-none focus:border-primary resize-none" />
+            </div>
           </div>
-          <div className="form-group">
-            <label>Judul Tugas</label>
-            <input
-              type="text"
-              value={newAssignment.title}
-              onChange={(e) => setNewAssignment({ ...newAssignment, title: e.target.value })}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Deskripsi</label>
-            <textarea
-              value={newAssignment.description}
-              onChange={(e) => setNewAssignment({ ...newAssignment, description: e.target.value })}
-              rows="3"
-            />
-          </div>
-          <div className="form-group">
-            <label>Tanggal Jatuh Tempo</label>
-            <input
-              type="datetime-local"
-              value={newAssignment.due_date}
-              onChange={(e) => setNewAssignment({ ...newAssignment, due_date: e.target.value })}
-            />
-          </div>
-          <div className="form-group">
-            <label>Nilai Maksimal</label>
-            <input
-              type="number"
-              value={newAssignment.max_points}
-              onChange={(e) => setNewAssignment({ ...newAssignment, max_points: parseInt(e.target.value) })}
-              min="1"
-              max="1000"
-            />
-          </div>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button type="submit" className="btn btn-primary">
-              <Save size={18} style={{ marginRight: '8px' }} />
-              Simpan
+          <div className="flex items-center gap-md mt-lg">
+            <button type="submit" className="flex items-center gap-sm py-sm px-lg rounded-xl bg-primary text-on-primary font-label-md hover:bg-primary-container hover:text-on-primary-container transition-all">
+              <Save size={18} /> Simpan
             </button>
-            <button type="button" className="btn btn-secondary" onClick={() => setShowCreateForm(false)}>Batal</button>
+            <button type="button" onClick={() => setShowCreateForm(false)} className="py-sm px-lg rounded-xl border border-outline-variant text-on-surface-variant font-label-md hover:bg-surface-container-low transition-colors">Batal</button>
           </div>
         </form>
       )}
 
-      <section className="dashboard-section">
-        <h2>
-          <BookOpen size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-          Daftar Tugas
-        </h2>
+      <div className="bg-surface rounded-2xl border border-outline-variant/30 overflow-hidden">
+        <div className="p-md border-b border-outline-variant/30 bg-surface-container-lowest">
+          <h3 className="text-title-lg font-title text-on-surface">📚 Daftar Tugas</h3>
+        </div>
         {filteredAssignments.length > 0 ? (
-          <div className="table-responsive">
-            <table className="dashboard-table">
+          <div className="overflow-x-auto">
+            <table className="w-full text-left border-collapse">
               <thead>
-                <tr>
-                  <th>Kursus</th>
-                  <th>Judul</th>
-                  <th>Deskripsi</th>
-                  <th>Jatuh Tempo</th>
-                  <th>Max Poin</th>
-                  <th>Status</th>
-                  <th>Aksi</th>
+                <tr className="bg-surface-container-low border-b border-outline-variant/50">
+                  <th className="py-sm px-lg text-label-sm font-label text-outline uppercase tracking-wider">Kursus</th>
+                  <th className="py-sm px-lg text-label-sm font-label text-outline uppercase tracking-wider">Judul</th>
+                  <th className="py-sm px-lg text-label-sm font-label text-outline uppercase tracking-wider">Jatuh Tempo</th>
+                  <th className="py-sm px-lg text-label-sm font-label text-outline uppercase tracking-wider">Poin</th>
+                  <th className="py-sm px-lg text-label-sm font-label text-outline uppercase tracking-wider">Status</th>
+                  <th className="py-sm px-lg text-label-sm font-label text-outline uppercase tracking-wider">Aksi</th>
                 </tr>
               </thead>
-              <tbody>
-                {filteredAssignments.map(assignment => (
-                  <tr key={assignment.id}>
-                    <td>
-                      <span style={{ 
-                        background: '#e0e7ff', 
-                        color: '#4338ca',
-                        padding: '4px 8px',
-                        borderRadius: '4px',
-                        fontSize: '0.85rem',
-                        fontWeight: '500'
-                      }}>
-                        {getCourseName(assignment.course_id)}
-                      </span>
-                    </td>
-                    <td>{assignment.title}</td>
-                    <td>{assignment.description?.substring(0, 50)}...</td>
-                    <td>{assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : '-'}</td>
-                    <td>{assignment.max_points}</td>
-                    <td>
-                      <span className={`badge ${assignment.status === 'open' ? 'badge-success' : 'badge-secondary'}`}>
-                        {assignment.status === 'open' ? 'Aktif' : 'Ditutup'}
-                      </span>
-                    </td>
-                    <td>
-                      <button 
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(assignment.id)}
-                      >
-                        <Trash2 size={16} />
-                      </button>
+              <tbody className="divide-y divide-outline-variant/30">
+                {filteredAssignments.map(a => (
+                  <tr key={a.id} className="hover:bg-surface-container-low transition-colors">
+                    <td className="py-sm px-lg"><span className="text-label-sm font-label bg-primary/10 text-primary px-2 py-1 rounded-md">{getCourseName(a.course_id)}</span></td>
+                    <td className="py-sm px-lg text-body-sm font-body text-on-surface">{a.title}</td>
+                    <td className="py-sm px-lg text-body-sm font-body text-on-surface-variant">{a.due_date ? new Date(a.due_date).toLocaleDateString() : '-'}</td>
+                    <td className="py-sm px-lg text-body-sm font-body text-on-surface-variant">{a.max_points}</td>
+                    <td className="py-sm px-lg"><span className={`text-label-sm font-label px-2 py-0.5 rounded-full ${a.status === 'open' ? 'bg-success-light text-success' : 'bg-surface-variant text-on-surface-variant'}`}>{a.status === 'open' ? 'Aktif' : 'Ditutup'}</span></td>
+                    <td className="py-sm px-lg">
+                      <button onClick={() => handleDelete(a.id)} className="p-1.5 rounded-lg hover:bg-error-container text-error transition-colors"><Trash2 size={16} /></button>
                     </td>
                   </tr>
                 ))}
@@ -881,21 +730,20 @@ const AssignmentsView = ({ assignments, submissions, courses, onRefresh, refresh
             </table>
           </div>
         ) : (
-          <div className="empty-state">
-            <FileText size={48} className="empty-icon" />
-            <p>Belum ada tugas. Buat tugas pertama Anda!</p>
+          <div className="flex flex-col items-center justify-center py-xl text-center">
+            <FileText size={48} className="text-outline/60 mb-sm" />
+            <p className="text-body-sm font-body text-on-surface-variant">Belum ada tugas.</p>
           </div>
         )}
-      </section>
+      </div>
     </div>
   );
 };
 
-// Enhanced Submissions View with detailed grading info and file download
+// Enhanced Submissions View
 const SubmissionsView = ({ submissions, onRefresh, onGradeSubmit }) => {
-  const [filter, setFilter] = useState('all'); // all, pending, graded
-  const [expandedSubmission, setExpandedSubmission] = useState(null);
-  
+  const [filter, setFilter] = useState('all');
+
   const filteredSubmissions = submissions.filter(sub => {
     if (filter === 'pending') return sub.grade === null;
     if (filter === 'graded') return sub.grade !== null;
@@ -908,14 +756,8 @@ const SubmissionsView = ({ submissions, onRefresh, onGradeSubmit }) => {
     ? Math.round(submissions.filter(s => s.grade !== null).reduce((sum, s) => sum + s.grade, 0) / submissions.filter(s => s.grade !== null).length)
     : 0;
 
-  // Get file name from URL
-  const getFileName = (url) => {
-    if (!url) return null;
-    const parts = url.split('/');
-    return parts[parts.length - 1] || 'File';
-  };
+  const getFileName = (url) => url ? url.split('/').pop() || 'File' : null;
 
-  // Handle file download
   const handleDownload = async (url, fileName) => {
     try {
       const response = await fetch(url);
@@ -930,414 +772,169 @@ const SubmissionsView = ({ submissions, onRefresh, onGradeSubmit }) => {
       window.URL.revokeObjectURL(downloadUrl);
     } catch (err) {
       console.error('Download error:', err);
-      // Fallback: open in new tab
       window.open(url, '_blank');
     }
   };
 
   return (
-    <div className="dashboard-content">
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '1.5rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>📥 Submission & Penilaian</h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Tinjau dan nilai tugas yang dikumpulkan oleh murid Anda.
-        </p>
+    <div className="flex flex-col gap-lg">
+      <div className="bg-gradient-to-r from-primary to-surface-tint rounded-2xl p-xl text-center shadow-md">
+        <h2 className="text-headline-md font-display text-white mb-sm">📥 Submission & Penilaian</h2>
+        <p className="text-body-md font-body text-primary-fixed/80">Tinjau dan nilai tugas yang dikumpulkan oleh murid Anda.</p>
       </div>
 
-      {/* Stats Cards */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', 
-        gap: '1rem',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{ 
-          background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-          color: 'white',
-          padding: '1rem',
-          borderRadius: '8px',
-          textAlign: 'center'
-        }}>
-          <h4 style={{ margin: 0, fontSize: '1.5rem' }}>{submissions.length}</h4>
-          <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', opacity: 0.9 }}>Total Submission</p>
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
+        <div className="bg-surface rounded-xl p-md border border-outline-variant/30 text-center">
+          <p className="text-2xl font-display font-bold text-primary">{submissions.length}</p>
+          <p className="text-label-sm font-label text-outline uppercase tracking-wider">Total</p>
         </div>
-        <div style={{ 
-          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-          color: 'white',
-          padding: '1rem',
-          borderRadius: '8px',
-          textAlign: 'center'
-        }}>
-          <h4 style={{ margin: 0, fontSize: '1.5rem' }}>{gradedCount}</h4>
-          <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', opacity: 0.9 }}>Sudah Dinilai</p>
+        <div className="bg-surface rounded-xl p-md border border-outline-variant/30 text-center">
+          <p className="text-2xl font-display font-bold text-emerald-600">{gradedCount}</p>
+          <p className="text-label-sm font-label text-outline uppercase tracking-wider">Dinilai</p>
         </div>
-        <div style={{ 
-          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-          color: 'white',
-          padding: '1rem',
-          borderRadius: '8px',
-          textAlign: 'center'
-        }}>
-          <h4 style={{ margin: 0, fontSize: '1.5rem' }}>{pendingCount}</h4>
-          <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', opacity: 0.9 }}>Menunggu Nilai</p>
+        <div className="bg-surface rounded-xl p-md border border-outline-variant/30 text-center">
+          <p className="text-2xl font-display font-bold text-amber-600">{pendingCount}</p>
+          <p className="text-label-sm font-label text-outline uppercase tracking-wider">Menunggu</p>
         </div>
-        <div style={{ 
-          background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-          color: 'white',
-          padding: '1rem',
-          borderRadius: '8px',
-          textAlign: 'center'
-        }}>
-          <h4 style={{ margin: 0, fontSize: '1.5rem' }}>{avgGrade}</h4>
-          <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', opacity: 0.9 }}>Rata-rata Nilai</p>
+        <div className="bg-surface rounded-xl p-md border border-outline-variant/30 text-center">
+          <p className="text-2xl font-display font-bold text-primary">{avgGrade}</p>
+          <p className="text-label-sm font-label text-outline uppercase tracking-wider">Rata-rata</p>
         </div>
       </div>
 
-      <section className="dashboard-section">
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-          <h2>📥 Submission Terbaru</h2>
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <button 
-              className={`btn ${filter === 'all' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setFilter('all')}
-            >
-              Semua
-            </button>
-            <button 
-              className={`btn ${filter === 'pending' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setFilter('pending')}
-            >
-              Menunggu
-            </button>
-            <button 
-              className={`btn ${filter === 'graded' ? 'btn-primary' : 'btn-secondary'}`}
-              onClick={() => setFilter('graded')}
-            >
-              Sudah Dinilai
-            </button>
-          </div>
-        </div>
+      {/* Filter Buttons */}
+      <div className="flex items-center gap-sm">
+        {['all', 'pending', 'graded'].map(f => (
+          <button key={f} onClick={() => setFilter(f)} className={`px-md py-sm rounded-xl font-label-md font-label transition-all ${filter === f ? 'bg-primary text-on-primary shadow-sm' : 'bg-surface text-on-surface-variant border border-outline-variant/30 hover:bg-surface-container-low'}`}>
+            {f === 'all' ? 'Semua' : f === 'pending' ? '⏳ Menunggu' : '✅ Dinilai'}
+          </button>
+        ))}
+      </div>
 
-        {filteredSubmissions.length > 0 ? (
-          <div className="submissions-grid">
-            {filteredSubmissions.map(submission => (
-              <div 
-                key={submission.id} 
-                className={`submission-card ${submission.grade === null ? 'pending' : 'graded'}`}
-                style={{
-                  background: 'white',
-                  borderRadius: '12px',
-                  padding: '1.25rem',
-                  border: submission.grade === null ? '2px solid #f59e0b' : '2px solid #10b981',
-                  marginBottom: '1rem'
-                }}
-              >
-                {/* Header - Student Info */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1rem' }}>
+      {/* Submission Cards */}
+      {filteredSubmissions.length > 0 ? (
+        <div className="flex flex-col gap-md">
+          {filteredSubmissions.map(submission => (
+            <div key={submission.id} className={`bg-surface rounded-2xl p-xl border-2 ${submission.grade === null ? 'border-amber-400/50' : 'border-emerald-400/50'} shadow-sm`}>
+              {/* Header */}
+              <div className="flex items-start justify-between mb-md">
+                <div className="flex items-center gap-md">
+                  <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-on-primary font-bold text-title-md">
+                    {(submission.student_email || 'M').charAt(0).toUpperCase()}
+                  </div>
                   <div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <span style={{ 
-                        width: '40px', 
-                        height: '40px', 
-                        borderRadius: '50%', 
-                        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: 'white',
-                        fontWeight: 'bold',
-                        fontSize: '1rem'
-                      }}>
-                        {(submission.student_email || submission.student_id || 'M').charAt(0).toUpperCase()}
-                      </span>
-                      <div>
-                        <h4 style={{ margin: 0, fontSize: '1rem', color: '#1f2937' }}>
-                          {submission.student_email || `Murid: ${submission.student_id?.substring(0, 8)}...`}
-                        </h4>
-                        <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#6b7280' }}>
-                          📚 {submission.course_title || 'Kursus'} • 📝 {submission.assignment_title || 'Tugas'}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                  <div style={{ textAlign: 'right' }}>
-                    {submission.grade !== null ? (
-                      <span style={{ 
-                        background: '#10b981', 
-                        color: 'white', 
-                        padding: '0.25rem 0.75rem', 
-                        borderRadius: '20px',
-                        fontWeight: '600',
-                        fontSize: '0.875rem'
-                      }}>
-                        ⭐ {submission.grade}/{submission.max_points || 100}
-                      </span>
-                    ) : (
-                      <span style={{ 
-                        background: '#f59e0b', 
-                        color: 'white', 
-                        padding: '0.25rem 0.75rem', 
-                        borderRadius: '20px',
-                        fontWeight: '600',
-                        fontSize: '0.75rem'
-                      }}>
-                        ⏳ Menunggu
-                      </span>
-                    )}
+                    <h4 className="text-title-md font-title text-on-background">{submission.student_email || `Murid: ${submission.student_id?.substring(0, 8)}...`}</h4>
+                    <p className="text-label-sm text-outline">📚 {submission.course_title} • 📝 {submission.assignment_title}</p>
                   </div>
                 </div>
-
-                {/* Submission Content */}
-                {submission.content && (
-                  <div style={{ 
-                    background: '#f9fafb', 
-                    padding: '0.75rem', 
-                    borderRadius: '8px',
-                    marginBottom: '1rem'
-                  }}>
-                    <p style={{ margin: 0, fontSize: '0.875rem', color: '#374151' }}>
-                      {submission.content.substring(0, 200)}
-                      {submission.content.length > 200 ? '...' : ''}
-                    </p>
-                  </div>
-                )}
-
-                {/* File Attachment */}
-                {submission.attachment_url && (
-                  <div style={{ 
-                    display: 'flex', 
-                    alignItems: 'center', 
-                    gap: '0.75rem',
-                    background: '#eef2ff',
-                    padding: '0.75rem',
-                    borderRadius: '8px',
-                    marginBottom: '1rem'
-                  }}>
-                    <span style={{ fontSize: '1.5rem' }}>📎</span>
-                    <div style={{ flex: 1 }}>
-                      <p style={{ margin: 0, fontSize: '0.875rem', fontWeight: '500', color: '#1f2937' }}>
-                        {getFileName(submission.attachment_url)}
-                      </p>
-                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.75rem', color: '#6b7280' }}>
-                        Klik untuk mengunduh
-                      </p>
-                    </div>
-                    <button 
-                      className="btn btn-primary btn-sm"
-                      onClick={() => handleDownload(submission.attachment_url, getFileName(submission.attachment_url))}
-                      style={{ display: 'flex', alignItems: 'center', gap: '0.25rem' }}
-                    >
-                      ⬇️ Unduh
-                    </button>
-                  </div>
-                )}
-
-                {/* Submission Time */}
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                  <span style={{ fontSize: '0.75rem', color: '#6b7280' }}>
-                    🕐 Dikumpulkan: {new Date(submission.submitted_at).toLocaleString()}
-                  </span>
-                  {submission.graded_at && (
-                    <span style={{ fontSize: '0.75rem', color: '#10b981' }}>
-                      ✅ Dinilai: {new Date(submission.graded_at).toLocaleString()}
-                    </span>
-                  )}
-                </div>
-
-                {/* Feedback */}
-                {submission.feedback && (
-                  <div style={{ 
-                    background: '#fef3c7', 
-                    padding: '0.75rem', 
-                    borderRadius: '8px',
-                    marginBottom: '1rem'
-                  }}>
-                    <p style={{ margin: 0, fontSize: '0.8rem', color: '#92400e' }}>
-                      <strong>💬 Feedback:</strong> {submission.feedback}
-                    </p>
-                  </div>
-                )}
-
-                {/* Action Buttons */}
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  {submission.grade === null ? (
-                    <button 
-                      className="btn btn-primary"
-                      style={{ flex: 1 }}
-                      onClick={() => {
-                        const grade = prompt('Masukkan nilai (0-100):');
-                        if (grade !== null && !isNaN(grade)) {
-                          const feedback = prompt('Masukkan feedback (opsional):');
-                          supabase
-                            .from('submissions')
-                            .update({ 
-                              grade: parseInt(grade), 
-                              feedback: feedback || '',
-                              graded_at: new Date().toISOString()
-                            })
-                            .eq('id', submission.id)
-                            .then(() => {
-                              alert('Nilai berhasil disimpan!');
-                              onGradeSubmit();
-                            })
-                            .catch(err => alert('Gagal menyimpan nilai: ' + err.message));
-                        }
-                      }}
-                    >
-                      ⭐ Beri Nilai
-                    </button>
-                  ) : (
-                    <button 
-                      className="btn btn-secondary"
-                      style={{ flex: 1 }}
-                      onClick={() => {
-                        const grade = prompt('Masukkan nilai baru (0-100):', submission.grade);
-                        if (grade !== null && !isNaN(grade)) {
-                          const feedback = prompt('Masukkan feedback (opsional):', submission.feedback || '');
-                          supabase
-                            .from('submissions')
-                            .update({ 
-                              grade: parseInt(grade), 
-                              feedback: feedback || '',
-                              graded_at: new Date().toISOString()
-                            })
-                            .eq('id', submission.id)
-                            .then(() => {
-                              alert('Nilai berhasil diperbarui!');
-                              onGradeSubmit();
-                            })
-                            .catch(err => alert('Gagal menyimpan nilai: ' + err.message));
-                        }
-                      }}
-                    >
-                      ✏️ Edit Nilai
-                    </button>
-                  )}
-                </div>
+                <span className={`px-md py-0.5 rounded-full text-label-sm font-label ${submission.grade !== null ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                  {submission.grade !== null ? `⭐ ${submission.grade}/${submission.max_points || 100}` : '⏳ Menunggu'}
+                </span>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <span className="empty-icon">📥</span>
-            <p>Belum ada submission untuk tugas Anda.</p>
-          </div>
-        )}
-      </section>
+
+              {submission.content && (
+                <div className="bg-surface-container-low rounded-xl p-md mb-md">
+                  <p className="text-body-sm font-body text-on-surface">{submission.content.substring(0, 200)}{submission.content.length > 200 ? '...' : ''}</p>
+                </div>
+              )}
+
+              {submission.attachment_url && (
+                <div className="flex items-center gap-md bg-surface-container-low rounded-xl p-md mb-md">
+                  <span className="text-lg">📎</span>
+                  <div className="flex-1 min-w-0">
+                    <p className="text-body-sm font-body text-on-surface truncate">{getFileName(submission.attachment_url)}</p>
+                    <p className="text-label-sm text-outline">Klik untuk mengunduh</p>
+                  </div>
+                  <button onClick={() => handleDownload(submission.attachment_url, getFileName(submission.attachment_url))} className="flex items-center gap-1 py-sm px-md rounded-xl bg-primary text-on-primary text-label-sm font-label hover:bg-primary-container hover:text-on-primary-container transition-all">⬇️ Unduh</button>
+                </div>
+              )}
+
+              <div className="flex items-center justify-between text-label-sm text-outline mb-md">
+                <span>🕐 Dikumpulkan: {new Date(submission.submitted_at).toLocaleString()}</span>
+                {submission.graded_at && <span className="text-emerald-600">✅ Dinilai: {new Date(submission.graded_at).toLocaleString()}</span>}
+              </div>
+
+              {submission.feedback && (
+                <div className="bg-amber-50 rounded-xl p-md mb-md border border-amber-200">
+                  <p className="text-body-sm font-body text-amber-800"><strong>💬 Feedback:</strong> {submission.feedback}</p>
+                </div>
+              )}
+
+              <div className="flex gap-md">
+                <button onClick={() => {
+                  const grade = prompt('Masukkan nilai (0-100):', submission.grade || '');
+                  if (grade !== null && !isNaN(grade)) {
+                    const feedback = prompt('Masukkan feedback (opsional):', submission.feedback || '');
+                    supabase.from('submissions').update({ grade: parseInt(grade), feedback: feedback || '', graded_at: new Date().toISOString() }).eq('id', submission.id)
+                      .then(() => { alert('Nilai berhasil disimpan!'); onGradeSubmit(); })
+                      .catch(err => alert('Gagal: ' + err.message));
+                  }
+                }} className="flex-1 flex items-center justify-center gap-sm py-sm rounded-xl bg-primary text-on-primary font-label-md hover:bg-primary-container hover:text-on-primary-container transition-all">
+                  {submission.grade === null ? '⭐ Beri Nilai' : '✏️ Edit Nilai'}
+                </button>
+              </div>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-surface rounded-xl border border-dashed border-outline-variant flex flex-col items-center justify-center p-xl text-center">
+          <FileText size={48} className="text-outline/60 mb-md" />
+          <p className="text-body-sm font-body text-on-surface-variant">Belum ada submission.</p>
+        </div>
+      )}
     </div>
   );
 };
-
+  
 // Enhanced Students View
 const StudentsView = ({ students, courses, submissions }) => {
-  const { user } = useAuth();
-
-  const getStudentSubmissions = (studentId) => {
-    return submissions.filter(s => s.student_id === studentId);
-  };
-
   const getStudentStats = (studentId) => {
-    const studentSubs = getStudentSubmissions(studentId);
+    const studentSubs = submissions.filter(s => s.student_id === studentId);
     const graded = studentSubs.filter(s => s.grade !== null);
-    const avgGrade = graded.length > 0
-      ? Math.round(graded.reduce((sum, s) => sum + s.grade, 0) / graded.length)
-      : 0;
+    const avgGrade = graded.length > 0 ? Math.round(graded.reduce((sum, s) => sum + s.grade, 0) / graded.length) : 0;
     return { total: studentSubs.length, graded: graded.length, avgGrade };
   };
 
   return (
-    <div className="dashboard-content">
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '1.5rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>👥 Daftar Murid</h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Kelola dan pantau progres belajar murid Anda.
-        </p>
+    <div className="flex flex-col gap-lg">
+      <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-xl text-center shadow-md">
+        <h2 className="text-headline-md font-display text-white mb-sm">👥 Daftar Murid</h2>
+        <p className="text-body-md font-body text-white/80">Kelola dan pantau progres belajar murid Anda.</p>
       </div>
 
-      <section className="dashboard-section">
-        <h2>🎓 Murid Terdaftar</h2>
-        {students && students.length > 0 ? (
-          <div className="cards-grid" style={{ gridTemplateColumns: 'repeat(auto-fill, minmax(320px, 1fr))' }}>
-            {students.map(student => {
-              const studentCourses = courses || [];
-              const stats = getStudentStats(student.id);
-              
-              return (
-                <div 
-                  key={student.id} 
-                  className="card"
-                  style={{ 
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '12px',
-                    padding: '1.25rem',
-                    background: 'white'
-                  }}
-                >
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.75rem' }}>
-                    <div>
-                      <h3 style={{ margin: 0, fontSize: '1rem', color: '#1f2937' }}>{student.email}</h3>
-                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.8rem', color: '#6b7280' }}>
-                        🎓 Murid
-                      </p>
-                    </div>
+      {students && students.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+          {students.map(student => {
+            const stats = getStudentStats(student.id);
+            return (
+              <div key={student.id} className="bg-surface rounded-xl p-md border border-outline-variant/30 hover:shadow-md transition-all">
+                <h3 className="text-title-md font-title text-on-background mb-1 line-clamp-1">{student.email}</h3>
+                <p className="text-label-sm text-outline mb-md">🎓 Murid</p>
+                <div className="grid grid-cols-3 gap-sm py-md border-t border-outline-variant/30">
+                  <div className="text-center">
+                    <p className="text-title-lg font-title text-primary">{stats.total}</p>
+                    <p className="text-label-sm text-outline">Submission</p>
                   </div>
-                  
-                  <div style={{ 
-                    display: 'grid', 
-                    gridTemplateColumns: 'repeat(3, 1fr)', 
-                    gap: '0.5rem',
-                    marginTop: '1rem',
-                    paddingTop: '1rem',
-                    borderTop: '1px solid #e5e7eb'
-                  }}>
-                    <div style={{ textAlign: 'center' }}>
-                      <p style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', color: '#3b82f6' }}>{stats.total}</p>
-                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.7rem', color: '#6b7280' }}>Submission</p>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <p style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', color: '#10b981' }}>{stats.graded}</p>
-                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.7rem', color: '#6b7280' }}>Dinilai</p>
-                    </div>
-                    <div style={{ textAlign: 'center' }}>
-                      <p style={{ margin: 0, fontSize: '1.25rem', fontWeight: '600', color: '#f59e0b' }}>{stats.avgGrade}</p>
-                      <p style={{ margin: '0.25rem 0 0', fontSize: '0.7rem', color: '#6b7280' }}>Rata-rata</p>
-                    </div>
+                  <div className="text-center">
+                    <p className="text-title-lg font-title text-emerald-600">{stats.graded}</p>
+                    <p className="text-label-sm text-outline">Dinilai</p>
                   </div>
-                  
-                  {studentCourses.length > 0 && (
-                    <div style={{ marginTop: '0.75rem' }}>
-                      <p style={{ margin: 0, fontSize: '0.75rem', color: '#6b7280' }}>
-                        <strong>Kursus:</strong> {studentCourses.map(c => c.title).join(', ')}
-                      </p>
-                    </div>
-                  )}
+                  <div className="text-center">
+                    <p className="text-title-lg font-title text-amber-600">{stats.avgGrade}</p>
+                    <p className="text-label-sm text-outline">Rata-rata</p>
+                  </div>
                 </div>
-              );
-            })}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <span className="empty-icon">👥</span>
-            <p>Belum ada murid terdaftar.</p>
-          </div>
-        )}
-      </section>
+              </div>
+            );
+          })}
+        </div>
+      ) : (
+        <div className="bg-surface rounded-xl border border-dashed border-outline-variant flex flex-col items-center justify-center p-xl text-center">
+          <Users size={48} className="text-outline/60 mb-md" />
+          <p className="text-body-sm font-body text-on-surface-variant">Belum ada murid terdaftar.</p>
+        </div>
+      )}
     </div>
   );
 };
@@ -1345,65 +942,37 @@ const StudentsView = ({ students, courses, submissions }) => {
 // Messages View Component for Teachers
 const MessagesView = ({ notifications }) => {
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
-
   return (
-    <div className="dashboard-content">
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '1.5rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>✉️ Notifikasi & Pesan</h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Pantau notifikasi dari murid dan sistem.
-        </p>
+    <div className="flex flex-col gap-lg">
+      <div className="bg-gradient-to-r from-pink-500 to-pink-600 rounded-2xl p-xl text-center shadow-md">
+        <h2 className="text-headline-md font-display text-white mb-sm">✉️ Notifikasi & Pesan</h2>
+        <p className="text-body-md font-body text-white/80">Pantau notifikasi dari murid dan sistem.</p>
       </div>
-
-      <section className="dashboard-section">
-        <h2>
-          🔔 Notifikasi 
-          {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
-        </h2>
-
+      <div>
+        <h3 className="text-title-lg font-title text-on-background flex items-center gap-xs mb-md">
+          🔔 Notifikasi
+          {unreadCount > 0 && <span className="bg-error text-on-error text-label-sm font-label px-2 py-0.5 rounded-full">{unreadCount}</span>}
+        </h3>
         {notifications && notifications.length > 0 ? (
-          <div className="notifications-list">
-            {notifications.map(notification => (
-              <div 
-                key={notification.id} 
-                className={`notification-item ${!notification.is_read ? 'unread' : ''}`}
-              >
-                <span className="notification-icon" style={{ fontSize: '1.5rem' }}>
-                  {notification.type === 'grade' ? '📝' : 
-                   notification.type === 'submission' ? '📤' :
-                   notification.type === 'announcement' ? '📢' : 
-                   notification.type === 'enrollment' ? '🎉' :
-                   notification.type === 'reminder' ? '⏰' : '🔔'}
-                </span>
-                <div className="notification-content">
-                  <p style={{ fontSize: '1rem', fontWeight: notification.is_read ? 'normal' : 'bold' }}>
-                    {notification.message}
-                  </p>
-                  <small style={{ color: '#6b7280' }}>
-                    📅 {new Date(notification.created_at).toLocaleString()}
-                  </small>
+          <div className="flex flex-col gap-sm">
+            {notifications.map(n => (
+              <div key={n.id} className={`rounded-xl p-md border flex gap-md items-start shadow-sm ${!n.is_read ? 'bg-surface-container-low border-outline-variant/20' : 'bg-surface border-outline-variant/20 opacity-80'}`}>
+                <span className="text-lg">{n.type === 'grade' ? '📝' : n.type === 'submission' ? '📤' : n.type === 'announcement' ? '📢' : '🔔'}</span>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-body-sm font-body ${!n.is_read ? 'font-semibold text-on-background' : 'text-on-surface-variant'}`}>{n.message}</p>
+                  <p className="text-label-sm text-outline mt-1">📅 {new Date(n.created_at).toLocaleString()}</p>
                 </div>
-                {!notification.is_read && (
-                  <span className="badge" style={{ marginLeft: 'auto' }}>Baru</span>
-                )}
+                {!n.is_read && <span className="bg-primary text-on-primary text-label-sm font-label px-2 py-0.5 rounded-full text-[10px]">Baru</span>}
               </div>
             ))}
           </div>
         ) : (
-          <div className="empty-state">
-            <span className="empty-icon">✉️</span>
-            <p>Tidak ada notifikasi.</p>
+          <div className="flex flex-col items-center justify-center py-xl text-center opacity-60">
+            <Bell size={48} className="text-outline mb-sm" />
+            <p className="text-body-sm font-body text-on-surface-variant">Tidak ada notifikasi.</p>
           </div>
         )}
-      </section>
+      </div>
     </div>
   );
 };
@@ -1417,171 +986,69 @@ const ProfileView = ({ onRefresh }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (profile?.display_name) {
-      setDisplayName(profile.display_name);
-    } else if (user?.email) {
-      setDisplayName(user.email.split('@')[0]);
-    }
+    if (profile?.display_name) setDisplayName(profile.display_name);
+    else if (user?.email) setDisplayName(user.email.split('@')[0]);
   }, [profile, user]);
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!displayName.trim()) {
-      setError('Nama tampilan tidak boleh kosong');
-      return;
-    }
-
+    if (!displayName.trim()) { setError('Nama tampilan tidak boleh kosong'); return; }
     try {
-      setLoading(true);
-      setError('');
-      setMessage('');
-
+      setLoading(true); setError(''); setMessage('');
       await updateProfile({ display_name: displayName.trim() });
       setMessage('Profil berhasil diperbarui!');
       if (onRefresh) onRefresh();
     } catch (err) {
       console.error('Error updating profile:', err);
-      if (err.message.includes('display_name')) {
-        setError('Kolom display_name belum ada di tabel. Silakan jalankan migration SQL di Supabase.');
-      } else if (err.message.includes('null value in column "email"')) {
-        setError('Email tidak ditemukan. Silakan logout dan login kembali.');
-      } else {
-        setError('Gagal memperbarui profil: ' + err.message);
-      }
-    } finally {
-      setLoading(false);
-    }
+      if (err.message.includes('display_name')) setError('Kolom display_name belum ada di tabel. Silakan jalankan migration SQL di Supabase.');
+      else if (err.message.includes('null value in column "email"')) setError('Email tidak ditemukan. Silakan logout dan login kembali.');
+      else setError('Gagal memperbarui profil: ' + err.message);
+    } finally { setLoading(false); }
   };
 
   return (
-    <div className="dashboard-content">
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '1.5rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>👤 Profil Saya</h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Kelola informasi profil Anda.
-        </p>
+    <div className="flex flex-col gap-lg max-w-2xl">
+      <div className="bg-gradient-to-r from-primary to-surface-tint rounded-2xl p-xl text-center shadow-md">
+        <h2 className="text-headline-md font-display text-white mb-sm">👤 Profil Saya</h2>
+        <p className="text-body-md font-body text-primary-fixed/90">Kelola informasi profil Anda.</p>
       </div>
-
-      <section className="dashboard-section">
-        <h2>📝 Edit Profil</h2>
-        
-        {message && (
-          <div className="success-message" style={{ 
-            background: '#dcfce7', 
-            color: '#166534', 
-            padding: '0.75rem', 
-            borderRadius: '8px',
-            marginBottom: '1rem'
-          }}>
-            {message}
+      <div className="bg-surface rounded-2xl p-xl border border-outline-variant/30">
+        <h3 className="text-title-lg font-title text-on-background mb-lg">📝 Edit Profil</h3>
+        {message && <div className="flex items-center gap-sm p-sm mb-md rounded-xl bg-success-light/50 border border-success/20 text-body-sm font-body text-on-surface-variant">{message}</div>}
+        {error && <div className="flex items-center gap-sm p-sm mb-md rounded-xl bg-error-container border border-error/20"><AlertCircle size={18} className="text-error shrink-0" /><p className="text-body-sm font-body text-on-error-container">{error}</p></div>}
+        <form onSubmit={handleSave} className="flex flex-col gap-md">
+          <div className="flex flex-col gap-1">
+            <label className="text-label-sm font-label text-on-surface-variant">Email</label>
+            <input type="email" value={user?.email || ''} disabled className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface-container text-on-surface-variant text-body-md outline-none cursor-not-allowed" />
+            <p className="text-label-sm text-outline">Email tidak dapat diubah</p>
           </div>
-        )}
-        
-        {error && (
-          <div className="error-message" style={{ 
-            background: '#fee2e2', 
-            color: '#dc2626', 
-            padding: '0.75rem', 
-            borderRadius: '8px',
-            marginBottom: '1rem'
-          }}>
-            {error}
+          <div className="flex flex-col gap-1">
+            <label className="text-label-sm font-label text-on-surface-variant">Nama Tampilan</label>
+            <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Masukkan nama tampilan" className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface-container-low text-body-md outline-none focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all" />
+            <p className="text-label-sm text-outline">Nama ini akan terlihat oleh siswa dan admin</p>
           </div>
-        )}
-
-        <form onSubmit={handleSave} style={{ maxWidth: '500px' }}>
-          <div className="form-group" style={{ marginBottom: '1rem' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '500',
-              color: '#374151'
-            }}>
-              Email
-            </label>
-            <input 
-              type="email" 
-              value={user?.email || ''} 
-              disabled
-              style={{ 
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                backgroundColor: '#f3f4f6',
-                color: '#6b7280'
-              }}
-            />
-            <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
-              Email tidak dapat diubah
-            </small>
-          </div>
-
-          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '500',
-              color: '#374151'
-            }}>
-              Nama Tampilan
-            </label>
-            <input 
-              type="text" 
-              value={displayName} 
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Masukkan nama tampilan"
-              style={{ 
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                fontSize: '1rem'
-              }}
-            />
-            <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
-              Nama ini akan terlihat oleh siswa dan admin
-            </small>
-          </div>
-
-          <button 
-            type="submit" 
-            className="btn btn-primary"
-            disabled={loading}
-            style={{ minWidth: '150px' }}
-          >
-            {loading ? '⏳ Menyimpan...' : '💾 Simpan Perubahan'}
+          <button type="submit" disabled={loading} className="self-start flex items-center gap-sm py-sm px-lg rounded-xl bg-primary text-on-primary font-label-md hover:bg-primary-container hover:text-on-primary-container transition-all disabled:opacity-60 shadow-md">
+            {loading ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Menyimpan...</> : '💾 Simpan Perubahan'}
           </button>
         </form>
-      </section>
-
-      <section className="dashboard-section" style={{ marginTop: '2rem' }}>
-        <h2>ℹ️ Informasi Akun</h2>
-        <div style={{ 
-          background: '#f9fafb', 
-          padding: '1.5rem', 
-          borderRadius: '12px',
-          maxWidth: '500px'
-        }}>
-          <div style={{ marginBottom: '1rem' }}>
-            <strong>Role:</strong> Guru
+      </div>
+      <div className="bg-surface rounded-2xl p-xl border border-outline-variant/30">
+        <h3 className="text-title-lg font-title text-on-background mb-lg">ℹ️ Informasi Akun</h3>
+        <div className="grid grid-cols-1 gap-md">
+          <div className="flex items-center gap-md p-sm bg-surface-container-low rounded-xl">
+            <span className="text-label-sm font-label text-outline w-20">Role</span>
+            <span className="text-body-sm font-body text-on-surface">Guru</span>
           </div>
-          <div style={{ marginBottom: '1rem' }}>
-            <strong>Status:</strong> Aktif
+          <div className="flex items-center gap-md p-sm bg-surface-container-low rounded-xl">
+            <span className="text-label-sm font-label text-outline w-20">Status</span>
+            <span className="text-body-sm font-body text-on-surface flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success inline-block" /> Aktif</span>
           </div>
-          <div>
-            <strong>ID:</strong> <code style={{ fontSize: '0.85rem' }}>{user?.id}</code>
+          <div className="flex items-center gap-md p-sm bg-surface-container-low rounded-xl">
+            <span className="text-label-sm font-label text-outline w-20">ID</span>
+            <code className="text-label-sm font-mono text-on-surface-variant truncate">{user?.id}</code>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

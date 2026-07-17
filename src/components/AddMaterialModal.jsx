@@ -1,13 +1,16 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { supabase } from '../lib/supabaseClient';
-import { 
+import {
+  FileText, Image, Video, Link, Upload, X, ChevronLeft,
+  Youtube, Cloud, AlertCircle, CheckCircle, File
+} from 'lucide-react';
+import {
   normalizeYouTubeUrl, 
   isYouTubeUrl, 
   isValidUrl, 
   detectExternalProvider,
   formatFileSize,
   shouldSuggestExternal,
-  isWithinUploadLimit,
   getContentType,
   FILE_SIZE_LIMITS,
   FILE_TYPES
@@ -338,143 +341,193 @@ const AddMaterialModal = ({
 
   if (!isOpen) return null;
 
+  const ContentTypeIcon = ({ type }) => {
+    switch (type) {
+      case 'document': return <FileText className="w-10 h-10 text-primary" />;
+      case 'image': return <Image className="w-10 h-10 text-primary" />;
+      case 'video': return <Video className="w-10 h-10 text-primary" />;
+      case 'link': return <Link className="w-10 h-10 text-primary" />;
+      default: return <FileText className="w-10 h-10 text-primary" />;
+    }
+  };
+
   return (
-    <div className="modal-overlay" onClick={onClose}>
-      <div className="modal-container add-material-modal" onClick={e => e.stopPropagation()}>
-        <div className="modal-header">
-          <h2>{material ? 'Edit Materi' : 'Tambah Materi Baru'}</h2>
-          <button className="modal-close-btn" onClick={onClose}>
-            <span className="material-icons">close</span>
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-md" onClick={onClose}>
+      <div className="bg-surface rounded-2xl shadow-xl max-w-lg w-full max-h-[90vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+        {/* Header */}
+        <div className="flex items-center justify-between px-xl pt-lg pb-md border-b border-outline-variant/30">
+          <h2 className="text-title-lg font-semibold text-on-surface m-0">
+            {material ? 'Edit Materi' : 'Tambah Materi Baru'}
+          </h2>
+          <button 
+            className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant"
+            onClick={onClose}
+          >
+            <X className="w-5 h-5" />
           </button>
         </div>
 
-        <div className="modal-steps">
-          <div className={`step ${step >= 1 ? 'active' : ''} ${step > 1 ? 'completed' : ''}`}>
-            <span className="step-number">1</span>
-            <span className="step-label">Pilih Jenis Konten</span>
+        {/* Steps Indicator */}
+        <div className="flex items-center justify-center gap-md px-xl py-md border-b border-outline-variant/20">
+          <div className="flex items-center gap-2">
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-label-sm font-bold transition-colors ${
+              step >= 1 ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant'
+            }`}>1</div>
+            <span className={`text-label-sm font-medium transition-colors ${step >= 1 ? 'text-on-surface' : 'text-on-surface-variant'}`}>
+              Pilih Jenis Konten
+            </span>
           </div>
-          <div className="step-connector"></div>
-          <div className={`step ${step >= 2 ? 'active' : ''} ${step > 2 ? 'completed' : ''}`}>
-            <span className="step-number">2</span>
-            <span className="step-label">Tambah Konten</span>
+          <div className={`w-8 h-0.5 rounded-full transition-colors ${step > 1 ? 'bg-primary' : 'bg-outline-variant'}`}></div>
+          <div className="flex items-center gap-2">
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-label-sm font-bold transition-colors ${
+              step >= 2 ? 'bg-primary text-on-primary' : 'bg-surface-container-high text-on-surface-variant'
+            }`}>2</div>
+            <span className={`text-label-sm font-medium transition-colors ${step >= 2 ? 'text-on-surface' : 'text-on-surface-variant'}`}>
+              Tambah Konten
+            </span>
           </div>
         </div>
 
+        {/* Error Banner */}
         {error && (
-          <div className="modal-error">
-            <span className="material-icons">error</span>
+          <div className="flex items-center gap-2 mx-xl mt-md px-md py-3 bg-error-container/50 rounded-xl text-body-sm text-on-error-container">
+            <AlertCircle className="w-5 h-5 shrink-0" />
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit}>
+          {/* Step 1: Content Type Selection */}
           {step === 1 && (
-            <div className="modal-body step-1">
-              <h3>Pilih Jenis Konten</h3>
-              <p className="step-description">
+            <div className="p-xl">
+              <h3 className="text-title-md font-semibold text-on-surface mb-sm">Pilih Jenis Konten</h3>
+              <p className="text-body-sm text-on-surface-variant mb-lg">
                 Pilih jenis konten yang ingin Anda tambahkan. Sistem akan menangani penyimpanan secara otomatis.
               </p>
               
-              <div className="content-type-grid">
+              <div className="grid grid-cols-2 gap-md">
                 <button 
                   type="button"
-                  className="content-type-card"
+                  className="flex flex-col items-center gap-md p-xl border-2 border-outline-variant/60 rounded-xl hover:border-primary hover:bg-primary-container/20 transition-all cursor-pointer group"
                   onClick={() => handleContentTypeSelect('document')}
                 >
-                  <span className="material-icons">description</span>
-                  <span className="type-label">Dokumen</span>
-                  <span className="type-hint">PDF, Word, dll</span>
+                  <FileText className="w-10 h-10 text-on-surface-variant group-hover:text-primary transition-colors" />
+                  <div className="text-center">
+                    <div className="text-title-sm font-semibold text-on-surface">Dokumen</div>
+                    <div className="text-label-xs text-on-surface-variant">PDF, Word, dll</div>
+                  </div>
                 </button>
 
                 <button 
                   type="button"
-                  className="content-type-card"
+                  className="flex flex-col items-center gap-md p-xl border-2 border-outline-variant/60 rounded-xl hover:border-primary hover:bg-primary-container/20 transition-all cursor-pointer group"
                   onClick={() => handleContentTypeSelect('image')}
                 >
-                  <span className="material-icons">image</span>
-                  <span className="type-label">Gambar</span>
-                  <span className="type-hint">JPG, PNG, GIF</span>
+                  <Image className="w-10 h-10 text-on-surface-variant group-hover:text-primary transition-colors" />
+                  <div className="text-center">
+                    <div className="text-title-sm font-semibold text-on-surface">Gambar</div>
+                    <div className="text-label-xs text-on-surface-variant">JPG, PNG, GIF</div>
+                  </div>
                 </button>
 
                 <button 
                   type="button"
-                  className="content-type-card"
+                  className="flex flex-col items-center gap-md p-xl border-2 border-outline-variant/60 rounded-xl hover:border-primary hover:bg-primary-container/20 transition-all cursor-pointer group"
                   onClick={() => handleContentTypeSelect('video')}
                 >
-                  <span className="material-icons">videocam</span>
-                  <span className="type-label">Video</span>
-                  <span className="type-hint">YouTube atau File</span>
+                  <Video className="w-10 h-10 text-on-surface-variant group-hover:text-primary transition-colors" />
+                  <div className="text-center">
+                    <div className="text-title-sm font-semibold text-on-surface">Video</div>
+                    <div className="text-label-xs text-on-surface-variant">YouTube atau File</div>
+                  </div>
                 </button>
 
                 <button 
                   type="button"
-                  className="content-type-card"
+                  className="flex flex-col items-center gap-md p-xl border-2 border-outline-variant/60 rounded-xl hover:border-primary hover:bg-primary-container/20 transition-all cursor-pointer group"
                   onClick={() => handleContentTypeSelect('link')}
                 >
-                  <span className="material-icons">link</span>
-                  <span className="type-label">Tautan Eksternal</span>
-                  <span className="type-hint">Google Drive, Website</span>
+                  <Link className="w-10 h-10 text-on-surface-variant group-hover:text-primary transition-colors" />
+                  <div className="text-center">
+                    <div className="text-title-sm font-semibold text-on-surface">Tautan Eksternal</div>
+                    <div className="text-label-xs text-on-surface-variant">Google Drive, Website</div>
+                  </div>
                 </button>
               </div>
             </div>
           )}
 
+          {/* Step 2: Content Details */}
           {step === 2 && (
-            <div className="modal-body step-2">
+            <div className="p-xl space-y-lg">
               <button 
                 type="button"
-                className="back-step-btn"
+                className="inline-flex items-center gap-1 text-body-sm text-on-surface-variant hover:text-primary transition-colors"
                 onClick={handleBackToStep1}
               >
-                <span className="material-icons">arrow_back</span>
+                <ChevronLeft className="w-4 h-4" />
                 Kembali
               </button>
 
-              <h3>
+              <h3 className="text-title-md font-semibold text-on-surface">
                 {formData.contentType === 'document' && 'Tambah Dokumen'}
                 {formData.contentType === 'image' && 'Tambah Gambar'}
                 {formData.contentType === 'video' && 'Tambah Video'}
                 {formData.contentType === 'link' && 'Tambah Tautan'}
               </h3>
 
+              {/* Source Selection */}
               {formData.contentType !== 'link' && (
-                <div className="source-selection">
-                  <label className="source-label">Pilih Sumber:</label>
-                  <div className="source-options">
+                <div className="space-y-2">
+                  <label className="block text-label-sm font-medium text-on-surface">Pilih Sumber:</label>
+                  <div className="flex flex-wrap gap-2">
                     <button 
                       type="button"
-                      className={`source-option ${formData.sourceType === 'internal' ? 'active' : ''}`}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all text-label-sm font-medium ${
+                        formData.sourceType === 'internal' 
+                          ? 'border-primary bg-primary-container/20 text-primary' 
+                          : 'border-outline-variant/60 text-on-surface-variant hover:border-primary/50'
+                      }`}
                       onClick={() => handleSourceTypeSelect('internal')}
                     >
-                      <span className="material-icons">cloud_upload</span>
-                      <span>Upload File</span>
+                      <Upload className="w-4 h-4" />
+                      Upload File
                     </button>
                     
                     {formData.contentType === 'video' && (
                       <button 
                         type="button"
-                        className={`source-option ${formData.sourceType === 'youtube' ? 'active' : ''}`}
+                        className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all text-label-sm font-medium ${
+                          formData.sourceType === 'youtube' 
+                            ? 'border-primary bg-primary-container/20 text-primary' 
+                            : 'border-outline-variant/60 text-on-surface-variant hover:border-primary/50'
+                        }`}
                         onClick={() => handleSourceTypeSelect('youtube')}
                       >
-                        <span className="material-icons">play_circle</span>
-                        <span>YouTube</span>
+                        <Youtube className="w-4 h-4" />
+                        YouTube
                       </button>
                     )}
 
                     <button 
                       type="button"
-                      className={`source-option ${formData.sourceType === 'external' ? 'active' : ''}`}
+                      className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border-2 transition-all text-label-sm font-medium ${
+                        formData.sourceType === 'external' 
+                          ? 'border-primary bg-primary-container/20 text-primary' 
+                          : 'border-outline-variant/60 text-on-surface-variant hover:border-primary/50'
+                      }`}
                       onClick={() => handleSourceTypeSelect('external')}
                     >
-                      <span className="material-icons">link</span>
-                      <span>Tautan Eksternal</span>
+                      <Link className="w-4 h-4" />
+                      Tautan Eksternal
                     </button>
                   </div>
                 </div>
               )}
 
+              {/* File Upload Zone */}
               {formData.sourceType === 'internal' && (
-                <div className="file-upload-section">
+                <div>
                   <input
                     ref={fileInputRef}
                     type="file"
@@ -492,46 +545,47 @@ const AddMaterialModal = ({
                   
                   {!formData.file ? (
                     <div 
-                      className="file-drop-zone"
+                      className="flex flex-col items-center justify-center py-3xl border-2 border-dashed border-outline-variant/60 rounded-xl cursor-pointer hover:border-primary hover:bg-primary-container/10 transition-all text-center"
                       onClick={() => fileInputRef.current?.click()}
                     >
-                      <span className="material-icons">cloud_upload</span>
-                      <p>Klik untuk memilih file</p>
-                      <span className="file-hint">
+                      <Cloud className="w-12 h-12 text-outline mb-md" />
+                      <p className="text-title-sm font-medium text-on-surface mb-sm">Klik untuk memilih file</p>
+                      <span className="text-label-xs text-on-surface-variant">
                         {formData.contentType === 'document' && 'PDF, Word, Excel, PowerPoint (max 50MB)'}
                         {formData.contentType === 'image' && 'JPG, PNG, GIF (max 50MB)'}
                         {formData.contentType === 'video' && 'MP4, WebM (max 100MB)'}
                       </span>
                     </div>
                   ) : (
-                    <div className="file-selected">
-                      <span className="material-icons">insert_drive_file</span>
-                      <div className="file-info">
-                        <span className="file-name">{formData.file.name}</span>
-                        <span className="file-size">{formatFileSize(formData.file.size)}</span>
+                    <div className="flex items-center gap-md p-md bg-surface-container-low rounded-xl border border-outline-variant/30">
+                      <File className="w-8 h-8 text-primary shrink-0" />
+                      <div className="flex-1 min-w-0">
+                        <div className="text-body-sm font-medium text-on-surface truncate">{formData.file.name}</div>
+                        <div className="text-label-xs text-on-surface-variant">{formatFileSize(formData.file.size)}</div>
                       </div>
                       <button 
                         type="button"
-                        className="remove-file-btn"
+                        className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant hover:text-error shrink-0"
                         onClick={() => setFormData(prev => ({ ...prev, file: null, resourceUrl: '' }))}
                       >
-                        <span className="material-icons">close</span>
+                        <X className="w-4 h-4" />
                       </button>
                     </div>
                   )}
 
                   {showSizeWarning && (
-                    <div className="size-warning">
-                      <span className="material-icons">info</span>
+                    <div className="flex items-start gap-2 mt-md px-md py-3 bg-warning-container/40 rounded-xl text-body-xs text-on-warning-container">
+                      <AlertCircle className="w-4 h-4 mt-0.5 shrink-0" />
                       <span>File cukup besar. Untuk performa lebih baik, pertimbangkan untuk menggunakan tautan eksternal (Google Drive, Dropbox, dll).</span>
                     </div>
                   )}
                 </div>
               )}
 
+              {/* YouTube URL */}
               {formData.sourceType === 'youtube' && (
-                <div className="external-url-section">
-                  <label htmlFor="youtube-url">Link YouTube</label>
+                <div className="space-y-1.5">
+                  <label htmlFor="youtube-url" className="block text-label-sm font-medium text-on-surface">Link YouTube</label>
                   <input
                     ref={fileUrlInputRef}
                     type="url"
@@ -540,16 +594,18 @@ const AddMaterialModal = ({
                     value={formData.externalUrl}
                     onChange={handleExternalUrlChange}
                     onBlur={handleUrlBlur}
+                    className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                   />
-                  <span className="input-hint">
+                  <span className="text-label-xs text-on-surface-variant">
                     Tempel link video YouTube (watch, short, atau embed)
                   </span>
                 </div>
               )}
 
+              {/* External URL */}
               {(formData.sourceType === 'external' || formData.contentType === 'link') && (
-                <div className="external-url-section">
-                  <label htmlFor="external-url">
+                <div className="space-y-1.5">
+                  <label htmlFor="external-url" className="block text-label-sm font-medium text-on-surface">
                     {formData.contentType === 'link' ? 'URL Tautan' : 'Link External'}
                   </label>
                   <input
@@ -560,15 +616,17 @@ const AddMaterialModal = ({
                     value={formData.externalUrl}
                     onChange={handleExternalUrlChange}
                     onBlur={handleUrlBlur}
+                    className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                   />
-                  <span className="input-hint">
+                  <span className="text-label-xs text-on-surface-variant">
                     Google Drive, Dropbox, OneDrive, atau situs lain
                   </span>
                 </div>
               )}
 
-              <div className="form-group">
-                <label htmlFor="title">Judul Materi *</label>
+              {/* Title */}
+              <div className="space-y-1.5">
+                <label htmlFor="title" className="block text-label-sm font-medium text-on-surface">Judul Materi *</label>
                 <input
                   type="text"
                   id="title"
@@ -576,38 +634,43 @@ const AddMaterialModal = ({
                   onChange={(e) => setFormData(prev => ({ ...prev, title: e.target.value }))}
                   placeholder="Masukkan judul materi"
                   required
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="description">Deskripsi</label>
+              {/* Description */}
+              <div className="space-y-1.5">
+                <label htmlFor="description" className="block text-label-sm font-medium text-on-surface">Deskripsi</label>
                 <textarea
                   id="description"
                   value={formData.description}
                   onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
                   placeholder="Masukkan deskripsi materi (opsional)"
                   rows={3}
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none"
                 />
               </div>
 
+              {/* Upload Progress */}
               {loading && uploadProgress > 0 && uploadProgress < 100 && (
-                <div className="upload-progress">
-                  <div className="progress-bar">
+                <div className="space-y-1.5">
+                  <div className="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
                     <div 
-                      className="progress-fill" 
+                      className="h-full bg-primary rounded-full transition-all duration-300"
                       style={{ width: `${uploadProgress}%` }}
                     ></div>
                   </div>
-                  <span>Mengupload... {uploadProgress}%</span>
+                  <span className="text-label-xs text-on-surface-variant">Mengupload... {uploadProgress}%</span>
                 </div>
               )}
             </div>
           )}
 
-          <div className="modal-footer">
+          {/* Footer */}
+          <div className="flex justify-end gap-md px-xl py-md border-t border-outline-variant/20">
             <button 
               type="button" 
-              className="btn btn-secondary"
+              className="px-4 py-2 rounded-xl text-label-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors disabled:opacity-50"
               onClick={onClose}
               disabled={loading}
             >
@@ -615,7 +678,7 @@ const AddMaterialModal = ({
             </button>
             <button 
               type="submit" 
-              className="btn btn-primary"
+              className="px-5 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
               disabled={loading || step !== 2}
             >
               {loading ? 'Menyimpan...' : material ? 'Simpan Perubahan' : 'Tambah Materi'}
@@ -623,418 +686,6 @@ const AddMaterialModal = ({
           </div>
         </form>
       </div>
-
-      <style>{`
-        .add-material-modal {
-          max-width: 600px;
-          max-height: 90vh;
-          overflow-y: auto;
-        }
-
-        .modal-overlay {
-          position: fixed;
-          top: 0;
-          left: 0;
-          right: 0;
-          bottom: 0;
-          background: rgba(0, 0, 0, 0.5);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 1000;
-          padding: 20px;
-        }
-
-        .modal-container {
-          background: white;
-          border-radius: 12px;
-          box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-        }
-
-        .modal-header {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 20px 24px;
-          border-bottom: 1px solid #e5e7eb;
-        }
-
-        .modal-header h2 {
-          margin: 0;
-          font-size: 1.25rem;
-          font-weight: 600;
-          color: #1f2937;
-        }
-
-        .modal-close-btn {
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 4px;
-          color: #6b7280;
-          border-radius: 4px;
-        }
-
-        .modal-close-btn:hover {
-          background: #f3f4f6;
-          color: #1f2937;
-        }
-
-        .modal-footer {
-          display: flex;
-          justify-content: flex-end;
-          gap: 12px;
-          padding: 16px 24px;
-          border-top: 1px solid #e5e7eb;
-        }
-
-        .modal-steps {
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          padding: 16px 24px;
-          border-bottom: 1px solid #eee;
-        }
-
-        .step {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          color: #999;
-        }
-
-        .step.active {
-          color: #4f46e5;
-        }
-
-        .step.completed {
-          color: #10b981;
-        }
-
-        .step-number {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          background: #f3f4f6;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 600;
-          font-size: 14px;
-        }
-
-        .step.active .step-number {
-          background: #4f46e5;
-          color: white;
-        }
-
-        .step.completed .step-number {
-          background: #10b981;
-          color: white;
-        }
-
-        .step-label {
-          font-size: 14px;
-          font-weight: 500;
-        }
-
-        .step-connector {
-          width: 40px;
-          height: 2px;
-          background: #e5e7eb;
-          margin: 0 12px;
-        }
-
-        .modal-body {
-          padding: 24px;
-        }
-
-        .step-description {
-          color: #6b7280;
-          margin-bottom: 20px;
-          text-align: center;
-        }
-
-        .content-type-grid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 16px;
-        }
-
-        .content-type-card {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 24px;
-          border: 2px solid #e5e7eb;
-          border-radius: 12px;
-          background: white;
-          cursor: pointer;
-          transition: all 0.2s;
-        }
-
-        .content-type-card:hover {
-          border-color: #4f46e5;
-          background: #f5f3ff;
-        }
-
-        .content-type-card .material-icons {
-          font-size: 40px;
-          color: #4f46e5;
-          margin-bottom: 12px;
-        }
-
-        .type-label {
-          font-weight: 600;
-          font-size: 16px;
-          color: #1f2937;
-        }
-
-        .type-hint {
-          font-size: 12px;
-          color: #6b7280;
-          margin-top: 4px;
-        }
-
-        .back-step-btn {
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          background: none;
-          border: none;
-          color: #6b7280;
-          cursor: pointer;
-          padding: 0;
-          margin-bottom: 16px;
-          font-size: 14px;
-        }
-
-        .back-step-btn:hover {
-          color: #4f46e5;
-        }
-
-        .source-selection {
-          margin-bottom: 20px;
-        }
-
-        .source-label {
-          display: block;
-          font-weight: 500;
-          margin-bottom: 8px;
-          color: #374151;
-        }
-
-        .source-options {
-          display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-
-        .source-option {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 16px;
-          border: 2px solid #e5e7eb;
-          border-radius: 8px;
-          background: white;
-          cursor: pointer;
-          transition: all 0.2s;
-          font-size: 14px;
-        }
-
-        .source-option:hover {
-          border-color: #4f46e5;
-        }
-
-        .source-option.active {
-          border-color: #4f46e5;
-          background: #f5f3ff;
-          color: #4f46e5;
-        }
-
-        .source-option .material-icons {
-          font-size: 20px;
-        }
-
-        .file-drop-zone {
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          padding: 32px;
-          border: 2px dashed #d1d5db;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.2s;
-          text-align: center;
-        }
-
-        .file-drop-zone:hover {
-          border-color: #4f46e5;
-          background: #f9fafb;
-        }
-
-        .file-drop-zone .material-icons {
-          font-size: 48px;
-          color: #9ca3af;
-          margin-bottom: 12px;
-        }
-
-        .file-drop-zone p {
-          color: #374151;
-          font-weight: 500;
-          margin: 0;
-        }
-
-        .file-hint {
-          font-size: 12px;
-          color: #6b7280;
-          margin-top: 8px;
-        }
-
-        .file-selected {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 12px;
-          background: #f3f4f6;
-          border-radius: 8px;
-        }
-
-        .file-selected .material-icons {
-          font-size: 32px;
-          color: #4f46e5;
-        }
-
-        .file-info {
-          flex: 1;
-        }
-
-        .file-name {
-          display: block;
-          font-weight: 500;
-          color: #1f2937;
-        }
-
-        .file-size {
-          font-size: 12px;
-          color: #6b7280;
-        }
-
-        .remove-file-btn {
-          background: none;
-          border: none;
-          cursor: pointer;
-          padding: 4px;
-          color: #6b7280;
-        }
-
-        .remove-file-btn:hover {
-          color: #ef4444;
-        }
-
-        .size-warning {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px;
-          background: #fef3c7;
-          border-radius: 8px;
-          margin-top: 12px;
-          font-size: 13px;
-          color: #92400e;
-        }
-
-        .size-warning .material-icons {
-          font-size: 20px;
-        }
-
-        .external-url-section {
-          margin-bottom: 20px;
-        }
-
-        .external-url-section label {
-          display: block;
-          font-weight: 500;
-          margin-bottom: 8px;
-          color: #374151;
-        }
-
-        .external-url-section input {
-          width: 100%;
-          padding: 10px 12px;
-          border: 1px solid #d1d5db;
-          border-radius: 8px;
-          font-size: 14px;
-        }
-
-        .external-url-section input:focus {
-          outline: none;
-          border-color: #4f46e5;
-          box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-
-        .input-hint {
-          display: block;
-          font-size: 12px;
-          color: #6b7280;
-          margin-top: 6px;
-        }
-
-        .upload-progress {
-          margin-top: 16px;
-        }
-
-        .progress-bar {
-          height: 6px;
-          background: #e5e7eb;
-          border-radius: 3px;
-          overflow: hidden;
-        }
-
-        .progress-fill {
-          height: 100%;
-          background: #4f46e5;
-          transition: width 0.3s;
-        }
-
-        .upload-progress span {
-          font-size: 12px;
-          color: #6b7280;
-        }
-
-        .modal-error {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding: 12px 16px;
-          background: #fee2e2;
-          color: #dc2626;
-          margin: 16px 24px;
-          border-radius: 8px;
-          font-size: 14px;
-        }
-
-        .modal-error .material-icons {
-          font-size: 20px;
-        }
-
-        @media (max-width: 640px) {
-          .content-type-grid {
-            grid-template-columns: 1fr;
-          }
-
-          .source-options {
-            flex-direction: column;
-          }
-
-          .step-label {
-            display: none;
-          }
-        }
-      `}</style>
     </div>
   );
 };

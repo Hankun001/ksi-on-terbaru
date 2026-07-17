@@ -1,33 +1,48 @@
 import { createClient } from '@supabase/supabase-js'
 import { SUPABASE_URL, SUPABASE_ANON_KEY } from '../config/supabaseConfig'
 
-// Konfigurasi Supabase dengan realtime yang dioptimalkan
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
-  // Konfigurasi Realtime
-  realtime: {
-    params: {
-      eventsPerSecond: 10,
-    },
-  },
-  // Konfigurasi global untuk semua request
-  global: {
-    headers: {
-      'x-application-name': 'ksi-on-lms',
-    },
-  },
-  // Auto refresh auth token
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true,
-    // Mengurangi frequency refresh untuk performa lebih baik
-    refreshInterval: 300000, // 5 menit
-  },
-  // Enable realtime untuk semua fitur
-  db: {
-    schema: 'public',
-  },
-})
+// Buat Supabase client dengan error handling
+// Jika env vars tidak dikonfigurasi, app tetap jalan tanpa crash
+let supabase = null;
+
+try {
+  if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+      // Konfigurasi Realtime
+      realtime: {
+        params: {
+          eventsPerSecond: 10,
+        },
+      },
+      // Konfigurasi global untuk semua request
+      global: {
+        headers: {
+          'x-application-name': 'ksi-on-lms',
+        },
+      },
+      // Auto refresh auth token
+      auth: {
+        autoRefreshToken: true,
+        persistSession: true,
+        detectSessionInUrl: true,
+        // Mengurangi frequency refresh untuk performa lebih baik
+        refreshInterval: 300000, // 5 menit
+      },
+      // Enable realtime untuk semua fitur
+      db: {
+        schema: 'public',
+      },
+    })
+    console.log('✅ Supabase client initialized successfully');
+  } else {
+    console.warn('⚠️ Supabase client not initialized: Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY');
+  }
+} catch (err) {
+  console.error('❌ Failed to initialize Supabase client:', err.message);
+}
+
+// Named export untuk import { supabase }
+export { supabase };
 
 // Helper untuk menangani koneksi realtime dengan auto-reconnect
 export const createRealtimeChannel = (supabaseClient, channelName, config, callbacks) => {

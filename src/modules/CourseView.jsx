@@ -6,6 +6,7 @@ import MaterialViewer from './MaterialViewer';
 import QuizTaking from './QuizTaking';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import { normalizeYouTubeUrl } from '../utils/contentUtils';
+import { ArrowLeft, ChevronLeft, ChevronRight, CheckCircle, Circle, BookOpen, X } from 'lucide-react';
 import './CourseView.css';
 
 const DynamicMaterialRenderer = ({ material }) => {
@@ -323,138 +324,151 @@ const CourseView = ({ courseId, onNavigate }) => {
 
   if (error) {
     return (
-      <div className="courseview-error">
-        <h2>Terjadi Kesalahan</h2>
-        <p>{error}</p>
-        <button className="btn btn-primary" onClick={fetchData}>
-          Coba Lagi
-        </button>
+      <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+        <div className="flex flex-col items-center justify-center min-h-[40vh] gap-md">
+          <div className="bg-error-container text-on-error-container px-lg py-md rounded-xl text-center">
+            <h2 className="text-title-md font-display mb-xs">Terjadi Kesalahan</h2>
+            <p className="text-body-sm">{error}</p>
+          </div>
+          <button onClick={fetchData} className="inline-flex items-center gap-xs bg-primary text-on-primary px-lg py-sm rounded-xl font-medium hover:bg-primary-container hover:text-on-primary-container transition-all">Coba Lagi</button>
+        </div>
       </div>
     );
   }
 
   if (!course) {
     return (
-      <div className="courseview-not-found">
-        <h2>Kursus Tidak Ditemukan</h2>
-        <p>Kursus yang Anda cari tidak ditemukan.</p>
-        <button className="btn btn-primary" onClick={() => onNavigate('courses-murid')}>
-          Kembali ke Kursus
-        </button>
+      <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+        <div className="flex flex-col items-center justify-center min-h-[40vh] gap-md text-center">
+          <BookOpen className="w-12 h-12 text-on-surface-variant opacity-40" />
+          <h2 className="text-title-md font-display text-on-surface">Kursus Tidak Ditemukan</h2>
+          <p className="text-body-sm text-on-surface-variant">Kursus yang Anda cari tidak ditemukan.</p>
+          <button onClick={() => onNavigate('courses-murid')} className="inline-flex items-center gap-xs bg-primary text-on-primary px-lg py-sm rounded-xl font-medium hover:bg-primary-container hover:text-on-primary-container transition-all">
+            <ArrowLeft className="w-4 h-4" /> Kembali ke Kursus
+          </button>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="courseview-wrapper-simple">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto space-y-md">
       {/* Header */}
-      <div className="courseview-header-simple">
-        <button
-          className="back-btn-simple"
-          onClick={() => onNavigate('courses-murid')}
-          aria-label="Kembali ke kursus"
-        >
-          ← Kembali
+      <div className="bg-surface rounded-xl p-md md:p-lg border border-outline-variant/30">
+        <button onClick={() => onNavigate('courses-murid')} className="inline-flex items-center gap-xs text-label-lg text-primary hover:text-primary-container transition-all mb-sm">
+          <ArrowLeft className="w-4 h-4" /> Kembali
         </button>
-        <div className="course-title-simple">
-          <h1 className="course-title-mobile">{course.title}</h1>
-          <span className="instructor-name">👨‍🏫 {course.instructor?.full_name || 'Instruktur'}</span>
-        </div>
-        <div className="progress-simple">
-          <div className="progress-bar-simple">
-            <div
-              className="progress-fill-simple" 
-              style={{ width: `${progressPercentage}%` }}
-            />
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-md">
+          <div>
+            <h1 className="text-title-lg md:text-headline-sm font-display text-on-surface">{course.title}</h1>
+            <p className="text-body-sm text-on-surface-variant">👨‍🏫 {course.instructor?.full_name || 'Instruktur'}</p>
           </div>
-          <span className="progress-text-simple">{completedCount}/{materials.length} selesai ({progressPercentage}%)</span>
-          {quiz && (
-            <button
-              className={`quiz-btn-simple ${quizAttempts.length > 0 ? 'quiz-attempted' : ''}`}
-              onClick={() => setShowQuiz(true)}
-            >
-              {quizAttempts.length > 0 ? (
-                <>🔄 Quiz Sudah Dikerjakan - Coba Lagi</>
-              ) : (
-                <>📝 Kerjakan Quiz</>
-              )}
-            </button>
-          )}
+          <div className="flex items-center gap-md">
+            <div className="flex-1 md:w-32">
+              <div className="h-2 bg-surface-dim rounded-full overflow-hidden">
+                <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progressPercentage}%` }} />
+              </div>
+              <p className="text-label-sm text-on-surface-variant mt-xs">{completedCount}/{materials.length} ({progressPercentage}%)</p>
+            </div>
+            {quiz && (
+              <button onClick={() => setShowQuiz(true)}
+                className={`inline-flex items-center gap-xs px-md py-sm rounded-xl font-medium text-label-sm transition-all ${
+                  quizAttempts.length > 0 
+                    ? 'bg-tertiary-container text-on-tertiary-container hover:bg-tertiary hover:text-on-tertiary' 
+                    : 'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container'
+                }`}>
+                {quizAttempts.length > 0 ? '🔄 Coba Lagi' : '📝 Kerjakan Quiz'}
+              </button>
+            )}
+          </div>
         </div>
       </div>
 
-      {/* Remove the old tab-based quiz button since we now have direct button */}
-      {/* Materials List - Horizontal */}
-      <div className="materials-nav-simple">
+      {/* Materials List - Horizontal Scroll */}
+      <div className="flex gap-sm overflow-x-auto pb-sm">
         {materials.map((material, index) => (
-          <button
-            key={material.id}
-            className={`material-tab-simple ${index === currentMaterialIndex ? 'active' : ''} ${progress[material.id] ? 'completed' : ''}`}
+          <button key={material.id}
             onClick={() => handleSelectMaterial(index)}
-          >
-            <span className="material-number-simple">
-              {progress[material.id] ? '✓' : index + 1}
+            className={`flex-shrink-0 flex flex-col items-center gap-xs px-md py-sm rounded-xl border transition-all duration-200 ${
+              index === currentMaterialIndex
+                ? 'bg-primary-container text-on-primary-container border-primary'
+                : progress[material.id]
+                  ? 'bg-success-container text-on-success-container border-success-container'
+                  : 'bg-surface text-on-surface-variant border-outline-variant/30 hover:border-primary/30 hover:bg-surface-container-low'
+            }`}>
+            <span className={`w-7 h-7 rounded-full flex items-center justify-center text-label-sm font-bold ${
+              index === currentMaterialIndex
+                ? 'bg-primary text-on-primary'
+                : progress[material.id]
+                  ? 'bg-success text-on-success'
+                  : 'bg-surface-dim text-on-surface-variant'
+            }`}>
+              {progress[material.id] ? <CheckCircle className="w-4 h-4" /> : index + 1}
             </span>
-            <span className="material-title-simple">{material.title}</span>
-            <span className="material-type-simple">{getMaterialTypeLabel(material.material_type)}</span>
+            <span className="text-label-sm font-medium whitespace-nowrap max-w-[100px] truncate">{material.title}</span>
+            <span className="text-label-sm text-on-surface-variant">{getMaterialTypeLabel(material.material_type)}</span>
           </button>
         ))}
       </div>
 
       {/* Main Content */}
-      <div className="courseview-content-simple">
+      <div className="bg-surface rounded-xl border border-outline-variant/30 overflow-hidden">
         {currentMaterial ? (
           <>
-            {/* Material Title */}
-            <div className="material-header-simple">
-              <div className="material-info-simple">
-                <span className="material-badge-simple">
+            {/* Material Header */}
+            <div className="flex items-start justify-between gap-md p-lg border-b border-outline-variant/20 bg-surface-container-low">
+              <div>
+                <span className="inline-flex items-center bg-primary-container text-on-primary-container px-sm py-0.5 rounded-full text-label-xs font-medium mb-xs">
                   Materi {currentMaterialIndex + 1} dari {materials.length}
                 </span>
-                <h2>{currentMaterial.title}</h2>
+                <h2 className="text-title-md font-display text-on-surface">{currentMaterial.title}</h2>
               </div>
-              <button 
-                className={`complete-btn-simple ${isCurrentCompleted ? 'completed' : ''}`}
-                onClick={handleMarkComplete}
+              <button onClick={handleMarkComplete}
                 disabled={isCompleting || isCurrentCompleted}
-              >
-                {isCompleting ? 'Menyimpan...' : isCurrentCompleted ? '✓ Selesai' : 'Tandai Selesai'}
+                className={`flex-shrink-0 inline-flex items-center gap-xs px-md py-sm rounded-xl font-medium text-label-sm transition-all ${
+                  isCurrentCompleted
+                    ? 'bg-success-container text-on-success-container cursor-default'
+                    : 'bg-primary text-on-primary hover:bg-primary-container hover:text-on-primary-container'
+                } disabled:opacity-50`}>
+                {isCompleting ? 'Menyimpan...' : isCurrentCompleted ? (
+                  <><CheckCircle className="w-4 h-4" /> Selesai</>
+                ) : (
+                  <><Circle className="w-4 h-4" /> Tandai Selesai</>
+                )}
               </button>
             </div>
 
             {/* Material Content */}
-            <div className="material-content-simple">
+            <div className="p-lg">
               <DynamicMaterialRenderer material={currentMaterial} />
             </div>
 
             {/* Material Description */}
             {currentMaterial.description && (
-              <div className="material-description-simple">
-                <h3>Deskripsi</h3>
-                <p>{currentMaterial.description}</p>
+              <div className="px-lg pb-lg">
+                <h3 className="text-title-sm font-display text-on-surface mb-sm">Deskripsi</h3>
+                <p className="text-body-sm text-on-surface-variant">{currentMaterial.description}</p>
               </div>
             )}
 
             {/* Navigation */}
-            <div className="material-nav-simple">
-              <button 
-                className="nav-btn-simple prev"
-                onClick={handlePrevious}
+            <div className="flex items-center justify-between gap-md p-lg border-t border-outline-variant/20 bg-surface-container-low">
+              <button onClick={handlePrevious}
                 disabled={currentMaterialIndex === 0}
-              >
-                ← Materi Sebelumnya
+                className="inline-flex items-center gap-xs px-md py-sm rounded-xl bg-surface text-on-surface-variant font-medium text-label-sm hover:bg-surface-container hover:text-on-surface transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                <ChevronLeft className="w-4 h-4" /> Sebelumnya
               </button>
-              <button 
-                className="nav-btn-simple next"
-                onClick={handleNext}
+              <span className="text-label-sm text-on-surface-variant">{currentMaterialIndex + 1} / {materials.length}</span>
+              <button onClick={handleNext}
                 disabled={currentMaterialIndex === materials.length - 1}
-              >
-                Materi Berikutnya →
+                className="inline-flex items-center gap-xs px-md py-sm rounded-xl bg-primary text-on-primary font-medium text-label-sm hover:bg-primary-container hover:text-on-primary-container transition-all disabled:opacity-30 disabled:cursor-not-allowed">
+                Selanjutnya <ChevronRight className="w-4 h-4" />
               </button>
             </div>
           </>
         ) : (
-          <div className="no-material-simple">
+          <div className="flex flex-col items-center justify-center py-2xl text-on-surface-variant">
+            <BookOpen className="w-12 h-12 mb-sm opacity-40" />
             <p>Pilih materi dari daftar di atas untuk memulai belajar</p>
           </div>
         )}
@@ -462,62 +476,43 @@ const CourseView = ({ courseId, onNavigate }) => {
 
       {/* Quiz Modal */}
       {showQuiz && quiz && (
-        <div className="quiz-modal-overlay" onClick={() => setShowQuiz(false)}>
-          <div className="quiz-modal-content" onClick={e => e.stopPropagation()}>
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-md" onClick={() => setShowQuiz(false)}>
+          <div className="bg-surface rounded-2xl max-w-lg w-full max-h-[90vh] overflow-auto shadow-2xl animate-scaleIn" onClick={e => e.stopPropagation()}>
             {loadingQuiz ? (
-              <div className="quiz-modal-loading">
-                <div className="spinner"></div>
-                <p>Memuat quiz...</p>
+              <div className="flex flex-col items-center justify-center py-2xl">
+                <div className="w-8 h-8 rounded-full border-[3px] border-outline-variant border-t-primary animate-spin mb-md" />
+                <p className="text-body-sm text-on-surface-variant">Memuat quiz...</p>
               </div>
             ) : (
               <>
-                <div className="quiz-modal-header">
-                  <h2>{quiz.title}</h2>
-                  <button className="close-quiz-btn" onClick={() => setShowQuiz(false)}>×</button>
+                <div className="relative bg-gradient-to-br from-primary to-[#5a4fcf] rounded-t-2xl p-xl text-white">
+                  <h2 className="text-title-lg font-display">{quiz.title}</h2>
+                  <button onClick={() => setShowQuiz(false)} className="absolute top-3 right-3 w-8 h-8 rounded-full bg-white/20 flex items-center justify-center hover:bg-white/30 transition-all">
+                    <X className="w-4 h-4" />
+                  </button>
                 </div>
-                <div className="quiz-modal-body">
-                  <p>{quiz.description || 'Quiz untuk menguji pemahaman Anda'}</p>
-                  <div className="quiz-info">
-                    <span>⏱️ Waktu: {quiz.time_limit} menit</span>
-                    <span>📊 Lulus: {quiz.passing_score}%</span>
+                <div className="p-lg space-y-md">
+                  <p className="text-body-sm text-on-surface-variant">{quiz.description || 'Quiz untuk menguji pemahaman Anda'}</p>
+                  <div className="flex gap-md">
+                    <span className="inline-flex items-center gap-xs bg-surface-container-low px-md py-sm rounded-lg text-label-sm text-on-surface">⏱️ {quiz.time_limit} menit</span>
+                    <span className="inline-flex items-center gap-xs bg-surface-container-low px-md py-sm rounded-lg text-label-sm text-on-surface">📊 Lulus: {quiz.passing_score}%</span>
                   </div>
                   
                   {/* Previous Attempt Info */}
                   {quizAttempts.length > 0 && (
-                    <div style={{ 
-                      background: quizAttempts[0].passed ? '#d1fae5' : '#fee2e2', 
-                      border: `1px solid ${quizAttempts[0].passed ? '#10b981' : '#ef4444'}`,
-                      borderRadius: '12px',
-                      padding: '1rem',
-                      marginBottom: '1rem',
-                      textAlign: 'center'
-                    }}>
-                      <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>
-                        {quizAttempts[0].passed ? '🎉' : '📚'}
-                      </div>
-                      <div style={{ fontWeight: 'bold', color: quizAttempts[0].passed ? '#065f46' : '#991b1b' }}>
-                        Hasil Percobaan Terakhir
-                      </div>
-                      <div style={{ fontSize: '1.5rem', fontWeight: 'bold', margin: '0.5rem 0' }}>
-                        Skor: {quizAttempts[0].score}%
-                      </div>
-                      <div style={{ color: quizAttempts[0].passed ? '#047857' : '#b91c1c' }}>
-                        {quizAttempts[0].passed ? '✅ LULUS' : '❌ TIDAK LULUS'}
-                      </div>
-                      <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
-                        ({quizAttempts.length} percobaan)
-                      </div>
+                    <div className={`rounded-xl p-md text-center ${
+                      quizAttempts[0].passed ? 'bg-success-container text-on-success-container' : 'bg-error-container text-on-error-container'
+                    }`}>
+                      <div className="text-2xl mb-xs">{quizAttempts[0].passed ? '🎉' : '📚'}</div>
+                      <p className="text-label-lg font-bold">Hasil Percobaan Terakhir</p>
+                      <p className="text-display-sm font-display font-bold my-xs">Skor: {quizAttempts[0].score}%</p>
+                      <p className="text-label-sm font-medium">{quizAttempts[0].passed ? '✅ LULUS' : '❌ TIDAK LULUS'}</p>
+                      <p className="text-label-xs mt-xs opacity-70">({quizAttempts.length} percobaan)</p>
                     </div>
                   )}
                   
-                  <button
-                    className="btn btn-primary start-quiz-btn"
-                    style={{ width: '100%', padding: '1rem', fontSize: '1.1rem', marginTop: '1rem' }}
-                    onClick={() => {
-                      console.log('Mulai Quiz button clicked, loadingQuiz:', !loadingQuiz);
-                      setLoadingQuiz(true);
-                    }}
-                  >
+                  <button onClick={() => setLoadingQuiz(true)}
+                    className="w-full inline-flex items-center justify-center gap-xs bg-primary text-on-primary px-lg py-md rounded-xl font-medium text-body-md hover:bg-primary-container hover:text-on-primary-container transition-all mt-md">
                     {quizAttempts.length > 0 ? '🔄 Coba Lagi' : '🎯 Mulai Quiz Sekarang'}
                   </button>
                 </div>
@@ -527,28 +522,16 @@ const CourseView = ({ courseId, onNavigate }) => {
         </div>
       )}
 
-      {/* Quiz Taking Component - Show when loadingQuiz is true */}
-      {loadingQuiz && (
-        <div style={{
-          position: 'fixed',
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          background: 'white',
-          zIndex: 10001,
-          overflow: 'auto'
-        }}>
-          {quiz && (
-            <QuizTaking
-              quiz={{ ...quiz, course_id: courseId }}
-              onClose={() => {
-                console.log('QuizTaking onClose called');
-                setLoadingQuiz(false);
-                setShowQuiz(false);
-              }}
-            />
-          )}
+      {/* Quiz Taking Fullscreen */}
+      {loadingQuiz && quiz && (
+        <div className="fixed inset-0 bg-surface z-[10001] overflow-auto">
+          <QuizTaking
+            quiz={{ ...quiz, course_id: courseId }}
+            onClose={() => {
+              setLoadingQuiz(false);
+              setShowQuiz(false);
+            }}
+          />
         </div>
       )}
     </div>

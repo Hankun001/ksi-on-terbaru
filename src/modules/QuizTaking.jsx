@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import LoadingSpinner from '../components/common/LoadingSpinner';
-import './QuizTaking.css';
+import { X, Clock, CheckCircle, XCircle, Trophy, Flame, Star, ArrowLeft, ArrowRight, Send, AlertCircle, Award, HelpCircle } from 'lucide-react';
 
 const QuizTaking = ({ quiz, onClose }) => {
   const { user } = useAuth();
@@ -19,23 +19,17 @@ const QuizTaking = ({ quiz, onClose }) => {
   const [results, setResults] = useState(null);
   const [previousAttempts, setPreviousAttempts] = useState([]);
 
-  // Gamification states
   const [streakCount, setStreakCount] = useState(0);
   const [showFeedback, setShowFeedback] = useState(false);
-  const [feedbackType, setFeedbackType] = useState(''); // 'correct', 'incorrect', 'streak'
-  const [particles, setParticles] = useState([]);
+  const [feedbackType, setFeedbackType] = useState('');
   const [motivationalMessage, setMotivationalMessage] = useState('');
-  const [questionTransition, setQuestionTransition] = useState(false);
   const [showAchievement, setShowAchievement] = useState(false);
   const [achievementMessage, setAchievementMessage] = useState('');
-  const [showCompletion, setShowCompletion] = useState(false);
-  const [confetti, setConfetti] = useState([]);
 
   const fetchQuestions = useCallback(async () => {
     if (!quiz || !quiz.id) return;
     
     try {
-      console.log('Fetching questions for quiz:', quiz.id);
       setLoading(true);
       const { data, error } = await supabase
         .from('quiz_questions')
@@ -44,7 +38,7 @@ const QuizTaking = ({ quiz, onClose }) => {
         .order('order_index', { ascending: true });
 
       if (error) {
-        console.error('Supabase error fetching questions:', error);
+    
         // Check for 400 error specifically
         if (error.code === 'PGRST116' || error.message?.includes('Could not find')) {
           setQuestions([]);
@@ -142,9 +136,6 @@ const QuizTaking = ({ quiz, onClose }) => {
     setFeedbackType(isCorrect ? 'correct' : 'incorrect');
     setShowFeedback(true);
 
-    // Trigger haptic feedback
-    triggerHapticFeedback(isCorrect ? 'success' : 'error');
-
     // Update streak
     if (isCorrect) {
       const newStreak = streakCount + 1;
@@ -167,11 +158,6 @@ const QuizTaking = ({ quiz, onClose }) => {
       setStreakCount(0);
     }
 
-    // Create particles for correct answers
-    if (isCorrect) {
-      createParticles();
-    }
-
     // Hide feedback after 2 seconds
     setTimeout(() => {
       setShowFeedback(false);
@@ -183,60 +169,6 @@ const QuizTaking = ({ quiz, onClose }) => {
     setAchievementMessage(message);
     setShowAchievement(true);
     setTimeout(() => setShowAchievement(false), 4000);
-  };
-
-  const createConfetti = () => {
-    const newConfetti = Array.from({ length: 50 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: -10,
-      size: Math.random() * 8 + 4,
-      color: ['#ff6b6b', '#4ecdc4', '#45b7d1', '#f9ca24', '#f0932b', '#eb4d4b', '#6c5ce7', '#a29bfe'][Math.floor(Math.random() * 8)],
-      velocity: {
-        x: (Math.random() - 0.5) * 6,
-        y: Math.random() * 3 + 2
-      },
-      rotation: Math.random() * 360
-    }));
-    setConfetti(newConfetti);
-
-    // Remove confetti after animation
-    setTimeout(() => setConfetti([]), 4000);
-  };
-
-  // Haptic feedback simulation
-  const triggerHapticFeedback = (type = 'light') => {
-    // Simulate haptic feedback with visual feedback
-    const body = document.body;
-    if (type === 'success') {
-      body.style.animation = 'hapticSuccess 0.3s ease-out';
-    } else if (type === 'error') {
-      body.style.animation = 'hapticError 0.3s ease-out';
-    } else {
-      body.style.animation = 'hapticLight 0.1s ease-out';
-    }
-
-    setTimeout(() => {
-      body.style.animation = '';
-    }, 300);
-  };
-
-  const createParticles = () => {
-    const newParticles = Array.from({ length: 20 }, (_, i) => ({
-      id: i,
-      x: Math.random() * 100,
-      y: Math.random() * 100,
-      size: Math.random() * 10 + 5,
-      color: ['#10b981', '#8b5cf6', '#f59e0b', '#ef4444'][Math.floor(Math.random() * 4)],
-      velocity: {
-        x: (Math.random() - 0.5) * 4,
-        y: (Math.random() - 0.5) * 4
-      }
-    }));
-    setParticles(newParticles);
-
-    // Remove particles after animation
-    setTimeout(() => setParticles([]), 2000);
   };
 
   const motivationalMessages = [
@@ -462,11 +394,6 @@ const QuizTaking = ({ quiz, onClose }) => {
       const wrongCount = answerInserts.filter(a => !a.is_correct).length;
       updateQuizAttemptDetails(attempt.id, score, passed, timeSpent, correctCount, wrongCount);
 
-      // Show completion celebration with confetti
-      setShowCompletion(true);
-      createConfetti();
-      setTimeout(() => setShowCompletion(false), 3000);
-
       // Show achievement based on score
       if (score === 100) {
         displayAchievement('Perfect Score! Skor sempurna 100%! 🏆');
@@ -498,58 +425,52 @@ const QuizTaking = ({ quiz, onClose }) => {
 
   if (error) {
     return (
-      <div className="quiz-error">
-        <h3>Terjadi Kesalahan</h3>
-        <p>{error}</p>
-        <button className="btn btn-secondary" onClick={onClose}>
-          Tutup
-        </button>
+      <div className="p-margin-mobile md:p-margin-desktop max-w-2xl mx-auto">
+        <div className="bg-surface rounded-xl p-xl text-center border border-outline-variant/30 shadow-sm">
+          <AlertCircle className="w-12 h-12 text-error mx-auto mb-md" />
+          <h3 className="text-title-md font-semibold text-on-surface mb-sm">Terjadi Kesalahan</h3>
+          <p className="text-body-md text-on-surface-variant mb-lg">{error}</p>
+          <button className="px-5 py-2.5 rounded-xl text-label-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors" onClick={onClose}>Tutup</button>
+        </div>
       </div>
     );
   }
 
-  // Show results screen after submission
   if (showResults && results) {
     return (
-      <div className="quiz-results">
-        <div className="quiz-results-header">
-          <h2>Hasil Quiz</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </div>
-        <div className="quiz-results-body">
-          <div className={`score-display ${results.passed ? 'passed' : 'failed'}`}>
-            <div className="score-circle">
-              <span className="score-number">{results.score}%</span>
-              <span className="score-label">{results.passed ? 'LULUS' : 'TIDAK LULUS'}</span>
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-md">
+        <div className="bg-surface rounded-2xl shadow-xl max-w-lg w-full">
+          <div className="flex items-center justify-between px-xl pt-lg pb-md border-b border-outline-variant/30">
+            <h2 className="text-title-lg font-semibold text-on-surface m-0">Hasil Quiz</h2>
+            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant" onClick={onClose}><X className="w-5 h-5" /></button>
+          </div>
+          <div className="p-xl text-center space-y-lg">
+            <div className={`w-28 h-28 rounded-full flex flex-col items-center justify-center mx-auto shadow-lg ${results.passed ? 'bg-success-container/60 text-success' : 'bg-error-container/60 text-error'}`}>
+              <span className="text-3xl font-bold">{results.score}%</span>
+              <span className="text-label-xs font-semibold">{results.passed ? 'LULUS' : 'TIDAK LULUS'}</span>
             </div>
-          </div>
-          <div className="score-details">
-            <p>Skor: {results.earnedPoints}/{results.totalPoints} poin</p>
-            <p>Kriteria Kelulusan: {quiz.passing_score}%</p>
-          </div>
-          {previousAttempts.length > 1 && (
-            <div className="previous-attempts">
-              <h3>Hasil Percobaan Sebelumnya</h3>
-              {previousAttempts.slice(1).map((attempt, index) => (
-                <div key={attempt.id} className="previous-attempt">
-                  <span>Percobaan {previousAttempts.length - index}: {attempt.score}%</span>
+            <div className="text-body-sm text-on-surface-variant space-y-1">
+              <p>Skor: {results.earnedPoints}/{results.totalPoints} poin</p>
+              <p>Kriteria Kelulusan: {quiz.passing_score}%</p>
+            </div>
+            {previousAttempts.length > 1 && (
+              <div className="bg-surface-container-low rounded-xl p-md text-left">
+                <h3 className="text-title-sm font-semibold text-on-surface mb-sm">Hasil Percobaan Sebelumnya</h3>
+                <div className="space-y-1">
+                  {previousAttempts.slice(1).map((a, i) => (
+                    <div key={a.id} className="flex justify-between text-body-sm">
+                      <span className="text-on-surface-variant">Percobaan {previousAttempts.length - i}</span>
+                      <span className="font-semibold text-on-surface">{a.score}%</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
+            )}
+            <div className="flex gap-md justify-center pt-sm">
+              <button className="px-5 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm"
+                onClick={() => { setShowResults(false); setResults(null); setAnswers({}); setCurrentQuestionIndex(0); startQuiz(); }}>Coba Lagi</button>
+              <button className="px-5 py-2.5 rounded-xl text-label-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors" onClick={onClose}>Tutup</button>
             </div>
-          )}
-          <div className="results-actions">
-            <button className="btn btn-primary" onClick={() => {
-              setShowResults(false);
-              setResults(null);
-              setAnswers({});
-              setCurrentQuestionIndex(0);
-              startQuiz();
-            }}>
-              Coba Lagi
-            </button>
-            <button className="btn btn-secondary" onClick={onClose}>
-              Tutup
-            </button>
           </div>
         </div>
       </div>
@@ -557,72 +478,56 @@ const QuizTaking = ({ quiz, onClose }) => {
   }
 
   if (!quizStarted) {
-    // Check if quiz has questions - if not, show warning
     if (questions.length === 0) {
       return (
-        <div className="quiz-start">
-          <div className="quiz-start-header">
-            <h2>{quiz.title}</h2>
-            <button className="close-btn" onClick={onClose}>×</button>
-          </div>
-          <div className="quiz-start-body">
-            <p>{quiz.description || 'Quiz untuk menguji pemahaman Anda'}</p>
-            <div className="quiz-info">
-              <div className="info-item">
-                <span className="info-icon">⏱️</span>
-                <span>Waktu: {quiz.time_limit} menit</span>
-              </div>
-              <div className="info-item">
-                <span className="info-icon">📊</span>
-                <span>Lulus: {quiz.passing_score}%</span>
-              </div>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-md">
+          <div className="bg-surface rounded-2xl shadow-xl max-w-lg w-full">
+            <div className="flex items-center justify-between px-xl pt-lg pb-md border-b border-outline-variant/30">
+              <h2 className="text-title-lg font-semibold text-on-surface m-0">{quiz.title}</h2>
+              <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant" onClick={onClose}><X className="w-5 h-5" /></button>
             </div>
-            <div className="quiz-warning">
-              <p>⚠️ Quiz ini belum memiliki pertanyaan.</p>
-              <p>Silakan hubungi guru untuk menambahkan pertanyaan.</p>
+            <div className="p-xl text-center space-y-lg">
+              <p className="text-body-md text-on-surface-variant">{quiz.description || 'Quiz untuk menguji pemahaman Anda'}</p>
+              <div className="flex flex-wrap justify-center gap-md text-label-sm">
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low rounded-lg"><Clock className="w-4 h-4" /> {quiz.time_limit} menit</span>
+                <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low rounded-lg"><Award className="w-4 h-4" /> Lulus: {quiz.passing_score}%</span>
+              </div>
+              <div className="bg-warning-container/40 rounded-xl p-md text-body-sm text-on-warning-container">
+                <p>Quiz ini belum memiliki pertanyaan.</p>
+                <p>Silakan hubungi guru untuk menambahkan pertanyaan.</p>
+              </div>
+              <button className="px-5 py-2.5 rounded-xl text-label-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors" onClick={onClose}>Tutup</button>
             </div>
-            <button className="btn btn-secondary" onClick={onClose}>
-              Tutup
-            </button>
           </div>
         </div>
       );
     }
 
     return (
-      <div className="quiz-start">
-        <div className="quiz-start-header">
-          <h2>{quiz.title}</h2>
-          <button className="close-btn" onClick={onClose}>×</button>
-        </div>
-        <div className="quiz-start-body">
-          <p>{quiz.description || 'Quiz untuk menguji pemahaman Anda'}</p>
-          <div className="quiz-info">
-            <div className="info-item">
-              <span className="info-icon">⏱️</span>
-              <span>Waktu: {quiz.time_limit} menit</span>
-            </div>
-            <div className="info-item">
-              <span className="info-icon">📊</span>
-              <span>Lulus: {quiz.passing_score}%</span>
-            </div>
-            <div className="info-item">
-              <span className="info-icon">❓</span>
-              <span>Pertanyaan: {questions.length}</span>
-            </div>
+      <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-md">
+        <div className="bg-surface rounded-2xl shadow-xl max-w-lg w-full">
+          <div className="flex items-center justify-between px-xl pt-lg pb-md border-b border-outline-variant/30">
+            <h2 className="text-title-lg font-semibold text-on-surface m-0">{quiz.title}</h2>
+            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant" onClick={onClose}><X className="w-5 h-5" /></button>
           </div>
-          {previousAttempts.length > 0 && (
-            <div className="previous-attempts-preview">
-              <h3>Hasil Percobaan Terakhir</h3>
-              <div className="last-attempt">
-                <span>Skor: {previousAttempts[0].score}%</span>
-                <span>Status: {previousAttempts[0].passed ? 'Lulus' : 'Tidak Lulus'}</span>
-              </div>
+          <div className="p-xl text-center space-y-lg">
+            <p className="text-body-md text-on-surface-variant">{quiz.description || 'Quiz untuk menguji pemahaman Anda'}</p>
+            <div className="flex flex-wrap justify-center gap-md">
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low rounded-lg text-label-sm"><Clock className="w-4 h-4" /> Waktu: {quiz.time_limit} menit</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low rounded-lg text-label-sm"><Award className="w-4 h-4" /> Lulus: {quiz.passing_score}%</span>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-surface-container-low rounded-lg text-label-sm"><HelpCircle className="w-4 h-4" /> Pertanyaan: {questions.length}</span>
             </div>
-          )}
-          <button className="btn btn-primary start-quiz-btn" onClick={startQuiz}>
-            Mulai Quiz
-          </button>
+            {previousAttempts.length > 0 && (
+              <div className="bg-surface-container-low rounded-xl p-md text-left">
+                <h3 className="text-title-sm font-semibold text-on-surface mb-sm">Hasil Percobaan Terakhir</h3>
+                <div className="flex justify-between text-body-sm">
+                  <span className="text-on-surface-variant">Skor: {previousAttempts[0].score}%</span>
+                  <span className={`font-semibold ${previousAttempts[0].passed ? 'text-success' : 'text-error'}`}>{previousAttempts[0].passed ? 'Lulus' : 'Tidak Lulus'}</span>
+                </div>
+              </div>
+            )}
+            <button className="px-6 py-3 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-lg" onClick={startQuiz}>Mulai Quiz</button>
+          </div>
         </div>
       </div>
     );
@@ -633,199 +538,138 @@ const QuizTaking = ({ quiz, onClose }) => {
   const timePercentage = quiz.time_limit > 0 ? (timeLeft / (quiz.time_limit * 60)) * 100 : 100;
 
   return (
-    <div className="quiz-taking">
-      <div className="quiz-header">
-        <div className="quiz-title">
-          <h2>{quiz.title}</h2>
-          <span className="question-counter">
-            Pertanyaan {currentQuestionIndex + 1} dari {questions.length}
-          </span>
-        </div>
-        <div className="quiz-controls">
-          <div className="timer-container">
-            <div className="timer">
-              <span className={`timer-text ${timeLeft < 300 ? 'warning' : ''}`}>
-                ⏱️ {formatTime(timeLeft)}
-              </span>
-            </div>
-            <div className="time-bar">
-              <div
-                className={`time-fill ${timeLeft < 300 ? 'warning' : ''}`}
-                style={{ width: `${timePercentage}%` }}
-              />
-            </div>
+    <div className="fixed inset-0 bg-surface-container-high z-[1000] flex flex-col">
+      {/* Header */}
+      <div className="bg-surface border-b border-outline-variant/20 px-margin-mobile md:px-margin-desktop py-md">
+        <div className="max-w-4xl mx-auto flex items-center justify-between">
+          <div className="flex items-center gap-md">
+            <h2 className="text-title-lg font-semibold text-on-surface m-0">{quiz.title}</h2>
+            <span className="text-label-sm text-on-surface-variant">{currentQuestionIndex + 1} dari {questions.length}</span>
           </div>
-          <button className="close-btn" onClick={() => {
-            if (window.confirm('Apakah Anda yakin ingin keluar? Progress akan hilang.')) {
-              onClose();
-            }
-          }}>×</button>
+          <div className="flex items-center gap-md">
+            <div className="flex items-center gap-sm">
+              <Clock className={`w-4 h-4 ${timeLeft < 300 ? 'text-error animate-pulse' : 'text-on-surface-variant'}`} />
+              <span className={`text-label-sm font-mono font-semibold ${timeLeft < 300 ? 'text-error' : 'text-on-surface'}`}>{formatTime(timeLeft)}</span>
+            </div>
+            <button className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant"
+              onClick={() => { if (window.confirm('Apakah Anda yakin ingin keluar? Progress akan hilang.')) onClose(); }}><X className="w-5 h-5" /></button>
+          </div>
+        </div>
+        <div className="max-w-4xl mx-auto mt-md">
+          <div className="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
+            <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+          </div>
+          {timeLeft < 300 && (
+            <div className="w-full h-1 bg-error/30 rounded-full overflow-hidden mt-1">
+              <div className="h-full bg-error rounded-full transition-all duration-1000" style={{ width: `${timePercentage}%` }} />
+            </div>
+          )}
         </div>
       </div>
 
-      <div className="progress-bar">
-        <div className="progress-fill" style={{ width: `${progress}%` }} />
-      </div>
-
-      <div className="question-container">
-        {/* Gamification Elements */}
-        <div className="gamification-bar">
+      <div className="flex-1 overflow-y-auto p-margin-mobile md:p-margin-desktop">
+        <div className="max-w-3xl mx-auto space-y-lg">
           {streakCount > 0 && (
-            <div className="streak-counter">
-              <span className="streak-icon">🔥</span>
-              <span className="streak-text">{streakCount} streak</span>
+            <div className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${streakCount >= 3 ? 'bg-warning-container text-on-warning-container animate-pulse' : 'bg-surface-container-low text-on-surface-variant'}`}>
+              <Flame className="w-4 h-4" />
+              <span className="text-label-sm font-semibold">{streakCount} streak</span>
             </div>
           )}
           {motivationalMessage && (
-            <div className="motivational-message">
-              {motivationalMessage}
+            <div className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-success-container/50 text-on-success-container text-label-sm font-medium">
+              <Star className="w-4 h-4" /> {motivationalMessage}
             </div>
           )}
-        </div>
 
-        <div className={`question ${questionTransition ? 'transitioning' : ''}`}>
-          <h3>{currentQuestion.question_text}</h3>
-          <div className="options">
-            {currentQuestion.options.map((option, index) => (
-              <label key={index} className={`option ${answers[currentQuestion.id] === index ? (option.is_correct ? 'correct' : 'selected') : ''}`}>
-                <input
-                  type="radio"
-                  name={`question-${currentQuestion.id}`}
-                  value={index}
-                  checked={answers[currentQuestion.id] === index}
-                  onChange={() => handleAnswerChange(currentQuestion.id, index)}
-                />
-                <span className="option-text">{option.text}</span>
-              </label>
-            ))}
+          {currentQuestion && (
+            <div className="bg-surface rounded-2xl p-xl shadow-sm border border-outline-variant/30">
+              <div className="flex items-start justify-between mb-lg">
+                <h3 className="text-title-md font-semibold text-on-surface leading-relaxed">{currentQuestion.question_text}</h3>
+                <span className="text-label-sm text-on-surface-variant shrink-0 ml-md">{currentQuestion.points} poin</span>
+              </div>
+              <div className="space-y-md">
+                {currentQuestion.options.map((option, index) => {
+                  const isSelected = answers[currentQuestion.id] === index;
+                  return (
+                    <label key={index} className={`flex items-center gap-md p-md rounded-xl border-2 cursor-pointer transition-all group ${
+                      isSelected
+                        ? option.is_correct
+                          ? 'border-success bg-success-container/20'
+                          : 'border-error bg-error-container/20'
+                        : 'border-outline-variant/40 hover:border-primary/50 hover:bg-primary-container/10'
+                    }`}>
+                      <div className={`w-8 h-8 rounded-full flex items-center justify-center text-label-sm font-bold shrink-0 transition-colors ${
+                        isSelected
+                          ? option.is_correct ? 'bg-success text-on-success' : 'bg-error text-on-error'
+                          : 'bg-surface-container-high text-on-surface-variant group-hover:bg-primary/20 group-hover:text-primary'
+                      }`}>
+                        {isSelected && option.is_correct ? <CheckCircle className="w-5 h-5" /> :
+                         isSelected && !option.is_correct ? <XCircle className="w-5 h-5" /> :
+                         String.fromCharCode(65 + index)}
+                      </div>
+                      <div className="flex-1">
+                        <input type="radio" name={`question-${currentQuestion.id}`} value={index}
+                          checked={isSelected} onChange={() => handleAnswerChange(currentQuestion.id, index)} className="sr-only" />
+                        <span className="text-body-md text-on-surface">{option.text}</span>
+                      </div>
+                    </label>
+                  );
+                })}
+              </div>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between gap-md">
+            <button className={`inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-label-sm font-medium transition-colors ${
+                currentQuestionIndex === 0 ? 'text-outline cursor-not-allowed' : 'text-on-surface-variant hover:bg-surface-container-high'}`}
+              onClick={handlePrevious} disabled={currentQuestionIndex === 0}>
+              <ArrowLeft className="w-4 h-4" /> Sebelumnya
+            </button>
+            <div className="flex items-center gap-1.5">
+              {questions.map((_, index) => (
+                <button key={index} onClick={() => setCurrentQuestionIndex(index)}
+                  className={`w-2.5 h-2.5 rounded-full transition-all ${index === currentQuestionIndex ? 'bg-primary w-6' : answers[questions[index]?.id] !== undefined ? 'bg-success' : 'bg-outline-variant'}`} />
+              ))}
+            </div>
+            {currentQuestionIndex === questions.length - 1 ? (
+              <button className="inline-flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50"
+                onClick={handleSubmitQuiz} disabled={submitting}>
+                <Send className="w-4 h-4" /> {submitting ? 'Mengirim...' : 'Kirim Quiz'}
+              </button>
+            ) : (
+              <button className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm" onClick={handleNext}>
+                Berikutnya <ArrowRight className="w-4 h-4" />
+              </button>
+            )}
           </div>
         </div>
+      </div>
 
-        {/* Feedback Animation */}
-        {showFeedback && (
-          <div className={`feedback-overlay ${feedbackType}`}>
-            <div className="feedback-content">
-              {feedbackType === 'correct' && (
-                <>
-                  <div className="feedback-icon">✅</div>
-                  <div className="feedback-text">Benar! 🎉</div>
-                  <div className="feedback-subtext">Kerja bagus!</div>
-                </>
-              )}
-              {feedbackType === 'incorrect' && (
-                <>
-                  <div className="feedback-icon">❌</div>
-                  <div className="feedback-text">Belum tepat 😅</div>
-                  <div className="feedback-subtext">Coba lagi ya!</div>
-                </>
-              )}
-              {feedbackType === 'streak' && (
-                <>
-                  <div className="feedback-icon">🔥</div>
-                  <div className="feedback-text">{motivationalMessage}</div>
-                  <div className="feedback-subtext">Kamu sedang panas!</div>
-                </>
-              )}
+      {showFeedback && (
+        <div className={`fixed inset-0 pointer-events-none flex items-center justify-center z-[1100] ${feedbackType === 'correct' || feedbackType === 'streak' ? 'bg-success/5' : 'bg-error/5'}`}>
+          <div className={`text-center ${feedbackType === 'correct' ? 'text-success' : feedbackType === 'streak' ? 'text-warning' : 'text-error'}`}>
+            <div className="text-5xl mb-sm">
+              {feedbackType === 'correct' ? <CheckCircle className="w-16 h-16 mx-auto" /> :
+               feedbackType === 'streak' ? <Flame className="w-16 h-16 mx-auto" /> : <XCircle className="w-16 h-16 mx-auto" />}
+            </div>
+            <div className="text-title-lg font-bold">
+              {feedbackType === 'correct' ? 'Benar!' : feedbackType === 'streak' ? motivationalMessage : 'Belum tepat'}
+            </div>
+            <div className="text-body-sm mt-1">
+              {feedbackType === 'correct' ? 'Kerja bagus!' : feedbackType === 'streak' ? 'Kamu sedang panas!' : 'Coba lagi ya!'}
             </div>
           </div>
-        )}
+        </div>
+      )}
 
-        {/* Particle Effects */}
-        {particles.length > 0 && (
-          <div className="particles-container">
-            {particles.map((particle) => (
-              <div
-                key={particle.id}
-                className="particle"
-                style={{
-                  left: `${particle.x}%`,
-                  top: `${particle.y}%`,
-                  width: `${particle.size}px`,
-                  height: `${particle.size}px`,
-                  backgroundColor: particle.color,
-                  '--velocity-x': `${particle.velocity.x}px`,
-                  '--velocity-y': `${particle.velocity.y}px`,
-                }}
-              />
-            ))}
-          </div>
-        )}
-      </div>
-
-      {/* Achievement Badge */}
       {showAchievement && (
-        <div className="achievement-badge">
-          {achievementMessage}
-        </div>
-      )}
-
-      {/* Completion Celebration */}
-      {showCompletion && (
-        <div className="completion-celebration">
-          <div className="celebration-content">
-            <div className="celebration-icon">🎉</div>
-            <div className="celebration-text">Quiz Selesai!</div>
-            <div>Selamat atas pencapaian Anda! 🌟</div>
+        <div className="fixed top-4 right-4 z-[1200]">
+          <div className="bg-warning-container border border-warning/40 rounded-xl p-md shadow-xl flex items-center gap-md">
+            <Trophy className="w-8 h-8 text-warning" />
+            <div className="text-title-sm font-semibold text-on-warning-container">{achievementMessage}</div>
           </div>
         </div>
       )}
-
-      {/* Confetti Effect */}
-      {confetti.length > 0 && (
-        <div className="confetti-container">
-          {confetti.map((piece) => (
-            <div
-              key={piece.id}
-              className="confetti-piece"
-              style={{
-                left: `${piece.x}%`,
-                top: `${piece.y}%`,
-                width: `${piece.size}px`,
-                height: `${piece.size}px`,
-                backgroundColor: piece.color,
-                '--velocity-x': `${piece.velocity.x}px`,
-                '--velocity-y': `${piece.velocity.y}px`,
-                '--rotation': `${piece.rotation}deg`,
-              }}
-            />
-          ))}
-        </div>
-      )}
-
-      <div className="quiz-navigation">
-        <button
-          className="nav-btn prev"
-          onClick={handlePrevious}
-          disabled={currentQuestionIndex === 0}
-        >
-          ← Sebelumnya
-        </button>
-        <div className="question-dots">
-          {questions.map((_, index) => (
-            <span
-              key={index}
-              className={`dot ${index === currentQuestionIndex ? 'active' : ''} ${answers[questions[index].id] !== undefined ? 'answered' : ''}`}
-              onClick={() => setCurrentQuestionIndex(index)}
-            />
-          ))}
-        </div>
-        {currentQuestionIndex === questions.length - 1 ? (
-          <button
-            className="nav-btn submit"
-            onClick={handleSubmitQuiz}
-            disabled={submitting}
-          >
-            {submitting ? 'Mengirim...' : 'Kirim Quiz'}
-          </button>
-        ) : (
-          <button
-            className="nav-btn next"
-            onClick={handleNext}
-          >
-            Berikutnya →
-          </button>
-        )}
-      </div>
     </div>
   );
 };

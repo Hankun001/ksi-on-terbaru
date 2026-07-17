@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { UserCheck, Calendar, Users, Save, BookOpen } from 'lucide-react';
+import { UserCheck, Calendar, Users, Save, BookOpen, AlertCircle } from 'lucide-react';
 
 const SimpleStudentAttendance = () => {
   const { user } = useAuth();
@@ -118,50 +118,46 @@ const SimpleStudentAttendance = () => {
 
   if (loading) {
     return (
-      <div className="dashboard-container">
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
-          <div>Memuat data siswa...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse flex flex-col items-center gap-sm">
+          <div className="w-12 h-12 rounded-full bg-surface-dim"></div>
+          <div className="h-4 w-48 bg-surface-dim rounded"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
         <div>
-          <h1>
-            <UserCheck size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
-            Absensi Siswa Sederhana
+          <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+            <UserCheck className="w-7 h-7 text-primary" />
+            Absensi Siswa
           </h1>
-          <p>Catat kehadiran siswa langsung berdasarkan data murid</p>
+          <p className="text-body-md text-on-surface-variant mt-xs">Catat kehadiran siswa langsung berdasarkan data murid</p>
         </div>
       </div>
 
-      <div className="dashboard-content">
-        <div style={{
-          background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
-          borderRadius: '12px',
-          padding: '1.5rem',
-          marginBottom: '1.5rem'
-        }}>
-          <h3 style={{ marginBottom: '1rem', color: '#7c3aed' }}>
-            <Calendar size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Form Absensi
-          </h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-            <div className="form-group">
-              <label htmlFor="class">Kelas *</label>
+      <div className="bg-surface rounded-2xl shadow-sm border border-outline-variant overflow-hidden">
+        {/* Form Section */}
+        <div className="bg-primary-container/20 p-4 md:p-6 border-b border-outline-variant">
+          <div className="flex items-center gap-sm mb-md">
+            <Calendar className="w-5 h-5 text-primary" />
+            <h3 className="text-title-sm font-semibold text-on-surface m-0">Form Absensi</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Kelas <span className="text-error">*</span></label>
               <select
-                id="class"
                 value={selectedClass}
                 onChange={(e) => setSelectedClass(e.target.value)}
-                style={{ width: '100%' }}
                 required
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
               >
                 <option value="">
-                  {classes.length === 0 ? 'Belum ada kelas - buat kelas terlebih dahulu' : 'Pilih Kelas'}
+                  {classes.length === 0 ? 'Belum ada kelas' : 'Pilih Kelas'}
                 </option>
                 {classes.map(cls => (
                   <option key={cls.id} value={cls.id}>
@@ -170,119 +166,106 @@ const SimpleStudentAttendance = () => {
                 ))}
               </select>
               {classes.length === 0 && (
-                <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: '#ef4444', background: '#fef2f2', padding: '0.5rem', borderRadius: '4px', border: '1px solid #fecaca' }}>
-                  <strong>Info:</strong> Belum ada kelas. Login sebagai Admin dan buat kelas di menu "Data Kelas" terlebih dahulu.
-                </div>
+                <p className="mt-1 text-label-xs text-error flex items-center gap-1">
+                  <AlertCircle className="w-3 h-3" />
+                  Buat kelas terlebih dahulu di menu Data Kelas
+                </p>
               )}
             </div>
-
-            <div className="form-group">
-              <label htmlFor="date">Tanggal</label>
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Tanggal</label>
               <input
                 type="date"
-                id="date"
                 value={selectedDate}
                 onChange={(e) => setSelectedDate(e.target.value)}
-                style={{ width: '100%' }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
               />
             </div>
-
-            <div className="form-group">
-              <label htmlFor="subject">Mata Pelajaran *</label>
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Mata Pelajaran <span className="text-error">*</span></label>
               <input
                 type="text"
-                id="subject"
                 value={subject}
                 onChange={(e) => setSubject(e.target.value)}
-                placeholder="Contoh: Matematika, Bahasa Indonesia"
-                style={{ width: '100%' }}
+                placeholder="Contoh: Matematika"
                 required
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
               />
             </div>
           </div>
         </div>
 
-        <section className="dashboard-section">
-          <h2>
-            <Users size={20} style={{ marginRight: '8px' }} />
-            Daftar Siswa ({students.length} siswa)
+        {/* Student Table */}
+        <div className="p-4 md:p-6">
+          <h2 className="text-title-md font-semibold text-on-surface flex items-center gap-sm mb-md">
+            <Users className="w-5 h-5 text-primary" />
+            Daftar Siswa
+            <span className="bg-primary-container text-on-primary-container text-label-sm px-2 py-0.5 rounded-full ml-auto">
+              {students.length}
+            </span>
           </h2>
 
           {students.length > 0 ? (
-            <div className="table-responsive">
-              <table className="dashboard-table">
-                <thead>
-                  <tr>
-                    <th>Siswa</th>
-                    <th>Email</th>
-                    <th>Status Kehadiran</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {students.map(student => (
-                    <tr key={student.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <div style={{
-                            width: '32px',
-                            height: '32px',
-                            borderRadius: '50%',
-                            background: 'linear-gradient(135deg, #8b5cf6, #c3aed)',
-                            display: 'flex',
-                            alignItems: 'center',
-                            justifyContent: 'center',
-                            color: 'white',
-                            fontWeight: 'bold',
-                            fontSize: '0.75rem'
-                          }}>
-                            {(student.full_name || student.email || 'S').charAt(0).toUpperCase()}
-                          </div>
-                          <strong>{student.full_name || student.email}</strong>
-                        </div>
-                      </td>
-                      <td>{student.email}</td>
-                      <td>
-                        <select
-                          value={attendanceData[student.id] || 'hadir'}
-                          onChange={(e) => handleAttendanceChange(student.id, e.target.value)}
-                          style={{
-                            padding: '0.35rem 0.5rem',
-                            borderRadius: '6px',
-                            border: '1px solid #ddd'
-                          }}
-                        >
-                          <option value="hadir">Hadir</option>
-                          <option value="absent">Alpha</option>
-                          <option value="sick">Sakit</option>
-                          <option value="permit">Izin</option>
-                          <option value="late">Terlambat</option>
-                        </select>
-                      </td>
+            <>
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-surface-dim/50">
+                      <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Siswa</th>
+                      <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Email</th>
+                      <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Status Kehadiran</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+                  </thead>
+                  <tbody>
+                    {students.map((student, idx) => (
+                      <tr key={student.id} className={"border-t border-outline-variant/50 hover:bg-surface-dim/30 transition-colors " + (idx % 2 === 0 ? 'bg-surface' : 'bg-surface-dim/10')}>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-2.5">
+                            <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-bold text-label-sm shrink-0">
+                              {(student.full_name || student.email || 'S').charAt(0).toUpperCase()}
+                            </div>
+                            <span className="text-body-sm font-medium text-on-surface">
+                              {student.full_name || student.email}
+                            </span>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 text-body-sm text-on-surface-variant">{student.email}</td>
+                        <td className="px-4 py-3">
+                          <select
+                            value={attendanceData[student.id] || 'hadir'}
+                            onChange={(e) => handleAttendanceChange(student.id, e.target.value)}
+                            className="px-3 py-1.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary text-body-sm min-w-[130px]"
+                          >
+                            <option value="hadir">Hadir</option>
+                            <option value="absent">Alpha</option>
+                            <option value="sick">Sakit</option>
+                            <option value="permit">Izin</option>
+                            <option value="late">Terlambat</option>
+                          </select>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+              <div className="mt-4 flex justify-end">
+                <button
+                  onClick={saveAttendance}
+                  disabled={!selectedClass || !subject.trim()}
+                  className="inline-flex items-center gap-xs px-4 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <Save className="w-4 h-4" />
+                  Simpan Absensi
+                </button>
+              </div>
+            </>
           ) : (
-            <div className="empty-state">
-              <span className="empty-icon"><Users size={48} /></span>
-              <p>Belum ada data siswa.</p>
+            <div className="text-center py-12">
+              <Users className="w-16 h-16 mx-auto text-on-surface-variant/30 mb-4" />
+              <p className="text-body-lg text-on-surface-variant mb-2">Belum ada data siswa.</p>
             </div>
           )}
-
-          {students.length > 0 && (
-            <div style={{ marginTop: '1.5rem', display: 'flex', gap: '0.5rem', justifyContent: 'flex-end' }}>
-              <button
-                className="btn btn-primary"
-                onClick={saveAttendance}
-                disabled={!selectedClass || !subject.trim()}
-              >
-                <Save size={18} style={{ marginRight: '8px' }} />
-                Simpan Absensi
-              </button>
-            </div>
-          )}
-        </section>
+        </div>
       </div>
     </div>
   );

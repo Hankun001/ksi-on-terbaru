@@ -5,14 +5,14 @@ const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
 const SUPABASE_ANON_KEY = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
 // Validate that required environment variables are present
+// NOTE: We don't throw here to prevent blank page crashes.
+// The app will show an error state instead.
 if (!SUPABASE_URL) {
-  console.error('Missing VITE_SUPABASE_URL environment variable');
-  throw new Error('Supabase URL is required. Please set VITE_SUPABASE_URL in your environment variables.');
+  console.warn('⚠️ VITE_SUPABASE_URL tidak dikonfigurasi. Silakan set di .env atau Vercel Environment Variables.');
 }
 
 if (!SUPABASE_ANON_KEY) {
-  console.error('Missing VITE_SUPABASE_ANON_KEY environment variable');
-  throw new Error('Supabase Anon Key is required. Please set VITE_SUPABASE_ANON_KEY in your environment variables.');
+  console.warn('⚠️ VITE_SUPABASE_ANON_KEY tidak dikonfigurasi. Silakan set di .env atau Vercel Environment Variables.');
 }
 
 export { SUPABASE_URL, SUPABASE_ANON_KEY };

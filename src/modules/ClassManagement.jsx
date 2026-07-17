@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { Building2, Plus, Edit, Trash2, BookOpen, Users, MapPin, Calendar } from 'lucide-react';
+import { Building2, Plus, Edit, Trash2, BookOpen, Users, MapPin, Calendar, X, Save, Printer, AlertCircle } from 'lucide-react';
 
 const ClassManagement = () => {
   const { user } = useAuth();
@@ -237,242 +237,266 @@ const ClassManagement = () => {
   };
 
   if (loading) {
-    return <div className="dashboard-container">Memuat data kelas...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse flex flex-col items-center gap-sm">
+          <div className="w-12 h-12 rounded-full bg-surface-dim"></div>
+          <div className="h-4 w-48 bg-surface-dim rounded"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
         <div>
-          <h1>
-            <Building2 size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
+          <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+            <Building2 className="w-7 h-7 text-primary" />
             Data Kelas
           </h1>
-          <p>Kelola informasi kelas PKBM</p>
+          <p className="text-body-md text-on-surface-variant mt-xs">Kelola informasi kelas PKBM</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
+        <div className="flex gap-sm">
           <button
-            className="btn btn-secondary"
             onClick={printClassList}
             disabled={classes.length === 0}
+            className="inline-flex items-center gap-xs px-4 py-2 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors duration-200 text-label-lg disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            <BookOpen size={18} style={{ marginRight: '8px' }} />
+            <Printer className="w-4 h-4" />
             Cetak
           </button>
           <button
-            className="btn btn-primary"
-            onClick={() => {
-              resetForm();
-              setShowForm(true);
-            }}
+            onClick={() => { resetForm(); setShowForm(true); }}
+            className="inline-flex items-center gap-xs px-4 py-2 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium"
           >
-            <Plus size={18} style={{ marginRight: '8px' }} />
+            <Plus className="w-4 h-4" />
             Tambah Kelas
           </button>
         </div>
       </div>
 
+      {/* Form Modal */}
       {showForm && (
-        <div className="form-container">
-          <h2>{editingClass ? 'Edit Kelas' : 'Tambah Kelas Baru'}</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="name">Nama Kelas <span style={{ color: 'red' }}>*</span></label>
-              <input
-                type="text"
-                id="name"
-                name="name"
-                value={formData.name}
-                onChange={handleInputChange}
-                required
-                placeholder="Contoh: Kelas 6 A"
-              />
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={resetForm}>
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleIn" onClick={e => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-primary to-primary-container text-on-primary px-6 py-4 rounded-t-2xl flex items-center justify-between">
+              <h2 className="text-title-md font-semibold text-white flex items-center gap-sm">
+                <Building2 className="w-5 h-5" />
+                {editingClass ? 'Edit Kelas' : 'Tambah Kelas Baru'}
+              </h2>
+              <button onClick={resetForm} className="p-1.5 rounded-full hover:bg-white/20 transition-colors">
+                <X className="w-5 h-5 text-white" />
+              </button>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label htmlFor="education_level">Jenjang Pendidikan <span style={{ color: 'red' }}>*</span></label>
-                <select
-                  id="education_level"
-                  name="education_level"
-                  value={formData.education_level}
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">
+                  Nama Kelas <span className="text-error">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="name"
+                  value={formData.name}
                   onChange={handleInputChange}
                   required
+                  placeholder="Contoh: Kelas 6 A"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-label-lg font-medium text-on-surface mb-1.5">
+                    Jenjang Pendidikan <span className="text-error">*</span>
+                  </label>
+                  <select
+                    name="education_level"
+                    value={formData.education_level}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
+                  >
+                    <option value="sd">SD (Sekolah Dasar)</option>
+                    <option value="smp">SMP (Sekolah Menengah Pertama)</option>
+                    <option value="sma">SMA (Sekolah Menengah Atas)</option>
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-label-lg font-medium text-on-surface mb-1.5">
+                    Tingkat/Kelas <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    name="grade_level"
+                    value={formData.grade_level}
+                    onChange={handleInputChange}
+                    min="1" max="6" required
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">Wali Kelas (Guru)</label>
+                <select
+                  name="teacher_id"
+                  value={formData.teacher_id}
+                  onChange={handleInputChange}
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
                 >
-                  <option value="sd">SD (Sekolah Dasar)</option>
-                  <option value="smp">SMP (Sekolah Menengah Pertama)</option>
-                  <option value="sma">SMA (Sekolah Menengah Atas)</option>
+                  <option value="">-- Pilih Guru --</option>
+                  {teachers.map(teacher => (
+                    <option key={teacher.id} value={teacher.id}>
+                      {teacher.full_name || teacher.email}
+                    </option>
+                  ))}
                 </select>
               </div>
 
-              <div className="form-group">
-                <label htmlFor="grade_level">Tingkat/Kelas <span style={{ color: 'red' }}>*</span></label>
-                <input
-                  type="number"
-                  id="grade_level"
-                  name="grade_level"
-                  value={formData.grade_level}
-                  onChange={handleInputChange}
-                  min="1"
-                  max="6"
-                  required
-                />
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-label-lg font-medium text-on-surface mb-1.5">Jadwal</label>
+                  <input
+                    type="text"
+                    name="schedule"
+                    value={formData.schedule}
+                    onChange={handleInputChange}
+                    placeholder="Contoh: Senin-Rabu, 08:00-10:00"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-label-lg font-medium text-on-surface mb-1.5">Nomor Ruangan</label>
+                  <input
+                    type="text"
+                    name="room_number"
+                    value={formData.room_number}
+                    onChange={handleInputChange}
+                    placeholder="Contoh: R101"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
+                  />
+                </div>
               </div>
-            </div>
 
-            <div className="form-group">
-              <label htmlFor="teacher_id">Wali Kelas (Guru)</label>
-              <select
-                id="teacher_id"
-                name="teacher_id"
-                value={formData.teacher_id}
-                onChange={handleInputChange}
-              >
-                <option value="">-- Pilih Guru --</option>
-                {teachers.map(teacher => (
-                  <option key={teacher.id} value={teacher.id}>
-                    {teacher.full_name || teacher.email}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label htmlFor="schedule">Jadwal</label>
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">Tahun Ajaran</label>
                 <input
                   type="text"
-                  id="schedule"
-                  name="schedule"
-                  value={formData.schedule}
+                  name="academic_year"
+                  value={formData.academic_year}
                   onChange={handleInputChange}
-                  placeholder="Contoh: Senin-Rabu, 08:00-10:00"
+                  placeholder="Contoh: 2024/2025"
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="room_number">Nomor Ruangan</label>
-                <input
-                  type="text"
-                  id="room_number"
-                  name="room_number"
-                  value={formData.room_number}
-                  onChange={handleInputChange}
-                  placeholder="Contoh: R101"
-                />
-              </div>
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="academic_year">Tahun Ajaran</label>
-              <input
-                type="text"
-                id="academic_year"
-                name="academic_year"
-                value={formData.academic_year}
-                onChange={handleInputChange}
-                placeholder="Contoh: 2024/2025"
-              />
-            </div>
-
-            <div className="form-group">
-              <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}>
+              <label className="flex items-center gap-sm cursor-pointer p-3 rounded-xl bg-surface-dim/50 hover:bg-surface-dim transition-colors">
                 <input
                   type="checkbox"
                   name="is_active"
                   checked={formData.is_active}
                   onChange={handleInputChange}
-                  style={{ marginRight: '8px' }}
+                  className="w-4 h-4 rounded border-outline text-primary focus:ring-primary"
                 />
-                Kelas Aktif
+                <span className="text-body-md text-on-surface">Kelas Aktif</span>
               </label>
-            </div>
 
-            <div className="form-actions">
-              <button type="submit" className="btn btn-primary">
-                {editingClass ? 'Perbarui' : 'Simpan'}
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={resetForm}>
-                Batal
-              </button>
-            </div>
-          </form>
+              <div className="flex gap-sm pt-2 border-t border-outline-variant">
+                <button type="submit" className="flex-1 inline-flex items-center justify-center gap-xs px-4 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium">
+                  <Save className="w-4 h-4" />
+                  {editingClass ? 'Perbarui' : 'Simpan'}
+                </button>
+                <button type="button" onClick={resetForm} className="px-4 py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-lg">
+                  Batal
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      <div className="dashboard-content">
-        <section className="dashboard-section">
-          <h2>
-            <BookOpen size={20} style={{ marginRight: '8px' }} />
-            Daftar Kelas
-          </h2>
+      {/* Class List */}
+      <div className="bg-surface rounded-2xl shadow-sm border border-outline-variant p-4 md:p-6">
+        <h2 className="text-title-md font-semibold text-on-surface flex items-center gap-sm mb-md">
+          <BookOpen className="w-5 h-5 text-primary" />
+          Daftar Kelas
+          <span className="bg-primary-container text-on-primary-container text-label-sm px-2 py-0.5 rounded-full ml-auto">
+            {classes.length}
+          </span>
+        </h2>
 
-          {classes.length > 0 ? (
-            <div className="cards-grid">
-              {classes.map(cls => (
-                <div key={cls.id} className="card">
-                  <div className="card-header">
-                    <span className="course-code">
-                      <MapPin size={16} style={{ marginRight: '4px' }} />
-                      {cls.education_level?.toUpperCase()}
-                    </span>
-                    <span className={`course-icon ${cls.is_active ? '' : 'inactive'}`}>
-                      {cls.is_active ? '✓' : '✗'}
-                    </span>
-                  </div>
-                  <h3>{cls.name}</h3>
-
-                  <div style={{ marginTop: '1rem' }}>
-                    <p><strong>Wali Kelas:</strong> {cls.profiles?.full_name || 'Belum ada'}</p>
-                    <p><strong>Jadwal:</strong> {cls.schedule || 'Belum diisi'}</p>
-                    <p><strong>Ruangan:</strong> {cls.room_number || 'Belum diisi'}</p>
-                    <p><strong>Tahun Ajaran:</strong> {cls.academic_year || 'Belum diisi'}</p>
-                  </div>
-
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem' }}>
-                    <div style={{ textAlign: 'right' }}>
-                      <span style={{
-                        background: cls.is_active ? '#d1fae5' : '#fee2e2',
-                        color: cls.is_active ? '#059669' : '#dc2626',
-                        padding: '2px 8px',
-                        borderRadius: '4px',
-                        fontSize: '0.75rem'
-                      }}>
-                        {cls.is_active ? 'Aktif' : 'Non-aktif'}
-                      </span>
-                    </div>
-
-                    <div style={{ display: 'flex', gap: '0.5rem' }}>
-                      <button
-                        className="btn btn-secondary btn-sm"
-                        onClick={() => handleEdit(cls)}
-                      >
-                        <Edit size={16} />
-                      </button>
-                      <button
-                        className="btn btn-danger btn-sm"
-                        onClick={() => handleDelete(cls.id)}
-                      >
-                        <Trash2 size={16} />
-                      </button>
-                    </div>
-                  </div>
+        {classes.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {classes.map(cls => (
+              <div key={cls.id} className="bg-surface-dim/30 rounded-xl border border-outline-variant hover:border-primary/30 hover:shadow-md transition-all duration-300 p-4 group">
+                {/* Card Header */}
+                <div className="flex items-center justify-between mb-3">
+                  <span className="inline-flex items-center gap-1 text-label-sm text-primary bg-primary-container/50 px-2.5 py-1 rounded-full">
+                    <MapPin className="w-3.5 h-3.5" />
+                    {cls.education_level?.toUpperCase()}
+                  </span>
+                  <span className={"inline-flex items-center gap-1 text-label-xs px-2 py-0.5 rounded-full " + (cls.is_active ? 'bg-success-container text-on-success-container' : 'bg-error-container text-on-error-container')}>
+                    {cls.is_active ? 'Aktif' : 'Non-aktif'}
+                  </span>
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <span className="empty-icon"><Building2 size={48} /></span>
-              <p>Belum ada data kelas.</p>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
-                Jalankan script <code>sql/create_default_classes.sql</code> di Supabase SQL Editor untuk membuat kelas default, atau klik tombol "Tambah Kelas" untuk membuat kelas manual.
-              </p>
-              <div style={{ marginTop: '1rem', fontSize: '0.8rem', color: '#ef4444', background: '#fef2f2', padding: '0.5rem', borderRadius: '4px', border: '1px solid #fecaca' }}>
-                <strong>Penting:</strong> Kelas diperlukan untuk fitur absensi, penilaian, dan jurnal mengajar.
+
+                <h3 className="text-title-sm font-semibold text-on-surface mb-2">{cls.name}</h3>
+
+                <div className="space-y-1.5 text-body-sm text-on-surface-variant">
+                  <p className="flex items-center gap-1.5">
+                    <Users className="w-3.5 h-3.5 shrink-0" />
+                    <span>Wali: {cls.profiles?.full_name || 'Belum ada'}</span>
+                  </p>
+                  <p className="flex items-center gap-1.5">
+                    <Calendar className="w-3.5 h-3.5 shrink-0" />
+                    <span>{cls.schedule || 'Jadwal belum diisi'}</span>
+                  </p>
+                  <p className="flex items-center gap-1.5">
+                    <MapPin className="w-3.5 h-3.5 shrink-0" />
+                    <span>Ruang: {cls.room_number || '-'}</span>
+                  </p>
+                  <p className="text-label-sm text-on-surface-variant">
+                    TA. {cls.academic_year || '-'}
+                  </p>
+                </div>
+
+                {/* Card Actions */}
+                <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-outline-variant opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <button
+                    onClick={() => handleEdit(cls)}
+                    className="p-2 rounded-full bg-primary-container text-on-primary-container hover:bg-primary-container/80 transition-colors"
+                    title="Edit Kelas"
+                  >
+                    <Edit className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(cls.id)}
+                    className="p-2 rounded-full bg-error-container text-on-error-container hover:bg-error-container/80 transition-colors"
+                    title="Hapus Kelas"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
               </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <Building2 className="w-16 h-16 mx-auto text-on-surface-variant/30 mb-4" />
+            <p className="text-body-lg text-on-surface-variant mb-2">Belum ada data kelas.</p>
+            <p className="text-body-sm text-on-surface-variant/70 max-w-md mx-auto">
+              Klik tombol "Tambah Kelas" untuk membuat kelas baru.
+            </p>
+            <div className="mt-4 inline-flex items-center gap-2 text-label-sm text-error bg-error-container/50 px-3 py-2 rounded-lg">
+              <AlertCircle className="w-4 h-4" />
+              Kelas diperlukan untuk fitur absensi, penilaian, dan jurnal mengajar.
             </div>
-          )}
-        </section>
+          </div>
+        )}
       </div>
     </div>
   );

@@ -5,8 +5,7 @@ import {
   fetchQuestionsWithOptions, createQuestion, updateQuestion, deleteQuestion,
   createOption, updateOption, deleteOption, uploadQuestionImage, deleteQuestionImage
 } from '../services/examService';
-import { Plus, Save, Trash2, Send, Clock, AlertTriangle, ArrowLeft, HelpCircle, CheckSquare, Type } from 'lucide-react';
-import '../styles/examStyles.css';
+import { Plus, Save, Trash2, Send, AlertTriangle, ArrowLeft, HelpCircle, CheckSquare, Type, Upload } from 'lucide-react';
 
 const ExamBuilderPage = ({ examId, onBack }) => {
   const { user } = useAuth();
@@ -380,7 +379,14 @@ const ExamBuilderPage = ({ examId, onBack }) => {
   };
 
   if (loading) {
-    return <div className="dashboard-container"><div className="loading">Memuat...</div></div>;
+    return (
+      <div className="p-margin-mobile md:p-margin-desktop flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-md text-on-surface-variant">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-body-md">Memuat...</p>
+        </div>
+      </div>
+    );
   }
 
   const questionTypeIcon = (type) => {
@@ -399,136 +405,54 @@ const ExamBuilderPage = ({ examId, onBack }) => {
   };
 
   return (
-    <div className="dashboard-container">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
-        <button onClick={onBack} className="btn btn-secondary" style={{ padding: '0.5rem' }}>
+    <div className="p-margin-mobile md:p-margin-desktop max-w-5xl mx-auto space-y-xl">
+      {/* Header */}
+      <div className="flex items-center gap-md">
+        <button onClick={onBack} className="flex items-center justify-center w-10 h-10 rounded-xl bg-surface border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-higher transition-all duration-200 shrink-0">
           <ArrowLeft size={20} />
         </button>
-        <div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <h1 style={{ margin: 0, fontSize: '1.25rem' }}>{exam ? 'Edit Ujian' : 'Buat Ujian Baru'}</h1>
+        <div className="flex-1">
+          <div className="flex items-center gap-md">
+            <h1 className="text-title-md font-semibold text-on-surface m-0">{exam ? 'Edit Ujian' : 'Buat Ujian Baru'}</h1>
             {hasPendingUpdates && (
-              <div style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '0.25rem',
-                fontSize: '0.75rem',
-                color: '#f59e0b',
-                background: '#fef3c7',
-                padding: '0.25rem 0.5rem',
-                borderRadius: '4px',
-                border: '1px solid #fcd34d'
-              }}>
-                <div style={{
-                  width: '8px',
-                  height: '8px',
-                  background: '#f59e0b',
-                  borderRadius: '50%',
-                  animation: 'pulse 1.5s ease-in-out infinite'
-                }} />
+              <div className="inline-flex items-center gap-xs px-sm py-0.5 rounded-lg bg-warning-container text-on-warning-container text-label-xs border border-warning/30">
+                <div className="w-2 h-2 rounded-full bg-warning animate-pulse" />
                 Menyimpan...
               </div>
             )}
           </div>
-          <p style={{ margin: '0.25rem 0 0', color: '#6b7280', fontSize: '0.85rem' }}>
-            Buat soal ujian dengan mudah seperti Google Forms
-          </p>
+          <p className="text-body-sm text-on-surface-variant mt-1">Buat soal ujian dengan mudah seperti Google Forms</p>
         </div>
       </div>
 
-      <div className="exam-builder-container">
+      <div className="space-y-xl">
         {/* Basic Info */}
-        <div className="exam-basic-info slide-up">
-          <h3 style={{ margin: '0 0 1rem', fontSize: '1.1rem', color: '#1f2937' }}>Informasi Ujian</h3>
-          <div className="form-group">
-            <label>Judul Ujian <span style={{ color: 'red' }}>*</span></label>
-            <input
-              type="text"
-              value={title}
-              onChange={e => setTitle(e.target.value)}
-              placeholder="Contoh: Ujian Tengah Semester Matematika"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                fontSize: '1rem',
-                minHeight: '44px',
-                boxSizing: 'border-box'
-              }}
-            />
+        <div className="bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30 animate-fadeIn space-y-md">
+          <h3 className="text-title-sm font-semibold text-on-surface m-0">Informasi Ujian</h3>
+          <div className="space-y-sm">
+            <label className="text-label-sm font-medium text-on-surface">Judul Ujian <span className="text-error">*</span></label>
+            <input type="text" value={title} onChange={e => setTitle(e.target.value)} placeholder="Contoh: Ujian Tengah Semester Matematika" className="w-full px-lg py-3 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200" />
           </div>
-          <div className="form-group" style={{ marginTop: '1rem' }}>
-            <label>Deskripsi</label>
-            <textarea
-              value={description}
-              onChange={e => setDescription(e.target.value)}
-              placeholder="Deskripsi ujian (opsional)"
-              rows="3"
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                fontSize: '0.95rem',
-                fontFamily: 'inherit',
-                minHeight: '80px',
-                boxSizing: 'border-box'
-              }}
-            />
+          <div className="space-y-sm">
+            <label className="text-label-sm font-medium text-on-surface">Deskripsi</label>
+            <textarea value={description} onChange={e => setDescription(e.target.value)} placeholder="Deskripsi ujian (opsional)" rows="3" className="w-full px-lg py-3 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 resize-vertical min-h-[80px]" />
           </div>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(140px, 1fr))',
-            gap: '1rem',
-            marginTop: '1rem'
-          }}>
-            <div className="form-group">
-              <label>Durasi (menit)</label>
-              <input
-                type="number"
-                value={durationMinutes}
-                onChange={e => setDurationMinutes(e.target.value)}
-                min="1"
-                max="480"
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '1rem',
-                  minHeight: '44px',
-                  boxSizing: 'border-box'
-                }}
-              />
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-md">
+            <div className="space-y-sm">
+              <label className="text-label-sm font-medium text-on-surface">Durasi (menit)</label>
+              <input type="number" value={durationMinutes} onChange={e => setDurationMinutes(e.target.value)} min="1" max="480" className="w-full px-lg py-3 rounded-xl border border-outline bg-surface text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
             </div>
-            <div className="form-group">
-              <label>Nilai Kelulusan (%)</label>
-              <input
-                type="number"
-                value={passingScore}
-                onChange={e => setPassingScore(e.target.value)}
-                min="0"
-                max="100"
-                style={{
-                  width: '100%',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  border: '1px solid #d1d5db',
-                  fontSize: '1rem',
-                  minHeight: '44px',
-                  boxSizing: 'border-box'
-                }}
-              />
+            <div className="space-y-sm">
+              <label className="text-label-sm font-medium text-on-surface">Nilai Kelulusan (%)</label>
+              <input type="number" value={passingScore} onChange={e => setPassingScore(e.target.value)} min="0" max="100" className="w-full px-lg py-3 rounded-xl border border-outline bg-surface text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
             </div>
           </div>
-          <div style={{ display: 'flex', gap: '0.5rem', marginTop: '1.5rem' }}>
-            <button onClick={handleSaveExam} className="btn btn-primary" disabled={saving}>
-              <Save size={18} style={{ marginRight: '8px' }} />
-              {saving ? 'Menyimpan...' : 'Simpan Ujian'}
+          <div className="flex items-center gap-sm pt-sm">
+            <button onClick={handleSaveExam} disabled={saving} className="inline-flex items-center gap-xs px-lg py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+              {saving ? <><div className="w-4 h-4 border-2 border-on-primary border-t-transparent rounded-full animate-spin" /> Menyimpan...</> : <><Save size={18} /> Simpan Ujian</>}
             </button>
             {exam && exam.status === 'draft' && (
-              <button onClick={handlePublish} className="btn btn-success" style={{ background: '#059669', color: 'white', border: 'none', padding: '0.75rem 1.25rem', borderRadius: '8px', cursor: 'pointer', fontWeight: 500, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+              <button onClick={handlePublish} className="inline-flex items-center gap-xs px-lg py-2.5 rounded-xl bg-success text-on-success text-label-sm font-medium hover:bg-success-hover transition-all duration-200">
                 <Send size={18} />
                 Publikasikan
               </button>
@@ -539,12 +463,10 @@ const ExamBuilderPage = ({ examId, onBack }) => {
         {/* Questions Section */}
         {exam && (
           <>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ margin: 0, fontSize: '1.1rem', color: '#1f2937' }}>
-                Soal Ujian ({questions.length})
-              </h3>
+            <div className="flex items-center justify-between">
+              <h3 className="text-title-sm font-semibold text-on-surface m-0">Soal Ujian ({questions.length})</h3>
               {canEditQuestions && (
-                <button onClick={addQuestion} className="btn btn-primary" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                <button onClick={addQuestion} className="inline-flex items-center gap-xs px-md py-2 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary-hover transition-all duration-200">
                   <Plus size={18} />
                   Tambah Soal
                 </button>
@@ -552,263 +474,74 @@ const ExamBuilderPage = ({ examId, onBack }) => {
             </div>
 
             {exam.status !== 'draft' && (
-              <div style={{ background: '#fef3c7', color: '#92400e', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.85rem' }}>
-                <AlertTriangle size={16} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-                Ujian sudah dipublikasikan. Soal tidak dapat diubah, hanya detail ujian yang dapat diedit.
+              <div className="flex items-start gap-sm px-lg py-md rounded-xl bg-warning-container text-on-warning-container text-body-sm">
+                <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                <span>Ujian sudah dipublikasikan. Soal tidak dapat diubah, hanya detail ujian yang dapat diedit.</span>
               </div>
             )}
 
             {questions.length === 0 ? (
-              <div className="empty-state" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-                <HelpCircle size={48} style={{ color: '#d1d5db', marginBottom: '1rem' }} />
-                <p style={{ color: '#6b7280' }}>Belum ada soal. Klik "Tambah Soal" untuk mulai membuat soal.</p>
+              <div className="flex flex-col items-center justify-center py-3xl text-on-surface-variant">
+                <div className="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-lg">
+                  <HelpCircle size={40} className="text-outline" />
+                </div>
+                <p className="text-body-lg font-medium text-on-surface">Belum Ada Soal</p>
+                <p className="text-body-sm text-on-surface-variant mt-1">Klik "Tambah Soal" untuk mulai membuat soal.</p>
               </div>
             ) : (
               questions.map((q, idx) => (
-                <div key={q.id} className="question-card slide-up" style={{ animationDelay: `${idx * 0.05}s` }}>
-                  <div className="question-header">
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <span className="question-number">Soal {idx + 1}</span>
-                      <select
-                        value={localFormData[q.id]?.type ?? q.type}
-                        onChange={e => {
-                          const newValue = e.target.value;
-                          // Update local state immediately
-                          setLocalFormData(prev => ({
-                            ...prev,
-                            [q.id]: { ...prev[q.id], type: newValue }
-                          }));
-                          // Immediate update for select inputs
-                          handleUpdateQuestion(q.id, { type: newValue }, true);
-                        }}
-                        className="question-type-select"
-                        disabled={!canEditQuestions}
-                      >
+                <div key={q.id} className="bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30 animate-fadeIn space-y-md" style={{ animationDelay: `${idx * 0.05}s` }}>
+                  <div className="flex items-center justify-between gap-md flex-wrap">
+                    <div className="flex items-center gap-md">
+                      <span className="inline-flex items-center px-2.5 py-1 rounded-lg bg-secondary-container text-on-secondary-container text-label-xs font-semibold">Soal {idx + 1}</span>
+                      <select value={localFormData[q.id]?.type ?? q.type} onChange={e => { const newValue = e.target.value; setLocalFormData(prev => ({...prev, [q.id]: {...prev[q.id], type: newValue}})); handleUpdateQuestion(q.id, { type: newValue }, true); }} disabled={!canEditQuestions} className="px-md py-1.5 rounded-lg border border-outline bg-surface text-label-sm text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200">
                         <option value="multiple_choice">Pilihan Ganda</option>
                         <option value="checkbox">Checkbox</option>
                         <option value="essay">Essay</option>
                       </select>
                     </div>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}>
-                        <span style={{ fontSize: '0.8rem', color: '#6b7280' }}>Poin:</span>
-                        <input
-                          type="number"
-                          value={localFormData[q.id]?.points ?? q.points}
-                          onChange={e => {
-                            const newValue = parseInt(e.target.value) || 0;
-                            // Update local state immediately
-                            setLocalFormData(prev => ({
-                              ...prev,
-                              [q.id]: { ...prev[q.id], points: newValue }
-                            }));
-                            // Immediate update for number inputs
-                            handleUpdateQuestion(q.id, { points: newValue }, true);
-                          }}
-                          min="0"
-                          disabled={!canEditQuestions}
-                          style={{
-                            width: '60px',
-                            padding: '0.25rem 0.5rem',
-                            border: '1px solid #d1d5db',
-                            borderRadius: '6px',
-                            fontSize: '0.85rem',
-                            textAlign: 'center',
-                            background: canEditQuestions ? 'white' : '#f9fafb',
-                            color: canEditQuestions ? 'inherit' : '#6b7280'
-                          }}
-                        />
+                    <div className="flex items-center gap-sm">
+                      <div className="flex items-center gap-xs">
+                        <span className="text-label-xs text-on-surface-variant">Poin:</span>
+                        <input type="number" value={localFormData[q.id]?.points ?? q.points} onChange={e => { const newValue = parseInt(e.target.value) || 0; setLocalFormData(prev => ({...prev, [q.id]: {...prev[q.id], points: newValue}})); handleUpdateQuestion(q.id, { points: newValue }, true); }} min="0" disabled={!canEditQuestions} className="w-16 px-2 py-1 rounded-lg border border-outline bg-surface text-label-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary disabled:opacity-60 disabled:bg-surface-container-low disabled:cursor-not-allowed transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
                       </div>
                       {exam.status === 'draft' && (
-                        <button onClick={() => handleDeleteQuestion(q.id)} className="btn btn-danger btn-sm" style={{ padding: '0.35rem' }}>
-                          <Trash2 size={16} />
-                        </button>
+                        <button onClick={() => handleDeleteQuestion(q.id)} className="flex items-center justify-center w-8 h-8 rounded-lg bg-error-container text-on-error-container hover:bg-error hover:text-on-error transition-all duration-200"><Trash2 size={16} /></button>
                       )}
                     </div>
                   </div>
 
-                  <textarea
-                    value={localFormData[q.id]?.question ?? q.question}
-                    onChange={e => {
-                      const newValue = e.target.value;
-                      // Update local state immediately
-                      setLocalFormData(prev => ({
-                        ...prev,
-                        [q.id]: { ...prev[q.id], question: newValue }
-                      }));
-                      // Debounced update to database
-                      handleUpdateQuestion(q.id, { question: newValue });
-                    }}
-                    placeholder="Tulis pertanyaan di sini..."
-                    rows="2"
-                    disabled={!canEditQuestions}
-                    style={{
-                      width: '100%',
-                      padding: '0.75rem',
-                      borderRadius: '8px',
-                      border: '1px solid #d1d5db',
-                      fontSize: '0.95rem',
-                      fontFamily: 'inherit',
-                      marginBottom: '1rem',
-                      minHeight: '60px',
-                      boxSizing: 'border-box',
-                      background: canEditQuestions ? 'white' : '#f9fafb',
-                      color: canEditQuestions ? 'inherit' : '#6b7280'
-                    }}
-                  />
+                  <textarea value={localFormData[q.id]?.question ?? q.question} onChange={e => { const newValue = e.target.value; setLocalFormData(prev => ({...prev, [q.id]: {...prev[q.id], question: newValue}})); handleUpdateQuestion(q.id, { question: newValue }); }} placeholder="Tulis pertanyaan di sini..." rows="2" disabled={!canEditQuestions} className="w-full px-lg py-3 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary disabled:opacity-60 disabled:bg-surface-container-low disabled:cursor-not-allowed transition-all duration-200 resize-vertical min-h-[60px]" />
 
                   {/* Question Image Section */}
-                  <div style={{ marginBottom: '1rem' }}>
-                    <label style={{
-                      display: 'block',
-                      fontSize: '0.85rem',
-                      fontWeight: '500',
-                      color: '#374151',
-                      marginBottom: '0.5rem'
-                    }}>
-                      Gambar Soal (Opsional)
-                    </label>
-
-                    <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.5rem', flexWrap: 'wrap' }}>
-                      <input
-                        type="url"
-                        value={localFormData[q.id]?.image_url ?? q.image_url ?? ''}
-                        onChange={e => {
-                          const newValue = e.target.value;
-                          // Update local state immediately
-                          setLocalFormData(prev => ({
-                            ...prev,
-                            [q.id]: { ...prev[q.id], image_url: newValue }
-                          }));
-                          // Debounced update to database
-                          handleUpdateQuestion(q.id, { image_url: newValue });
-                        }}
-                        placeholder="Masukkan URL gambar..."
-                        disabled={!canEditQuestions || uploadingImages.has(q.id)}
-                        style={{
-                          flex: 1,
-                          minWidth: '200px',
-                          padding: '0.5rem 0.75rem',
-                          borderRadius: '6px',
-                          border: '1px solid #d1d5db',
-                          fontSize: '0.9rem',
-                          boxSizing: 'border-box',
-                          background: canEditQuestions ? 'white' : '#f9fafb',
-                          color: canEditQuestions ? 'inherit' : '#6b7280'
-                        }}
-                      />
-
-                      <div style={{ display: 'flex', gap: '0.25rem' }}>
-                        <input
-                          type="file"
-                          accept="image/*"
-                          onChange={(e) => {
-                            const file = e.target.files[0];
-                            if (file) handleImageUpload(q.id, file);
-                            e.target.value = ''; // Reset input
-                          }}
-                          disabled={!canEditQuestions || uploadingImages.has(q.id)}
-                          style={{ display: 'none' }}
-                          id={`image-upload-${q.id}`}
-                        />
-                        <label
-                          htmlFor={`image-upload-${q.id}`}
-                          style={{
-                            padding: '0.5rem 0.75rem',
-                            background: canEditQuestions && !uploadingImages.has(q.id) ? '#8b5cf6' : '#e5e7eb',
-                            color: canEditQuestions && !uploadingImages.has(q.id) ? 'white' : '#9ca3af',
-                            borderRadius: '6px',
-                            cursor: canEditQuestions && !uploadingImages.has(q.id) ? 'pointer' : 'not-allowed',
-                            fontSize: '0.85rem',
-                            fontWeight: '500',
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '0.25rem'
-                          }}
-                        >
-                          {uploadingImages.has(q.id) ? (
-                            <>
-                              <div style={{
-                                width: '14px',
-                                height: '14px',
-                                border: '2px solid #e5e7eb',
-                                borderTop: '2px solid #8b5cf6',
-                                borderRadius: '50%',
-                                animation: 'spin 1s linear infinite'
-                              }} />
-                              Upload...
-                            </>
-                          ) : (
-                            <>
-                              📁 Upload
-                            </>
-                          )}
+                  <div className="space-y-sm">
+                    <label className="text-label-sm font-medium text-on-surface">Gambar Soal (Opsional)</label>
+                    <div className="flex items-center gap-sm flex-wrap">
+                      <input type="url" value={localFormData[q.id]?.image_url ?? q.image_url ?? ''} onChange={e => { const newValue = e.target.value; setLocalFormData(prev => ({...prev, [q.id]: {...prev[q.id], image_url: newValue}})); handleUpdateQuestion(q.id, { image_url: newValue }); }} placeholder="Masukkan URL gambar..." disabled={!canEditQuestions || uploadingImages.has(q.id)} className="flex-1 min-w-[200px] px-md py-2 rounded-lg border border-outline bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary disabled:opacity-60 disabled:bg-surface-container-low disabled:cursor-not-allowed transition-all duration-200" />
+                      <div className="flex items-center gap-xs">
+                        <input type="file" accept="image/*" onChange={(e) => { const file = e.target.files[0]; if (file) handleImageUpload(q.id, file); e.target.value = ''; }} disabled={!canEditQuestions || uploadingImages.has(q.id)} className="hidden" id={`image-upload-${q.id}`} />
+                        <label htmlFor={`image-upload-${q.id}`} className={`inline-flex items-center gap-xs px-md py-2 rounded-lg text-label-sm font-medium cursor-pointer transition-all duration-200 ${canEditQuestions && !uploadingImages.has(q.id) ? 'bg-secondary text-on-secondary hover:bg-secondary-hover' : 'bg-surface-container-high text-on-surface-variant cursor-not-allowed'}`}>
+                          {uploadingImages.has(q.id) ? <><div className="w-3.5 h-3.5 border-2 border-on-secondary border-t-transparent rounded-full animate-spin" /> Upload...</> : <><Upload size={16} /> Upload</>}
                         </label>
-
                         {q.image_url && (
-                          <button
-                            onClick={() => handleImageDelete(q.id, q.image_url)}
-                            disabled={!canEditQuestions}
-                            style={{
-                              padding: '0.5rem 0.75rem',
-                              background: '#ef4444',
-                              color: 'white',
-                              border: 'none',
-                              borderRadius: '6px',
-                              cursor: canEditQuestions ? 'pointer' : 'not-allowed',
-                              fontSize: '0.85rem',
-                              fontWeight: '500',
-                              display: 'flex',
-                              alignItems: 'center',
-                              gap: '0.25rem'
-                            }}
-                          >
-                            🗑️ Hapus
+                          <button onClick={() => handleImageDelete(q.id, q.image_url)} disabled={!canEditQuestions} className="inline-flex items-center gap-xs px-md py-2 rounded-lg bg-error text-on-error text-label-sm font-medium hover:bg-error-hover disabled:opacity-60 disabled:cursor-not-allowed transition-all duration-200">
+                            <Trash2 size={14} /> Hapus
                           </button>
                         )}
                       </div>
                     </div>
-
                     {q.image_url && (
-                      <div style={{
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '8px',
-                        padding: '0.5rem',
-                        background: '#f9fafb',
-                        maxWidth: '300px'
-                      }}>
-                        <img
-                          src={q.image_url}
-                          alt="Preview gambar soal"
-                          style={{
-                            width: '100%',
-                            height: 'auto',
-                            borderRadius: '4px',
-                            maxHeight: '200px',
-                            objectFit: 'contain'
-                          }}
-                          onError={(e) => {
-                            e.target.style.display = 'none';
-                            e.target.nextSibling.style.display = 'block';
-                          }}
-                        />
-                        <div style={{
-                          display: 'none',
-                          textAlign: 'center',
-                          color: '#ef4444',
-                          fontSize: '0.8rem',
-                          padding: '1rem'
-                        }}>
-                          Gagal memuat gambar
-                        </div>
+                      <div className="border border-outline-variant/20 rounded-xl p-sm bg-surface-container-low max-w-xs">
+                        <img src={q.image_url} alt="Preview" className="w-full h-auto rounded-lg max-h-[200px] object-contain" onError={(e) => { e.target.style.display = 'none'; e.target.nextElementSibling.classList.remove('hidden'); }} />
+                        <div className="hidden text-center text-error text-label-sm p-md">Gagal memuat gambar</div>
                       </div>
                     )}
                   </div>
 
                   {(q.type === 'multiple_choice' || q.type === 'checkbox') && (
-                    <div>
+                    <div className="space-y-sm">
                       {(q.options || []).map((opt, optIdx) => (
-                        <div key={opt.id} className={`option-row ${updatingOptions.has(opt.id) ? 'updating' : ''}`}>
+                        <div key={opt.id} className={`flex items-center gap-sm p-sm rounded-xl border-2 transition-all duration-200 ${updatingOptions.has(opt.id) ? 'opacity-60 border-warning/50' : 'border-outline-variant/30'} ${opt.is_correct ? 'border-success/50 bg-success-container/20' : ''}`}>
                           <input
                             type={q.type === 'multiple_choice' ? 'radio' : 'checkbox'}
                             name={`correct-${q.id}`}
@@ -908,139 +641,47 @@ const ExamBuilderPage = ({ examId, onBack }) => {
                               }
                             }}
                           />
-                          <input
-                            type="text"
-                            value={opt.option_text}
-                            onChange={e => {
-                              const newValue = e.target.value;
-                              // Update local state immediately
-                              setQuestions(prev => prev.map(q => ({
-                                ...q,
-                                options: q.options?.map(o =>
-                                  o.id === opt.id ? { ...o, option_text: newValue } : o
-                                ) || q.options
-                              })));
-                              // Debounced update to database
-                              handleUpdateOption(opt.id, { option_text: newValue });
-                            }}
-                            placeholder={`Opsi ${String.fromCharCode(65 + optIdx)}`}
-                            disabled={!canEditQuestions}
-                            style={{
-                              background: canEditQuestions ? 'white' : '#f9fafb',
-                              color: canEditQuestions ? 'inherit' : '#6b7280'
-                            }}
-                          />
+                          <input type="text" value={opt.option_text} onChange={e => { const newValue = e.target.value; setQuestions(prev => prev.map(q => ({...q, options: q.options?.map(o => o.id === opt.id ? {...o, option_text: newValue} : o) || q.options}))); handleUpdateOption(opt.id, { option_text: newValue }); }} placeholder={`Opsi ${String.fromCharCode(65 + optIdx)}`} disabled={!canEditQuestions} className={`flex-1 px-sm py-1.5 rounded-lg border border-outline/50 bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 ${!canEditQuestions ? 'opacity-60 bg-surface-container-low cursor-not-allowed' : ''}`} />
                           {canEditQuestions && q.options.length > 2 && (
-                            <button onClick={() => handleDeleteOption(opt.id)} className="btn btn-danger btn-sm" style={{ padding: '0.25rem', minWidth: '32px', minHeight: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-                              <Trash2 size={14} />
-                            </button>
+                            <button onClick={() => handleDeleteOption(opt.id)} className="flex items-center justify-center w-8 h-8 rounded-lg text-on-surface-variant hover:bg-error-container hover:text-error transition-all duration-200 shrink-0"><Trash2 size={14} /></button>
                           )}
                         </div>
                       ))}
                       {canEditQuestions && (
-                        <button onClick={() => addOption(q.id)} className="add-option-btn">
-                          <Plus size={16} />
-                          Tambah Opsi
+                        <button onClick={() => addOption(q.id)} className="w-full inline-flex items-center justify-center gap-xs px-md py-2 rounded-xl border-2 border-dashed border-outline-variant/50 text-label-sm text-on-surface-variant hover:border-primary/50 hover:text-primary hover:bg-primary/5 transition-all duration-200">
+                          <Plus size={16} /> Tambah Opsi
                         </button>
                       )}
                     </div>
                   )}
 
                   {q.type === 'essay' && (
-                    <div style={{ marginTop: '1rem' }}>
-                      <div style={{ padding: '1rem', background: '#f9fafb', borderRadius: '8px', marginBottom: '1rem' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                          <input
-                            type="checkbox"
-                            id={`auto-grade-${q.id}`}
-                            checked={autoGradingSettings[q.id]?.enableAutoGrading || false}
-                            onChange={(e) => handleUpdateAutoGrading(q.id, e.target.checked, autoGradingSettings[q.id]?.gradingKeywords || [])}
-                            disabled={!canEditQuestions}
-                          />
-                          <label htmlFor={`auto-grade-${q.id}`} style={{ fontSize: '0.85rem', fontWeight: '500', color: '#374151' }}>
-                            Aktifkan Penilaian Otomatis
-                          </label>
+                    <div className="space-y-md pt-sm">
+                      <div className="p-md rounded-xl bg-surface-container-low space-y-sm">
+                        <div className="flex items-center gap-sm">
+                          <input type="checkbox" id={`auto-grade-${q.id}`} checked={autoGradingSettings[q.id]?.enableAutoGrading || false} onChange={(e) => handleUpdateAutoGrading(q.id, e.target.checked, autoGradingSettings[q.id]?.gradingKeywords || [])} disabled={!canEditQuestions} className="accent-primary" />
+                          <label htmlFor={`auto-grade-${q.id}`} className="text-label-sm font-medium text-on-surface cursor-pointer">Aktifkan Penilaian Otomatis</label>
                         </div>
-                        <p style={{ fontSize: '0.8rem', color: '#6b7280', margin: '0.5rem 0' }}>
-                          {autoGradingSettings[q.id]?.enableAutoGrading
-                            ? 'Penilaian otomatis berdasarkan kata kunci dan kesamaan dengan jawaban contoh.'
-                            : 'Murid akan menulis jawaban teks bebas. Penilaian dilakukan manual oleh guru.'
-                          }
-                        </p>
+                        <p className="text-label-xs text-on-surface-variant m-0">{autoGradingSettings[q.id]?.enableAutoGrading ? 'Penilaian otomatis berdasarkan kata kunci dan kesamaan dengan jawaban contoh.' : 'Murid akan menulis jawaban teks bebas. Penilaian dilakukan manual oleh guru.'}</p>
                       </div>
-
                       {autoGradingSettings[q.id]?.enableAutoGrading && (
                         <>
-                          <div style={{ marginBottom: '1rem' }}>
-                            <label style={{
-                              display: 'block',
-                              fontSize: '0.85rem',
-                              fontWeight: '500',
-                              color: '#374151',
-                              marginBottom: '0.5rem'
-                            }}>
-                              Kata Kunci untuk Penilaian (pisahkan dengan koma)
-                            </label>
-                            <textarea
-                              value={(autoGradingSettings[q.id]?.gradingKeywords || []).join(', ')}
-                              onChange={(e) => {
-                                const keywords = e.target.value.split(',').map(k => k.trim()).filter(k => k);
-                                handleUpdateAutoGrading(q.id, true, keywords);
-                              }}
-                              placeholder="contoh: fotosintesis, klorofil, energi matahari"
-                              disabled={!canEditQuestions}
-                              rows="2"
-                              style={{
-                                width: '100%',
-                                padding: '0.75rem',
-                                borderRadius: '8px',
-                                border: '1px solid #d1d5db',
-                                fontSize: '0.9rem',
-                                fontFamily: 'inherit',
-                                resize: 'vertical'
-                              }}
-                            />
-                            <small style={{ color: '#6b7280', fontSize: '0.75rem' }}>
-                              Siswa mendapat poin untuk setiap kata kunci yang ada di jawaban mereka.
-                            </small>
+                          <div className="space-y-sm">
+                            <label className="text-label-sm font-medium text-on-surface">Kata Kunci untuk Penilaian (pisahkan dengan koma)</label>
+                            <textarea value={(autoGradingSettings[q.id]?.gradingKeywords || []).join(', ')} onChange={(e) => { const keywords = e.target.value.split(',').map(k => k.trim()).filter(k => k); handleUpdateAutoGrading(q.id, true, keywords); }} placeholder="contoh: fotosintesis, klorofil, energi matahari" disabled={!canEditQuestions} rows="2" className="w-full px-lg py-3 rounded-xl border border-outline bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary disabled:opacity-60 disabled:bg-surface-container-low disabled:cursor-not-allowed transition-all duration-200 resize-vertical" />
+                            <p className="text-label-xs text-on-surface-variant m-0">Siswa mendapat poin untuk setiap kata kunci yang ada di jawaban mereka.</p>
                           </div>
-
-                          <div style={{ marginBottom: '1rem' }}>
-                            <label style={{
-                              display: 'block',
-                              fontSize: '0.85rem',
-                              fontWeight: '500',
-                              color: '#374151',
-                              marginBottom: '0.5rem'
-                            }}>
-                              Jawaban Contoh/Model (Opsional)
-                            </label>
-                            <textarea
-                              value={sampleAnswers[q.id] || ''}
-                              onChange={(e) => handleUpdateSampleAnswer(q.id, e.target.value)}
-                              placeholder="Tuliskan jawaban contoh yang baik untuk membantu siswa memahami ekspektasi..."
-                              disabled={!canEditQuestions}
-                              rows="4"
-                              style={{
-                                width: '100%',
-                                padding: '0.75rem',
-                                borderRadius: '8px',
-                                border: '1px solid #d1d5db',
-                                fontSize: '0.9rem',
-                                fontFamily: 'inherit',
-                                resize: 'vertical'
-                              }}
-                            />
-                            <small style={{ color: '#6b7280', fontSize: '0.75rem' }}>
-                              Jawaban contoh digunakan untuk perhitungan kesamaan teks (30% bobot penilaian).
-                            </small>
+                          <div className="space-y-sm">
+                            <label className="text-label-sm font-medium text-on-surface">Jawaban Contoh/Model (Opsional)</label>
+                            <textarea value={sampleAnswers[q.id] || ''} onChange={(e) => handleUpdateSampleAnswer(q.id, e.target.value)} placeholder="Tuliskan jawaban contoh yang baik untuk membantu siswa memahami ekspektasi..." disabled={!canEditQuestions} rows="4" className="w-full px-lg py-3 rounded-xl border border-outline bg-surface text-body-sm text-on-surface placeholder:text-on-surface-variant focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary disabled:opacity-60 disabled:bg-surface-container-low disabled:cursor-not-allowed transition-all duration-200 resize-vertical" />
+                            <p className="text-label-xs text-on-surface-variant m-0">Jawaban contoh digunakan untuk perhitungan kesamaan teks (30% bobot penilaian).</p>
                           </div>
                         </>
                       )}
-
                       {!autoGradingSettings[q.id]?.enableAutoGrading && (
-                        <div style={{ padding: '1rem', background: '#fef3c7', borderRadius: '8px', color: '#92400e', fontSize: '0.85rem' }}>
-                          ⚠️ Penilaian Manual: Jawaban siswa perlu dinilai secara manual oleh guru setelah ujian selesai.
+                        <div className="flex items-start gap-sm px-lg py-md rounded-xl bg-warning-container text-on-warning-container text-label-sm">
+                          <AlertTriangle size={16} className="shrink-0 mt-0.5" />
+                          <span>Penilaian Manual: Jawaban siswa perlu dinilai secara manual oleh guru setelah ujian selesai.</span>
                         </div>
                       )}
                     </div>

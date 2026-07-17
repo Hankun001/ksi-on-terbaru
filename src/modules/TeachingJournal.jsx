@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { ClipboardList, Calendar, BookOpen, Clock, Plus, Save, Trash2, FileText, Printer } from 'lucide-react';
+import { ClipboardList, Calendar, BookOpen, Clock, Plus, Trash2, FileText, Printer, X, GraduationCap } from 'lucide-react';
 
 const TeachingJournal = () => {
   const { user, profile } = useAuth();
@@ -212,212 +212,246 @@ const TeachingJournal = () => {
   };
 
   if (loading) {
-    return <div className="dashboard-container">Memuat jurnal mengajar...</div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse flex flex-col items-center gap-sm">
+          <div className="w-12 h-12 rounded-full bg-surface-dim"></div>
+          <div className="h-4 w-48 bg-surface-dim rounded"></div>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
         <div>
-          <h1>
-            <ClipboardList size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
+          <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+            <ClipboardList className="w-7 h-7 text-primary" />
             Jurnal Mengajar
           </h1>
-          <p>Catat aktivitas pembelajaran harian Anda</p>
+          <p className="text-body-md text-on-surface-variant mt-xs">Catat aktivitas pembelajaran harian Anda</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button 
-            className="btn btn-primary"
-            onClick={() => {
-              resetForm();
-              setShowForm(true);
-            }}
-          >
-            <Plus size={18} style={{ marginRight: '8px' }} />
-            Tambah Jurnal
-          </button>
-        </div>
+        <button
+          onClick={() => { resetForm(); setShowForm(true); }}
+          className="inline-flex items-center gap-xs px-4 py-2 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium"
+        >
+          <Plus className="w-4 h-4" />
+          Tambah Jurnal
+        </button>
       </div>
 
+      {/* Form Modal */}
       {showForm && (
-        <div className="form-container">
-          <h2>{editingJournal ? 'Edit Jurnal' : 'Jurnal Mengajar Baru'}</h2>
-          <form onSubmit={handleSubmit}>
-            <div className="form-group">
-              <label htmlFor="class_id">Kelas <span style={{ color: 'red' }}>*</span></label>
-              <select
-                id="class_id"
-                name="class_id"
-                value={formData.class_id}
-                onChange={handleInputChange}
-                required
-              >
-                <option value="">-- Pilih Kelas --</option>
-                {classes.map(cls => (
-                  <option key={cls.id} value={cls.id}>
-                    {cls.name} ({cls.education_level?.toUpperCase()} - Kelas {cls.grade_level})
-                  </option>
-                ))}
-              </select>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm" onClick={resetForm}>
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-2xl max-h-[90vh] overflow-y-auto animate-scaleIn" onClick={e => e.stopPropagation()}>
+            {/* Modal Header */}
+            <div className="bg-gradient-to-r from-primary to-primary-container text-on-primary px-6 py-4 rounded-t-2xl flex items-center justify-between">
+              <h2 className="text-title-md font-semibold text-white flex items-center gap-sm">
+                <ClipboardList className="w-5 h-5" />
+                {editingJournal ? 'Edit Jurnal' : 'Jurnal Mengajar Baru'}
+              </h2>
+              <button onClick={resetForm} className="p-1.5 rounded-full hover:bg-white/20 transition-colors">
+                <X className="w-5 h-5 text-white" />
+              </button>
             </div>
 
-            <div className="form-group">
-              <label htmlFor="date">Tanggal <span style={{ color: 'red' }}>*</span></label>
-              <input
-                type="date"
-                id="date"
-                name="date"
-                value={formData.date}
-                onChange={handleInputChange}
-                required
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="subject">Mata Pelajaran <span style={{ color: 'red' }}>*</span></label>
-              <input
-                type="text"
-                id="subject"
-                name="subject"
-                value={formData.subject}
-                onChange={handleInputChange}
-                required
-                placeholder="Contoh: Matematika, IPA, dll"
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="material">Materi yang Diajarkan</label>
-              <textarea
-                id="material"
-                name="material"
-                value={formData.material}
-                onChange={handleInputChange}
-                rows="3"
-                placeholder="Jelaskan materi yang Anda ajarkan hari ini..."
-              />
-            </div>
-
-            <div className="form-group">
-              <label htmlFor="notes">Catatan</label>
-              <textarea
-                id="notes"
-                name="notes"
-                value={formData.notes}
-                onChange={handleInputChange}
-                rows="3"
-                placeholder="Catatan tambahan (opsional)..."
-              />
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-              <div className="form-group">
-                <label htmlFor="duration_minutes">Durasi (menit)</label>
-                <input
-                  type="number"
-                  id="duration_minutes"
-                  name="duration_minutes"
-                  value={formData.duration_minutes}
+            <form onSubmit={handleSubmit} className="p-6 space-y-5">
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">
+                  Kelas <span className="text-error">*</span>
+                </label>
+                <select
+                  name="class_id"
+                  value={formData.class_id}
                   onChange={handleInputChange}
-                  min="1"
-                  max="480"
+                  required
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
+                >
+                  <option value="">-- Pilih Kelas --</option>
+                  {classes.map(cls => (
+                    <option key={cls.id} value={cls.id}>
+                      {cls.name} ({cls.education_level?.toUpperCase()} - Kelas {cls.grade_level})
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-label-lg font-medium text-on-surface mb-1.5">
+                    Tanggal <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleInputChange}
+                    required
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-label-lg font-medium text-on-surface mb-1.5">
+                    Mata Pelajaran <span className="text-error">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    name="subject"
+                    value={formData.subject}
+                    onChange={handleInputChange}
+                    required
+                    placeholder="Contoh: Matematika, IPA"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">Materi yang Diajarkan</label>
+                <textarea
+                  name="material"
+                  value={formData.material}
+                  onChange={handleInputChange}
+                  rows={3}
+                  placeholder="Jelaskan materi yang Anda ajarkan hari ini..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md resize-none"
                 />
               </div>
 
-              <div className="form-group">
-                <label htmlFor="teaching_method">Metode Pengajaran</label>
-                <input
-                  type="text"
-                  id="teaching_method"
-                  name="teaching_method"
-                  value={formData.teaching_method}
+              <div>
+                <label className="block text-label-lg font-medium text-on-surface mb-1.5">Catatan</label>
+                <textarea
+                  name="notes"
+                  value={formData.notes}
                   onChange={handleInputChange}
-                  placeholder="Contoh: Ceramah, Diskusi, Demonstrasi"
+                  rows={3}
+                  placeholder="Catatan tambahan (opsional)..."
+                  className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md resize-none"
                 />
               </div>
-            </div>
 
-            <div className="form-actions">
-              <button type="submit" className="btn btn-primary">
-                <Save size={18} style={{ marginRight: '8px' }} />
-                {editingJournal ? 'Perbarui' : 'Simpan'}
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={resetForm}>
-                Batal
-              </button>
-            </div>
-          </form>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-label-lg font-medium text-on-surface mb-1.5">Durasi (menit)</label>
+                  <input
+                    type="number"
+                    name="duration_minutes"
+                    value={formData.duration_minutes}
+                    onChange={handleInputChange}
+                    min="1" max="480"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
+                  />
+                </div>
+                <div>
+                  <label className="block text-label-lg font-medium text-on-surface mb-1.5">Metode Pengajaran</label>
+                  <input
+                    type="text"
+                    name="teaching_method"
+                    value={formData.teaching_method}
+                    onChange={handleInputChange}
+                    placeholder="Contoh: Ceramah, Diskusi"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
+                  />
+                </div>
+              </div>
+
+              <div className="flex gap-sm pt-2 border-t border-outline-variant">
+                <button type="submit" className="flex-1 inline-flex items-center justify-center gap-xs px-4 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium">
+                  <FileText className="w-4 h-4" />
+                  {editingJournal ? 'Perbarui' : 'Simpan'}
+                </button>
+                <button type="button" onClick={resetForm} className="px-4 py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-lg">
+                  Batal
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      <div className="dashboard-content">
-        <section className="dashboard-section">
-          <h2>
-            <Calendar size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Daftar Jurnal Mengajar
-          </h2>
+      {/* Journal List */}
+      <div className="bg-surface rounded-2xl shadow-sm border border-outline-variant p-4 md:p-6">
+        <h2 className="text-title-md font-semibold text-on-surface flex items-center gap-sm mb-md">
+          <Calendar className="w-5 h-5 text-primary" />
+          Daftar Jurnal Mengajar
+          <span className="bg-primary-container text-on-primary-container text-label-sm px-2 py-0.5 rounded-full ml-auto">
+            {journals.length}
+          </span>
+        </h2>
 
-          {journals.length > 0 ? (
-            <div className="cards-grid">
-              {journals.map(journal => (
-                <div key={journal.id} className="card">
-                  <div className="card-header">
-                    <span className="course-code">
-                      <BookOpen size={16} style={{ marginRight: '4px' }} />
-                      {journal.classes?.name || 'Kelas Tidak Diketahui'}
-                    </span>
-                    <span className="course-icon">
-                      <Calendar size={16} />
-                    </span>
-                  </div>
-                  <h3>{journal.subject}</h3>
-                  <p style={{ fontSize: '0.9rem', color: '#6b7280' }}>
-                    <Calendar size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
+        {journals.length > 0 ? (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+            {journals.map(journal => (
+              <div key={journal.id} className="bg-surface-dim/30 rounded-xl border border-outline-variant hover:border-primary/30 hover:shadow-md transition-all duration-300 p-4 group">
+                {/* Card Header */}
+                <div className="flex items-center justify-between mb-3">
+                  <span className="inline-flex items-center gap-1 text-label-sm text-primary bg-primary-container/50 px-2.5 py-1 rounded-full">
+                    <GraduationCap className="w-3.5 h-3.5" />
+                    {journal.classes?.name || 'Kelas Tidak Diketahui'}
+                  </span>
+                  <span className="text-label-xs text-on-surface-variant">
                     {new Date(journal.date).toLocaleDateString('id-ID')}
+                  </span>
+                </div>
+
+                <h3 className="text-title-sm font-semibold text-on-surface mb-2">{journal.subject}</h3>
+
+                <div className="space-y-1.5 text-body-sm text-on-surface-variant">
+                  <p className="flex items-center gap-1.5">
+                    <Clock className="w-3.5 h-3.5 shrink-0" />
+                    <span>{journal.duration_minutes} menit</span>
                   </p>
-                  <p style={{ fontSize: '0.9rem', color: '#6b7280' }}>
-                    <Clock size={14} style={{ marginRight: '4px', verticalAlign: 'middle' }} />
-                    {journal.duration_minutes} menit
-                  </p>
-                  {journal.material && (
-                    <p style={{ marginTop: '0.5rem' }}>
-                      {journal.material.substring(0, 80)}...
+                  {journal.teaching_method && (
+                    <p className="flex items-center gap-1.5">
+                      <BookOpen className="w-3.5 h-3.5 shrink-0" />
+                      <span>Metode: {journal.teaching_method}</span>
                     </p>
                   )}
-                  <div className="card-actions" style={{ marginTop: '1rem' }}>
-                    <button 
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => handlePrint(journal)}
-                      title="Cetak Jurnal"
-                    >
-                      <Printer size={16} />
-                    </button>
-                    <button 
-                      className="btn btn-secondary btn-sm"
-                      onClick={() => handleEdit(journal)}
-                    >
-                      <FileText size={16} />
-                    </button>
-                    <button 
-                      className="btn btn-danger btn-sm"
-                      onClick={() => handleDelete(journal.id)}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
+                  {journal.material && (
+                    <p className="text-body-sm text-on-surface-variant/70 line-clamp-2 mt-1">
+                      {journal.material}
+                    </p>
+                  )}
                 </div>
-              ))}
-            </div>
-          ) : (
-            <div className="empty-state">
-              <span className="empty-icon"><ClipboardList size={48} /></span>
-              <p>Belum ada jurnal mengajar.</p>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                Klik tombol "Tambah Jurnal" untuk membuat jurnal pertama Anda.
-              </p>
-            </div>
-          )}
-        </section>
+
+                {/* Card Actions */}
+                <div className="flex items-center justify-end gap-2 mt-4 pt-3 border-t border-outline-variant opacity-0 group-hover:opacity-100 transition-opacity duration-200">
+                  <button
+                    onClick={() => handlePrint(journal)}
+                    className="p-2 rounded-full bg-surface-dim hover:bg-surface-dim/80 transition-colors text-on-surface-variant"
+                    title="Cetak Jurnal"
+                  >
+                    <Printer className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleEdit(journal)}
+                    className="p-2 rounded-full bg-primary-container text-on-primary-container hover:bg-primary-container/80 transition-colors"
+                    title="Edit Jurnal"
+                  >
+                    <FileText className="w-4 h-4" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(journal.id)}
+                    className="p-2 rounded-full bg-error-container text-on-error-container hover:bg-error-container/80 transition-colors"
+                    title="Hapus Jurnal"
+                  >
+                    <Trash2 className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <ClipboardList className="w-16 h-16 mx-auto text-on-surface-variant/30 mb-4" />
+            <p className="text-body-lg text-on-surface-variant mb-2">Belum ada jurnal mengajar.</p>
+            <p className="text-body-sm text-on-surface-variant/70">
+              Klik tombol "Tambah Jurnal" untuk membuat jurnal pertama Anda.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

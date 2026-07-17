@@ -4,15 +4,16 @@ import { supabase } from '../lib/supabaseClient';
 import { StudentSubmission } from './AssignmentModule';
 import AnnouncementModule from '../modules/AnnouncementModule';
 import ProfileModule from '../modules/ProfileModule';
-import MessagingPage from '../modules/MessagingModule';
 import StudentProgressModule from '../modules/StudentProgressModule';
 import ExamModule from '../modules/exams/pages/ExamModule';
 import LoadingSpinner from '../components/common/LoadingSpinner';
+import MessagingPage from '../modules/MessagingModule';
 import {
-  BookOpen, FileText, Bell, Mail, User, BarChart3,
-  CheckCircle, Clock, RefreshCw, ChevronRight, LogOut,
-  Award, GraduationCap, Calendar, FolderOpen, Eye,
-  AlertTriangle, Plus, Search, Grid, List, FileCheck
+  BookOpen, FileText, Bell, BarChart3,
+  CheckCircle, Clock, RefreshCw,
+  GraduationCap, Calendar, Eye,
+  AlertCircle, Search,
+  TrendingUp
 } from 'lucide-react';
 
 const StudentDashboard = ({ activeSection = 'dashboard-murid', onNavigate }) => {
@@ -447,12 +448,13 @@ const StudentDashboard = ({ activeSection = 'dashboard-murid', onNavigate }) => 
 
   if (error) {
     return (
-      <div className="dashboard-container">
-        <div className="error-message">
-          <span className="error-icon">⚠️</span>
-          {error}
+      <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+        <div className="flex items-center gap-sm p-md rounded-xl bg-error-container border border-error/20 mb-md">
+          <AlertCircle size={20} className="text-error shrink-0" />
+          <p className="text-body-sm font-body text-on-error-container">{error}</p>
         </div>
-        <button onClick={handleRefresh} className="btn btn-primary" style={{ marginTop: '1rem' }}>
+        <button onClick={handleRefresh} className="flex items-center gap-sm py-sm px-md rounded-xl bg-primary text-on-primary font-label-md hover:bg-primary-container hover:text-on-primary-container transition-all">
+          <RefreshCw size={18} className={refreshing ? 'animate-spin' : ''} />
           Coba Lagi
         </button>
       </div>
@@ -460,25 +462,7 @@ const StudentDashboard = ({ activeSection = 'dashboard-murid', onNavigate }) => 
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
-        <div>
-          <h1>
-            <GraduationCap size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
-            Dasbor Murid
-          </h1>
-          <p>Selamat datang, {profile?.display_name || user?.email?.split('@')[0] || 'Murid'}</p>
-        </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button 
-            onClick={handleRefresh} 
-            className="btn btn-secondary"
-            disabled={refreshing}
-          >
-            {refreshing ? <RefreshCw size={18} className="spinning" /> : <RefreshCw size={18} />} Refresh
-          </button>
-        </div>
-      </div>
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto w-full flex flex-col gap-lg">
       {renderContent()}
     </div>
   );
@@ -487,8 +471,7 @@ const StudentDashboard = ({ activeSection = 'dashboard-murid', onNavigate }) => 
 
 const DashboardOverview = ({ stats, courses, assignments, submissions = [], notifications = [], onRefresh, refreshing, onNotificationClick }) => {
   const unreadCount = notifications.filter(n => !n.is_read).length || 0;
-  
-  // Get time-based greeting
+
   const currentHour = new Date().getHours();
   const getGreeting = () => {
     if (currentHour < 12) return 'Selamat Pagi';
@@ -496,8 +479,7 @@ const DashboardOverview = ({ stats, courses, assignments, submissions = [], noti
     if (currentHour < 18) return 'Selamat Sore';
     return 'Selamat Malam';
   };
-   
-  // Get upcoming assignments (not submitted and not overdue)
+
   const upcomingAssignments = assignments
     .filter(a => {
       const isSubmitted = submissions.some(s => s?.assignment_id === a.id);
@@ -507,363 +489,288 @@ const DashboardOverview = ({ stats, courses, assignments, submissions = [], noti
     .slice(0, 3);
 
   return (
-    <div className="dashboard-content">
-      {/* Welcome Message */}
-      <div style={{
-        background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
-        borderRadius: '16px',
-        padding: '2rem 1.5rem',
-        color: 'white',
-        marginBottom: '2rem',
-        textAlign: 'center'
-      }}>
-        <h1 style={{
-          margin: '0 0 0.5rem 0',
-          fontSize: 'clamp(1.25rem, 4vw, 1.75rem)',
-          lineHeight: 1.2
-        }}>
-          {getGreeting()} 👋
-        </h1>
-        <p style={{
-          margin: 0,
-          fontSize: 'clamp(0.9rem, 3vw, 1.1rem)',
-          opacity: 0.9,
-          lineHeight: 1.4
-        }}>
-          Hai Murid! Selamat belajar. Semangat mencapai prestasi terbaikmu!
-        </p>
+    <div className="flex flex-col gap-lg">
+      {/* Welcome Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-md">
+        <div>
+          <h2 className="text-headline-lg font-display text-on-background flex items-center gap-sm">
+            <GraduationCap size={28} className="text-secondary" />
+            Dasbor Murid
+          </h2>
+          <p className="text-body-md font-body text-on-surface-variant mt-1">
+            Selamat datang kembali! Siap untuk belajar hari ini?
+          </p>
+        </div>
+        <button
+          onClick={onRefresh}
+          disabled={refreshing}
+          className="flex items-center gap-xs bg-surface-container px-sm py-xs rounded-xl text-primary font-label-md font-label hover:bg-primary/10 transition-colors border border-primary/20"
+        >
+          <RefreshCw size={16} className={refreshing ? 'animate-spin' : ''} />
+          Refresh Data
+        </button>
       </div>
 
-      <section className="dashboard-stats">
-        <h2>
-            <BarChart3 size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Statistik Saya
-          </h2>
-        <div className="stats-grid">
-          <div className="stat-card">
-            <div className="stat-icon">📚</div>
-            <h3>{stats.enrolledCourses}</h3>
-            <p>Kursus Diambil</p>
+      {/* Welcome Banner */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-primary to-surface-tint p-xl shadow-[0px_10px_30px_rgba(53,37,205,0.2)]">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full blur-3xl -translate-y-1/2 translate-x-1/4" />
+        <div className="absolute bottom-0 left-10 w-40 h-40 bg-secondary-container/20 rounded-full blur-2xl translate-y-1/2" />
+        <div className="relative z-10 flex flex-col items-center justify-center text-center py-sm">
+          <h3 className="text-headline-md font-display text-white mb-2 flex items-center gap-2">
+            {getGreeting()} <span className="text-2xl inline-block animate-bounce">👋</span>
+          </h3>
+          <p className="text-body-md font-body text-primary-fixed max-w-xl">
+            Hai Murid! Selamat belajar. Semangat mencapai prestasi terbaikmu di KSI-ON LMS!
+          </p>
+        </div>
+      </div>
+
+      {/* Stats Grid - Bento Style */}
+      <div>
+        <h3 className="text-title-lg font-title text-on-background flex items-center gap-xs mb-md">
+          <BarChart3 size={20} className="text-outline" />
+          Statistik Saya
+        </h3>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-md">
+          {/* Stat 1: Enrolled Courses */}
+          <div className="bg-surface rounded-xl p-md border border-outline-variant/30 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] flex flex-col items-center justify-center text-center relative overflow-hidden group hover:shadow-[0px_10px_30px_rgba(0,0,0,0.08)] transition-all">
+            <div className="w-12 h-12 rounded-full bg-secondary-container/30 flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
+              <BookOpen size={24} className="text-secondary fill-current" />
+            </div>
+            <h4 className="text-3xl font-display font-bold text-on-background mb-1">{stats.enrolledCourses}</h4>
+            <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-wider">Kursus Diambil</p>
+            <div className="absolute bottom-0 left-0 h-1 bg-secondary w-full scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
           </div>
-          <div className="stat-card">
-            <div className="stat-icon">✅</div>
-            <h3>{stats.completedAssignments}</h3>
-            <p>Tugas Selesai</p>
+
+          {/* Stat 2: Completed Assignments */}
+          <div className="bg-surface rounded-xl p-md border border-outline-variant/30 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] flex flex-col items-center justify-center text-center relative overflow-hidden group hover:shadow-[0px_10px_30px_rgba(0,0,0,0.08)] transition-all">
+            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
+              <CheckCircle size={24} className="text-emerald-600 fill-current" />
+            </div>
+            <h4 className="text-3xl font-display font-bold text-on-background mb-1">{stats.completedAssignments}</h4>
+            <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-wider">Tugas Selesai</p>
+            <div className="absolute bottom-0 left-0 h-1 bg-emerald-500 w-full scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
           </div>
-          <div className="stat-card">
-            <div className="stat-icon"><Clock size={24} /></div>
-            <h3>{stats.pendingAssignments}</h3>
-            <p>Menunggu Nilai</p>
+
+          {/* Stat 3: Pending Grades */}
+          <div className="bg-surface rounded-xl p-md border border-outline-variant/30 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] flex flex-col items-center justify-center text-center relative overflow-hidden group hover:shadow-[0px_10px_30px_rgba(0,0,0,0.08)] transition-all">
+            <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
+              <Clock size={24} className="text-amber-600" />
+            </div>
+            <h4 className="text-3xl font-display font-bold text-on-background mb-1">{stats.pendingAssignments}</h4>
+            <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-wider">Menunggu Nilai</p>
+            <div className="absolute bottom-0 left-0 h-1 bg-amber-500 w-full scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
           </div>
-          <div className="stat-card">
-            <div className="stat-icon">📊</div>
-            <h3>{stats.averageGrade}%</h3>
-            <p>Rata-rata Nilai</p>
+
+          {/* Stat 4: Average Grade */}
+          <div className="bg-surface rounded-xl p-md border border-outline-variant/30 shadow-[0px_4px_20px_rgba(0,0,0,0.03)] flex flex-col items-center justify-center text-center relative overflow-hidden group hover:shadow-[0px_10px_30px_rgba(0,0,0,0.08)] transition-all">
+            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
+              <TrendingUp size={24} className="text-primary" />
+            </div>
+            <h4 className="text-3xl font-display font-bold text-primary mb-1">{stats.averageGrade}%</h4>
+            <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-wider">Rata-rata Nilai</p>
+            <div className="absolute bottom-0 left-0 h-1 bg-primary w-full scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
           </div>
         </div>
-      </section>
+      </div>
 
-      {notifications && notifications.length > 0 && (
-        <section className="dashboard-section">
-          <h2>
-            <Bell size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Notifikasi 
-            {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
-          </h2>
-          <div className="notifications-list">
-            {notifications.slice(0, 5).map(notification => (
-              <div 
-                key={notification?.id} 
-                className={`notification-item ${!notification?.is_read ? 'unread' : ''}`}
+      {/* Two Column: Notifications & Tasks */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-lg pb-xl">
+        {/* Notifications Column */}
+        <div className="flex flex-col gap-md">
+          <div className="flex items-center justify-between border-b border-outline-variant/50 pb-sm">
+            <h3 className="text-title-lg font-title text-on-background flex items-center gap-xs">
+              <Bell size={20} className="text-error fill-current" />
+              Notifikasi
+              {unreadCount > 0 && <span className="bg-error text-on-error text-label-sm font-label px-2 py-0.5 rounded-full ml-1">{unreadCount}</span>}
+            </h3>
+          </div>
+          <div className="flex flex-col gap-sm">
+            {notifications.length > 0 ? notifications.slice(0, 5).map((notification) => (
+              <div
+                key={notification?.id}
                 onClick={() => onNotificationClick && onNotificationClick(notification)}
-                style={{ cursor: 'pointer' }}
+                className={`rounded-xl p-md border hover:border-primary/30 transition-colors flex gap-md items-start shadow-sm cursor-pointer ${
+                  !notification?.is_read ? 'bg-surface-container-low border-outline-variant/20' : 'bg-surface border-outline-variant/20 opacity-80'
+                }`}
               >
-                <span className="notification-icon">
-                  {notification?.type === 'assignment' ? '📝' :
-                   notification?.type === 'grade' ? '📝' : 
+                <span className="mt-1 text-lg">
+                  {notification?.type === 'assignment' || notification?.type === 'grade' ? '📝' :
                    notification?.type === 'submission' ? '📤' :
-                   notification?.type === 'announcement' ? '📢' : 
+                   notification?.type === 'announcement' ? '📢' :
                    notification?.type === 'enrollment' ? '🎉' :
                    notification?.type === 'reminder' ? '⏰' : '🔔'}
                 </span>
-                <div className="notification-content">
-                  <p>{notification?.message}</p>
-                  <small>{notification?.created_at ? new Date(notification.created_at).toLocaleString() : '-'}</small>
+                <div className="flex-1 min-w-0">
+                  <p className="text-title-md font-title text-on-background line-clamp-1">{notification?.message}</p>
+                  <p className="text-label-sm text-[11px] text-outline mt-2 flex items-center gap-1">
+                    <Clock size={14} />
+                    {notification?.created_at ? new Date(notification.created_at).toLocaleString() : '-'}
+                  </p>
                 </div>
               </div>
-            ))}
-          </div>
-        </section>
-      )}
-
-      <section className="dashboard-section">
-        <h2>📅 Tugas Mendatang</h2>
-        {upcomingAssignments.length > 0 ? (
-          <div className="cards-grid">
-            {upcomingAssignments.map(assignment => (
-              <div key={assignment.id} className="card">
-                <h3>{assignment.title}</h3>
-                <p>{assignment.description?.substring(0, 100)}...</p>
-                <div className="card-footer">
-                  <small><Calendar size={14} style={{ marginRight: '4px' }} /> Batas: {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : '-'}</small>
-                  <small><FileText size={14} style={{ marginRight: '4px' }} /> Max: {assignment.max_points} poin</small>
-                </div>
+            )) : (
+              <div className="flex flex-col items-center justify-center py-xl text-center opacity-60">
+                <Bell size={40} className="text-outline mb-sm" />
+                <p className="text-body-sm font-body text-on-surface-variant">Belum ada notifikasi</p>
               </div>
-            ))}
+            )}
           </div>
-        ) : (
-          <div className="empty-state">
-            <span className="empty-icon">✅</span>
-            <p>Tidak ada tugas mendatang! 🎉</p>
-          </div>
-        )}
-      </section>
+        </div>
 
-      <section className="dashboard-section">
-        <h2>📚 Kursus Saya</h2>
+        {/* Tasks Column */}
+        <div className="flex flex-col gap-md">
+          <div className="flex items-center justify-between border-b border-outline-variant/50 pb-sm">
+            <h3 className="text-title-lg font-title text-on-background flex items-center gap-xs">
+              <FileText size={20} className="text-secondary" />
+              Tugas Mendatang
+            </h3>
+          </div>
+          {upcomingAssignments.length > 0 ? (
+            <div className="flex flex-col gap-sm">
+              {upcomingAssignments.map((assignment) => (
+                <div key={assignment.id} className="bg-surface rounded-xl p-md border border-outline-variant/30 hover:border-primary/30 transition-colors shadow-sm">
+                  <h4 className="text-title-md font-title text-on-background mb-1">{assignment.title}</h4>
+                  <p className="text-body-sm font-body text-on-surface-variant line-clamp-2 mb-sm">{assignment.description}</p>
+                  <div className="flex items-center gap-md text-label-sm text-outline">
+                    <span className="flex items-center gap-1"><Calendar size={14} /> {assignment.due_date ? new Date(assignment.due_date).toLocaleDateString() : '-'}</span>
+                    <span className="flex items-center gap-1"><FileText size={14} /> {assignment.max_points} poin</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-surface rounded-xl border border-dashed border-outline-variant flex flex-col items-center justify-center p-xl text-center min-h-[200px]">
+              <div className="w-16 h-16 bg-emerald-50 rounded-full flex items-center justify-center mb-md border-4 border-white shadow-sm">
+                <CheckCircle size={36} className="text-emerald-500 fill-current" />
+              </div>
+              <h4 className="text-title-md font-title text-on-background mb-1">Semua tugas selesai!</h4>
+              <p className="text-body-sm font-body text-on-surface-variant max-w-[250px]">Tidak ada tugas mendatang. Nikmati waktu luang Anda! 🏖️</p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* My Courses Section */}
+      <div className="pb-xl">
+        <h3 className="text-title-lg font-title text-on-background flex items-center gap-xs mb-md">
+          <BookOpen size={20} className="text-outline" />
+          Kursus Saya
+        </h3>
         {courses.length > 0 ? (
-          <div className="cards-grid">
-            {courses.slice(0, 3).map(course => (
-              <div key={course.id} className="card card-course">
-                {course.thumbnail_url && (
-                  <img 
-                    src={course.thumbnail_url} 
-                    alt={course.title}
-                    style={{ width: '100%', height: '100px', objectFit: 'cover', borderRadius: '8px 8px 0 0' }}
-                  />
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
+            {courses.slice(0, 6).map((course) => (
+              <div key={course.id} className="bg-surface rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden group hover:shadow-[0px_8px_30px_rgba(0,0,0,0.08)] transition-all hover:-translate-y-0.5">
+                {course.thumbnail_url ? (
+                  <img src={course.thumbnail_url} alt={course.title} className="w-full h-32 object-cover" />
+                ) : (
+                  <div className="w-full h-32 bg-gradient-to-br from-primary/10 to-secondary-container/30 flex items-center justify-center">
+                    <BookOpen size={40} className="text-primary/40" />
+                  </div>
                 )}
-                <div className="card-header">
-                  <span className="course-code">{course.title?.substring(0, 3).toUpperCase() || 'KURSUS'}</span>
-                  <span className="course-icon">📚</span>
+                <div className="p-md">
+                  <h4 className="text-title-md font-title text-on-background mb-1 line-clamp-1">{course.title}</h4>
+                  <p className="text-body-sm font-body text-on-surface-variant line-clamp-2 mb-sm">{course.description}</p>
+                  {course.instructor && (
+                    <p className="text-label-sm font-label text-outline">👨‍🏫 {course.instructor}</p>
+                  )}
                 </div>
-                <h3>{course.title}</h3>
-                <p>{course.description?.substring(0, 60)}...</p>
-                {course.instructor && (
-                  <small style={{ color: '#6b7280' }}>👨‍🏫 {course.instructor}</small>
-                )}
               </div>
             ))}
           </div>
         ) : (
-          <div className="empty-state">
-            <span className="empty-icon">📚</span>
-            <p>Anda belum terdaftar di kursus.</p>
+          <div className="bg-surface rounded-xl border border-dashed border-outline-variant flex flex-col items-center justify-center p-xl text-center">
+            <BookOpen size={48} className="text-outline/60 mb-md" />
+            <h4 className="text-title-md font-title text-on-background mb-1">Belum Ada Kursus</h4>
+            <p className="text-body-sm font-body text-on-surface-variant">Anda belum terdaftar di kursus manapun.</p>
           </div>
         )}
-      </section>
+      </div>
     </div>
   );
 };
 
 // Courses View Component
 const CoursesView = ({ courses, materials, onRefresh, refreshing, onNavigate }) => {
-  const [viewMode, setViewMode] = useState('grid');
   const [searchQuery, setSearchQuery] = useState('');
-  
-  // Filter courses based on search
+
   const filteredCourses = courses.filter(course =>
     course.title?.toLowerCase().includes(searchQuery.toLowerCase()) ||
     course.description?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   return (
-    <div className="dashboard-content courses-view">
-      {/* Hero Section */}
-      <div className="courses-hero">
-        <div className="hero-content">
-          <div className="hero-icon">
-            <BookOpen size={32} />
+    <div className="flex flex-col gap-lg">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md bg-gradient-to-r from-primary/5 to-surface-container-low rounded-2xl p-lg border border-primary/10">
+        <div className="flex items-center gap-md">
+          <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center">
+            <BookOpen size={28} className="text-primary" />
           </div>
-          <div className="hero-text">
-            <h1>Kursus Saya</h1>
-            <p>Jelajahi dan pelajari materi dari kursus yang Anda ambil</p>
-          </div>
-        </div>
-        <div className="hero-stats">
-          <div className="hero-stat-item">
-            <span className="hero-stat-number">{courses.length}</span>
-            <span className="hero-stat-label">Total Kursus</span>
-          </div>
-          <div className="hero-stat-item">
-            <span className="hero-stat-number">{materials.length}</span>
-            <span className="hero-stat-label">Total Materi</span>
+          <div>
+            <h2 className="text-headline-md font-display font-semibold text-on-surface">Kursus Saya</h2>
+            <p className="text-body-sm font-body text-on-surface-variant">Jelajahi dan pelajari materi dari kursus yang Anda ambil</p>
           </div>
         </div>
-      </div>
-
-      {/* Search and Filter Bar */}
-      <div className="courses-toolbar" style={{
-        display: 'flex',
-        flexDirection: 'column',
-        gap: '1rem',
-        marginBottom: '2rem'
-      }}>
-        <div className="search-box" style={{
-          position: 'relative',
-          width: '100%'
-        }}>
-          <Search size={18} className="search-icon" style={{
-            position: 'absolute',
-            left: '0.75rem',
-            top: '50%',
-            transform: 'translateY(-50%)',
-            color: '#6b7280',
-            zIndex: 1
-          }} />
-          <input
-            type="text"
-            placeholder="Cari kursus..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            style={{
-              width: '100%',
-              padding: '0.75rem 0.75rem 0.75rem 2.5rem',
-              border: '1px solid #d1d5db',
-              borderRadius: '8px',
-              fontSize: '1rem',
-              background: 'white',
-              outline: 'none',
-              transition: 'border-color 0.2s ease'
-            }}
-            onFocus={(e) => e.target.style.borderColor = '#8b5cf6'}
-            onBlur={(e) => e.target.style.borderColor = '#d1d5db'}
-          />
-        </div>
-        <div className="view-toggle" style={{
-          display: 'flex',
-          justifyContent: 'center',
-          gap: '0.5rem'
-        }}>
-          <button
-            className={`view-btn ${viewMode === 'grid' ? 'active' : ''}`}
-            onClick={() => setViewMode('grid')}
-            title="Tampilan Grid"
-            style={{
-              padding: '0.5rem',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              background: viewMode === 'grid' ? '#8b5cf6' : 'white',
-              color: viewMode === 'grid' ? 'white' : '#6b7280',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              minWidth: '44px',
-              minHeight: '44px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <Grid size={18} />
-          </button>
-          <button
-            className={`view-btn ${viewMode === 'list' ? 'active' : ''}`}
-            onClick={() => setViewMode('list')}
-            title="Tampilan List"
-            style={{
-              padding: '0.5rem',
-              border: '1px solid #d1d5db',
-              borderRadius: '6px',
-              background: viewMode === 'list' ? '#8b5cf6' : 'white',
-              color: viewMode === 'list' ? 'white' : '#6b7280',
-              cursor: 'pointer',
-              transition: 'all 0.2s ease',
-              minWidth: '44px',
-              minHeight: '44px',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center'
-            }}
-          >
-            <List size={18} />
-          </button>
+        <div className="flex items-center gap-md">
+          <div className="text-center px-md py-sm bg-surface rounded-xl border border-outline-variant/30">
+            <p className="text-headline-md font-display font-bold text-primary">{courses.length}</p>
+            <p className="text-label-sm font-label text-outline">Kursus</p>
+          </div>
+          <div className="text-center px-md py-sm bg-surface rounded-xl border border-outline-variant/30">
+            <p className="text-headline-md font-display font-bold text-secondary">{materials.length}</p>
+            <p className="text-label-sm font-label text-outline">Materi</p>
+          </div>
         </div>
       </div>
 
-      {/* Courses Grid/List */}
+      {/* Search */}
+      <div className="relative">
+        <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-outline" />
+        <input
+          type="text"
+          placeholder="Cari kursus..."
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+          className="w-full pl-xl pr-md py-sm rounded-xl border border-outline-variant bg-surface-container-low text-body-md font-body text-on-surface placeholder:text-outline/60 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 outline-none"
+        />
+      </div>
+
+      {/* Course Cards */}
       {filteredCourses.length > 0 ? (
-        <div className={`courses-${viewMode}`}>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-md">
           {filteredCourses.map((course, index) => {
             const courseMaterials = materials.filter(m => m.course_id === course.id);
-            const completedMaterials = 0; // Could be calculated from progress
-            const progressPercent = courseMaterials.length > 0 
-              ? Math.round((completedMaterials / courseMaterials.length) * 100) 
-              : 0;
-            
             return (
-              <div 
-                key={course.id} 
-                className="course-card-modern"
-                style={{ animationDelay: `${index * 0.05}s` }}
-              >
-                {/* Course Thumbnail */}
-                <div className="course-thumbnail-wrapper">
+              <div key={course.id} className="bg-surface rounded-xl border border-outline-variant/30 overflow-hidden group hover:shadow-[0px_8px_30px_rgba(0,0,0,0.08)] transition-all hover:-translate-y-0.5" style={{ animationDelay: `${index * 0.05}s` }}>
+                {/* Thumbnail */}
+                <div className="relative h-40 overflow-hidden">
                   {course.thumbnail_url ? (
-                    <img 
-                      src={course.thumbnail_url} 
-                      alt={course.title}
-                      className="course-thumbnail-img"
-                    />
+                    <img src={course.thumbnail_url} alt={course.title} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                   ) : (
-                    <div className="course-thumbnail-placeholder">
-                      <BookOpen size={40} />
+                    <div className="w-full h-full bg-gradient-to-br from-primary/20 to-secondary-container/30 flex items-center justify-center">
+                      <BookOpen size={48} className="text-primary/40" />
                     </div>
                   )}
-                  <div className="course-overlay">
-                    <button 
-                      onClick={() => onNavigate && onNavigate(`course-view-${course.id}`)}
-                      className="btn-access-material"
-                    >
-                      <Eye size={18} />
-                      <span>Lihat Materi</span>
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity flex items-end justify-center pb-md">
+                    <button onClick={() => onNavigate && onNavigate(`course-view-${course.id}`)} className="flex items-center gap-1 bg-white/90 text-primary px-md py-xs rounded-full text-label-sm font-label hover:bg-white transition-colors shadow-md">
+                      <Eye size={16} /> Lihat Materi
                     </button>
                   </div>
-                  <div className="course-badge">
+                  <span className="absolute top-2 right-2 bg-surface/90 text-on-surface-variant text-label-sm font-label px-2 py-0.5 rounded-full text-[11px]">
                     {courseMaterials.length} Materi
-                  </div>
+                  </span>
                 </div>
-
-                {/* Course Info */}
-                <div className="course-info-modern">
-                  <h3 className="course-title">{course.title}</h3>
-                  <p className="course-description">
-                    {course.description?.substring(0, 100)}
-                    {course.description?.length > 100 ? '...' : ''}
-                  </p>
-                  
-                  {/* Course Meta */}
-                  <div className="course-meta-modern">
-                    <div className="meta-item">
-                      <User size={14} />
-                      <span>{course.instructor ? course.instructor.split('@')[0] : 'Instruktur'}</span>
-                    </div>
-                    <div className="meta-item">
-                      <FileText size={14} />
-                      <span>{courseMaterials.length} Materi</span>
-                    </div>
+                {/* Info */}
+                <div className="p-md flex flex-col gap-sm">
+                  <h3 className="text-title-md font-title text-on-background line-clamp-1">{course.title}</h3>
+                  <p className="text-body-sm font-body text-on-surface-variant line-clamp-2">{course.description}</p>
+                  <div className="flex items-center gap-md text-label-sm text-outline">
+                    <span>👨‍🏫 {course.instructor ? course.instructor.split('@')[0] : 'Instruktur'}</span>
+                    <span>📄 {courseMaterials.length} Materi</span>
                   </div>
-
-                  {/* Progress Bar */}
-                  <div className="course-progress-section">
-                    <div className="progress-header">
-                      <span>Progress</span>
-                      <span>{progressPercent}%</span>
-                    </div>
-                    <div className="progress-bar-modern">
-                      <div 
-                        className="progress-fill" 
-                        style={{ width: `${progressPercent}%` }}
-                      />
-                    </div>
-                  </div>
-
-                  {/* Action Button */}
-                  <button 
-                    onClick={() => onNavigate && onNavigate(`course-view-${course.id}`)}
-                    className="btn-course-action"
-                  >
-                    <BookOpen size={18} />
-                    <span>Akses Materi</span>
-                    <ChevronRight size={18} />
+                  <button onClick={() => onNavigate && onNavigate(`course-view-${course.id}`)} className="w-full flex items-center justify-center gap-1 py-sm rounded-xl bg-primary/10 text-primary font-label-md font-label hover:bg-primary hover:text-on-primary transition-all duration-200 mt-xs">
+                    <BookOpen size={16} /> Akses Materi
                   </button>
                 </div>
               </div>
@@ -871,19 +778,12 @@ const CoursesView = ({ courses, materials, onRefresh, refreshing, onNavigate }) 
           })}
         </div>
       ) : (
-        <div className="empty-state-modern">
-          <div className="empty-icon-wrapper">
-            <BookOpen size={48} />
-          </div>
-          <h3>Tidak Ada Kursus Ditemukan</h3>
-          <p>
-            {searchQuery 
-              ? 'Tidak ada kursus yang cocok dengan pencarian Anda.'
-              : 'Anda belum terdaftar di kursus mana pun.'}
+        <div className="bg-surface rounded-xl border border-dashed border-outline-variant flex flex-col items-center justify-center p-xl text-center min-h-[300px]">
+          <BookOpen size={48} className="text-outline/60 mb-md" />
+          <h3 className="text-title-md font-title text-on-background mb-1">Tidak Ada Kursus</h3>
+          <p className="text-body-sm font-body text-on-surface-variant max-w-xs">
+            {searchQuery ? 'Tidak ada kursus yang cocok dengan pencarian Anda.' : 'Anda belum terdaftar di kursus mana pun.'}
           </p>
-          {!searchQuery && (
-            <p className="empty-hint">Hubungi guru Anda untuk mendaftar ke kursus.</p>
-          )}
         </div>
       )}
     </div>
@@ -891,111 +791,62 @@ const CoursesView = ({ courses, materials, onRefresh, refreshing, onNavigate }) 
 };
 
 // Progress View Component
-const ProgressView = ({ stats, courses, materials, submissions = [], onRefresh, refreshing }) => {
-  // Calculate progress per course
+const ProgressView = ({ stats, courses, submissions = [], onRefresh, refreshing }) => {
   const courseProgress = courses.map(course => {
-    
-    const completedCount = submissions.filter(s => 
-      s?.courses?.id === course.id && s.grade !== null
-    ).length;
-    
-    const totalAssignments = submissions.filter(s => 
-      s?.courses?.id === course.id
-    ).length;
-
+    const completedCount = submissions.filter(s => s?.courses?.id === course.id && s.grade !== null).length;
+    const totalAssignments = submissions.filter(s => s?.courses?.id === course.id).length;
     return {
       ...course,
       completedAssignments: completedCount,
       totalAssignments,
-      progressPercentage: totalAssignments > 0 
-        ? Math.round((completedCount / totalAssignments) * 100) 
-        : 0
+      progressPercentage: totalAssignments > 0 ? Math.round((completedCount / totalAssignments) * 100) : 0
     };
   });
 
   return (
-    <div className="dashboard-content">
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #6d28d9 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '1.5rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>📈 Progress Kursus</h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Pantau perkembangan dan prestasi belajar Anda.
-        </p>
+    <div className="flex flex-col gap-lg">
+      <div className="bg-gradient-to-r from-primary to-surface-tint rounded-2xl p-xl text-center shadow-[0px_10px_30px_rgba(53,37,205,0.15)]">
+        <h2 className="text-headline-md font-display text-white mb-sm">📈 Progress Kursus</h2>
+        <p className="text-body-md font-body text-primary-fixed/90">Pantau perkembangan dan prestasi belajar Anda.</p>
       </div>
 
-      <section className="dashboard-section">
-        <div className="section-header">
-          <h2>📈 Progress Kursus</h2>
-          <button onClick={onRefresh} className="btn btn-secondary btn-sm" disabled={refreshing}>
-            {refreshing ? '↻' : '🔄'} Refresh
-          </button>
+      <div className="grid grid-cols-3 gap-md">
+        <div className="bg-surface rounded-xl p-md border border-outline-variant/30 text-center">
+          <p className="text-3xl font-display font-bold text-primary">{stats.enrolledCourses}</p>
+          <p className="text-label-sm font-label text-outline uppercase tracking-wider">Kursus</p>
         </div>
-
-        <div className="stats-grid" style={{ marginBottom: '2rem' }}>
-          <div className="stat-card">
-            <div className="stat-icon">📚</div>
-            <h3>{stats.enrolledCourses}</h3>
-            <p>Kursus Diambil</p>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon">✅</div>
-            <h3>{stats.completedAssignments}</h3>
-            <p>Tugas Selesai</p>
-          </div>
-          <div className="stat-card">
-            <div className="stat-icon">📊</div>
-            <h3>{stats.averageGrade}%</h3>
-            <p>Rata-rata Nilai</p>
-          </div>
+        <div className="bg-surface rounded-xl p-md border border-outline-variant/30 text-center">
+          <p className="text-3xl font-display font-bold text-emerald-600">{stats.completedAssignments}</p>
+          <p className="text-label-sm font-label text-outline uppercase tracking-wider">Selesai</p>
         </div>
+        <div className="bg-surface rounded-xl p-md border border-outline-variant/30 text-center">
+          <p className="text-3xl font-display font-bold text-primary">{stats.averageGrade}%</p>
+          <p className="text-label-sm font-label text-outline uppercase tracking-wider">Rata-rata</p>
+        </div>
+      </div>
 
-        {courseProgress.length > 0 ? (
-          <div className="cards-grid">
-            {courseProgress.map(course => (
-              <div key={course.id} className="card">
-                <h3>{course.title}</h3>
-                <p>{course.description?.substring(0, 60)}...</p>
-                
-                <div style={{ marginTop: '1rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-                    <small>Progress Tugas</small>
-                    <small>{course.completedAssignments}/{course.totalAssignments}</small>
-                  </div>
-                  <div style={{ 
-                    background: '#e5e7eb', 
-                    borderRadius: '9999px', 
-                    height: '8px',
-                    overflow: 'hidden'
-                  }}>
-                    <div style={{ 
-                      width: `${course.progressPercentage}%`,
-                      background: course.progressPercentage === 100 ? '#10b981' : '#3b82f6',
-                      height: '100%',
-                      borderRadius: '9999px',
-                      transition: 'width 0.3s ease'
-                    }} />
-                  </div>
-                  <small style={{ display: 'block', marginTop: '0.25rem', textAlign: 'right' }}>
-                    {course.progressPercentage}%
-                  </small>
-                </div>
+      {courseProgress.length > 0 ? (
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-md">
+          {courseProgress.map(course => (
+            <div key={course.id} className="bg-surface rounded-xl p-md border border-outline-variant/30">
+              <h3 className="text-title-md font-title text-on-background mb-1">{course.title}</h3>
+              <div className="flex justify-between text-label-sm text-outline mb-sm">
+                <span>Progress Tugas</span>
+                <span>{course.completedAssignments}/{course.totalAssignments}</span>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="empty-state">
-            <span className="empty-icon">📈</span>
-            <p>Belum ada data progress.</p>
-          </div>
-        )}
-      </section>
+              <div className="w-full h-2 bg-outline-variant/50 rounded-full overflow-hidden">
+                <div className={`h-full rounded-full transition-all duration-500 ${course.progressPercentage === 100 ? 'bg-emerald-500' : 'bg-primary'}`} style={{ width: `${course.progressPercentage}%` }} />
+              </div>
+              <p className="text-right text-label-sm text-outline mt-1">{course.progressPercentage}%</p>
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="bg-surface rounded-xl border border-dashed border-outline-variant flex flex-col items-center justify-center p-xl text-center">
+          <TrendingUp size={48} className="text-outline/60 mb-md" />
+          <p className="text-body-sm font-body text-on-surface-variant">Belum ada data progress.</p>
+        </div>
+      )}
     </div>
   );
 };
@@ -1005,64 +856,41 @@ const MessagesView = ({ notifications, onMarkAsRead }) => {
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
 
   return (
-    <div className="dashboard-content">
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '1.5rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>🔔 Notifikasi & Pesan</h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Tetap terupdate dengan informasi penting dari guru dan admin.
-        </p>
+    <div className="flex flex-col gap-lg">
+      <div className="bg-gradient-to-r from-secondary to-secondary-fixed-dim rounded-2xl p-xl text-center shadow-md">
+        <h2 className="text-headline-md font-display text-white mb-sm">🔔 Notifikasi & Pesan</h2>
+        <p className="text-body-md font-body text-white/80">Tetap terupdate dengan informasi penting dari guru dan admin.</p>
       </div>
 
-      <section className="dashboard-section">
-        <h2>
-          🔔 Notifikasi 
-          {unreadCount > 0 && <span className="badge">{unreadCount}</span>}
-        </h2>
+      <div>
+        <h3 className="text-title-lg font-title text-on-background flex items-center gap-xs mb-md">
+          <Bell size={20} className="text-error" />
+          Notifikasi
+          {unreadCount > 0 && <span className="bg-error text-on-error text-label-sm font-label px-2 py-0.5 rounded-full">{unreadCount}</span>}
+        </h3>
 
         {notifications && notifications.length > 0 ? (
-          <div className="notifications-list">
+          <div className="flex flex-col gap-sm">
             {notifications.map(notification => (
-              <div 
-                key={notification.id} 
-                className={`notification-item ${!notification.is_read ? 'unread' : ''}`}
-                onClick={() => !notification.is_read && onMarkAsRead(notification.id)}
-              >
-                <span className="notification-icon" style={{ fontSize: '1.5rem' }}>
-                  {notification.type === 'grade' ? '📝' : 
-                   notification.type === 'submission' ? '📤' :
-                   notification.type === 'announcement' ? '📢' : 
-                   notification.type === 'enrollment' ? '🎉' :
-                   notification.type === 'reminder' ? '⏰' : '🔔'}
+              <div key={notification.id} onClick={() => !notification.is_read && onMarkAsRead && onMarkAsRead(notification.id)} className={`rounded-xl p-md border transition-colors flex gap-md items-start shadow-sm cursor-pointer ${!notification.is_read ? 'bg-surface-container-low border-outline-variant/20' : 'bg-surface border-outline-variant/20 opacity-80'}`}>
+                <span className="mt-1 text-lg">
+                  {notification.type === 'grade' ? '📝' : notification.type === 'submission' ? '📤' : notification.type === 'announcement' ? '📢' : notification.type === 'enrollment' ? '🎉' : notification.type === 'reminder' ? '⏰' : '🔔'}
                 </span>
-                <div className="notification-content">
-                  <p style={{ fontSize: '1rem', fontWeight: notification.is_read ? 'normal' : 'bold' }}>
-                    {notification.message}
-                  </p>
-                  <small style={{ color: '#6b7280' }}>
-                    📅 {new Date(notification.created_at).toLocaleString()}
-                  </small>
+                <div className="flex-1 min-w-0">
+                  <p className={`text-body-md font-body text-on-background ${!notification.is_read ? 'font-semibold' : ''}`}>{notification.message}</p>
+                  <p className="text-label-sm text-outline mt-1">📅 {new Date(notification.created_at).toLocaleString()}</p>
                 </div>
-                {!notification.is_read && (
-                  <span className="badge" style={{ marginLeft: 'auto' }}>Baru</span>
-                )}
+                {!notification.is_read && <span className="bg-primary text-on-primary text-label-sm font-label px-2 py-0.5 rounded-full text-[10px]">Baru</span>}
               </div>
             ))}
           </div>
         ) : (
-          <div className="empty-state">
-            <span className="empty-icon">🔔</span>
-            <p>Tidak ada notifikasi.</p>
+          <div className="bg-surface rounded-xl border border-dashed border-outline-variant flex flex-col items-center justify-center p-xl text-center">
+            <Bell size={48} className="text-outline/60 mb-md" />
+            <p className="text-body-sm font-body text-on-surface-variant">Tidak ada notifikasi.</p>
           </div>
         )}
-      </section>
+      </div>
     </div>
   );
 };
@@ -1076,171 +904,73 @@ const ProfileView = ({ onRefresh }) => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    if (profile?.display_name) {
-      setDisplayName(profile.display_name);
-    } else if (user?.email) {
-      setDisplayName(user.email.split('@')[0]);
-    }
+    if (profile?.display_name) { setDisplayName(profile.display_name); }
+    else if (user?.email) { setDisplayName(user.email.split('@')[0]); }
   }, [profile, user]);
 
   const handleSave = async (e) => {
     e.preventDefault();
-    if (!displayName.trim()) {
-      setError('Nama tampilan tidak boleh kosong');
-      return;
-    }
-
+    if (!displayName.trim()) { setError('Nama tampilan tidak boleh kosong'); return; }
     try {
-      setLoading(true);
-      setError('');
-      setMessage('');
-
+      setLoading(true); setError(''); setMessage('');
       await updateProfile({ display_name: displayName.trim() });
       setMessage('Profil berhasil diperbarui!');
       if (onRefresh) onRefresh();
     } catch (err) {
       console.error('Error updating profile:', err);
-      if (err.message.includes('display_name')) {
-        setError('Kolom display_name belum ada di tabel. Silakan jalankan migration SQL di Supabase.');
-      } else if (err.message.includes('null value in column "email"')) {
-        setError('Email tidak ditemukan. Silakan logout dan login kembali.');
-      } else {
-        setError('Gagal memperbarui profil: ' + err.message);
-      }
-    } finally {
-      setLoading(false);
-    }
+      if (err.message.includes('display_name')) { setError('Kolom display_name belum ada di tabel. Silakan jalankan migration SQL di Supabase.'); }
+      else if (err.message.includes('null value in column "email"')) { setError('Email tidak ditemukan. Silakan logout dan login kembali.'); }
+      else { setError('Gagal memperbarui profil: ' + err.message); }
+    } finally { setLoading(false); }
   };
 
   return (
-    <div className="dashboard-content">
-      {/* Welcome Message */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-        borderRadius: '16px',
-        padding: '1.5rem',
-        color: 'white',
-        marginBottom: '1.5rem',
-        textAlign: 'center'
-      }}>
-        <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>👤 Profil Saya</h2>
-        <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
-          Kelola informasi profil Anda.
-        </p>
+    <div className="flex flex-col gap-lg max-w-2xl">
+      <div className="bg-gradient-to-r from-primary to-surface-tint rounded-2xl p-xl text-center shadow-md">
+        <h2 className="text-headline-md font-display text-white mb-sm">👤 Profil Saya</h2>
+        <p className="text-body-md font-body text-primary-fixed/90">Kelola informasi profil Anda.</p>
       </div>
 
-      <section className="dashboard-section">
-        <h2>📝 Edit Profil</h2>
-        
-        {message && (
-          <div className="success-message" style={{ 
-            background: '#dcfce7', 
-            color: '#166534', 
-            padding: '0.75rem', 
-            borderRadius: '8px',
-            marginBottom: '1rem'
-          }}>
-            {message}
-          </div>
-        )}
-        
-        {error && (
-          <div className="error-message" style={{ 
-            background: '#fee2e2', 
-            color: '#dc2626', 
-            padding: '0.75rem', 
-            borderRadius: '8px',
-            marginBottom: '1rem'
-          }}>
-            {error}
-          </div>
-        )}
+      <div className="bg-surface rounded-2xl p-xl border border-outline-variant/30">
+        <h3 className="text-title-lg font-title text-on-background mb-lg">📝 Edit Profil</h3>
 
-        <form onSubmit={handleSave} style={{ maxWidth: '500px' }}>
-          <div className="form-group" style={{ marginBottom: '1rem' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '500',
-              color: '#374151'
-            }}>
-              Email
-            </label>
-            <input 
-              type="email" 
-              value={user?.email || ''} 
-              disabled
-              style={{ 
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                backgroundColor: '#f3f4f6',
-                color: '#6b7280'
-              }}
-            />
-            <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
-              Email tidak dapat diubah
-            </small>
-          </div>
+        {message && <div className="flex items-center gap-sm p-sm mb-md rounded-xl bg-success-light/50 border border-success/20 text-body-sm font-body text-on-surface-variant">{message}</div>}
+        {error && <div className="flex items-center gap-sm p-sm mb-md rounded-xl bg-error-container border border-error/20"><AlertCircle size={18} className="text-error shrink-0" /><p className="text-body-sm font-body text-on-error-container">{error}</p></div>}
 
-          <div className="form-group" style={{ marginBottom: '1.5rem' }}>
-            <label style={{ 
-              display: 'block', 
-              marginBottom: '0.5rem', 
-              fontWeight: '500',
-              color: '#374151'
-            }}>
-              Nama Tampilan
-            </label>
-            <input 
-              type="text" 
-              value={displayName} 
-              onChange={(e) => setDisplayName(e.target.value)}
-              placeholder="Masukkan nama tampilan"
-              style={{ 
-                width: '100%',
-                padding: '0.75rem',
-                borderRadius: '8px',
-                border: '1px solid #d1d5db',
-                fontSize: '1rem'
-              }}
-            />
-            <small style={{ color: '#6b7280', fontSize: '0.85rem' }}>
-              Nama ini akan terlihat oleh guru dan admin
-            </small>
+        <form onSubmit={handleSave} className="flex flex-col gap-md">
+          <div className="flex flex-col gap-1">
+            <label className="text-label-sm font-label text-on-surface-variant">Email</label>
+            <input type="email" value={user?.email || ''} disabled className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface-container text-on-surface-variant text-body-md font-body outline-none cursor-not-allowed" />
+            <p className="text-label-sm text-outline">Email tidak dapat diubah</p>
           </div>
-
-          <button 
-            type="submit" 
-            className="btn btn-primary"
-            disabled={loading}
-            style={{ minWidth: '150px' }}
-          >
-            {loading ? '⏳ Menyimpan...' : '💾 Simpan Perubahan'}
+          <div className="flex flex-col gap-1">
+            <label className="text-label-sm font-label text-on-surface-variant">Nama Tampilan</label>
+            <input type="text" value={displayName} onChange={(e) => setDisplayName(e.target.value)} placeholder="Masukkan nama tampilan" className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface-container-low text-body-md font-body text-on-surface placeholder:text-outline/60 focus:border-primary focus:ring-2 focus:ring-primary/20 transition-all duration-200 outline-none" />
+            <p className="text-label-sm text-outline">Nama ini akan terlihat oleh guru dan admin</p>
+          </div>
+          <button type="submit" disabled={loading} className="self-start flex items-center gap-sm py-sm px-lg rounded-xl bg-primary text-on-primary font-label-md font-label hover:bg-primary-container hover:text-on-primary-container transition-all duration-200 disabled:opacity-60 shadow-[0px_4px_14px_rgba(53,37,205,0.3)]">
+            {loading ? <><div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" /> Menyimpan...</> : '💾 Simpan Perubahan'}
           </button>
         </form>
-      </section>
+      </div>
 
-      <section className="dashboard-section" style={{ marginTop: '2rem' }}>
-        <h2>ℹ️ Informasi Akun</h2>
-        <div style={{ 
-          background: '#f9fafb', 
-          padding: '1.5rem', 
-          borderRadius: '12px',
-          maxWidth: '500px'
-        }}>
-          <div style={{ marginBottom: '1rem' }}>
-            <strong>Role:</strong> Murid
+      <div className="bg-surface rounded-2xl p-xl border border-outline-variant/30">
+        <h3 className="text-title-lg font-title text-on-background mb-lg">ℹ️ Informasi Akun</h3>
+        <div className="grid grid-cols-1 gap-md">
+          <div className="flex items-center gap-md p-sm bg-surface-container-low rounded-xl">
+            <span className="text-label-sm font-label text-outline w-20">Role</span>
+            <span className="text-body-sm font-body text-on-surface">Murid</span>
           </div>
-          <div style={{ marginBottom: '1rem' }}>
-            <strong>Status:</strong> Aktif
+          <div className="flex items-center gap-md p-sm bg-surface-container-low rounded-xl">
+            <span className="text-label-sm font-label text-outline w-20">Status</span>
+            <span className="text-body-sm font-body text-on-surface flex items-center gap-1"><span className="w-2 h-2 rounded-full bg-success inline-block" /> Aktif</span>
           </div>
-          <div>
-            <strong>ID:</strong> <code style={{ fontSize: '0.85rem' }}>{user?.id}</code>
+          <div className="flex items-center gap-md p-sm bg-surface-container-low rounded-xl">
+            <span className="text-label-sm font-label text-outline w-20">ID</span>
+            <code className="text-label-sm font-mono text-on-surface-variant truncate">{user?.id}</code>
           </div>
         </div>
-      </section>
+      </div>
     </div>
   );
 };

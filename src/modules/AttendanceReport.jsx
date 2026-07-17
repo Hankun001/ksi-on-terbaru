@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { FileText, Calendar, Users, Download, Printer, BookOpen } from 'lucide-react';
+import { FileText, Calendar, Printer, BookOpen } from 'lucide-react';
 
 const AttendanceReport = () => {
   const { user } = useAuth();
@@ -225,47 +225,43 @@ const AttendanceReport = () => {
 
   if (loading && !reports.length) {
     return (
-      <div className="dashboard-container">
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
-          <div>Memuat laporan absensi...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse flex flex-col items-center gap-sm">
+          <div className="w-12 h-12 rounded-full bg-surface-dim"></div>
+          <div className="h-4 w-48 bg-surface-dim rounded"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
         <div>
-          <h1>
-            <FileText size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
+          <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+            <FileText className="w-7 h-7 text-primary" />
             Laporan Absensi
           </h1>
-          <p>Rekapitulasi kehadiran siswa per bulan</p>
+          <p className="text-body-md text-on-surface-variant mt-xs">Rekapitulasi kehadiran siswa per bulan</p>
         </div>
       </div>
 
-      <div className="dashboard-content">
+      {/* Filter + Reports */}
+      <div className="bg-surface rounded-2xl shadow-sm border border-outline-variant overflow-hidden">
         {/* Filters */}
-        <div style={{
-          background: 'linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%)',
-          borderRadius: '12px',
-          padding: '1.5rem',
-          marginBottom: '1.5rem'
-        }}>
-          <h3 style={{ marginBottom: '1rem', color: '#0369a1' }}>
-            <BookOpen size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Filter Laporan
-          </h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem' }}>
-            <div className="form-group">
-              <label htmlFor="class">Kelas</label>
+        <div className="bg-surface-dim/30 p-4 md:p-6 border-b border-outline-variant">
+          <div className="flex items-center gap-sm mb-md">
+            <BookOpen className="w-5 h-5 text-primary" />
+            <h3 className="text-title-sm font-semibold text-on-surface m-0">Filter Laporan</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Kelas</label>
               <select
-                id="class"
                 value={selectedClass}
                 onChange={(e) => setSelectedClass(e.target.value)}
-                style={{ width: '100%' }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
               >
                 <option value="">Pilih Kelas</option>
                 {classes.map(cls => (
@@ -275,79 +271,84 @@ const AttendanceReport = () => {
                 ))}
               </select>
             </div>
-
-            <div className="form-group">
-              <label htmlFor="month">Bulan</label>
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Bulan</label>
               <input
                 type="month"
-                id="month"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                style={{ width: '100%' }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary focus:border-primary transition-all text-body-md"
               />
             </div>
           </div>
-
           {reports.length > 0 && (
-            <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-              <button
-                className="btn btn-secondary"
-                onClick={printReport}
-              >
-                <Printer size={18} style={{ marginRight: '8px' }} />
-                Cetak Laporan
-              </button>
-            </div>
+            <button
+              onClick={printReport}
+              className="mt-md inline-flex items-center gap-xs px-4 py-2 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-lg"
+            >
+              <Printer className="w-4 h-4" />
+              Cetak Laporan
+            </button>
           )}
         </div>
 
-        {/* Reports List */}
-        <section className="dashboard-section">
-          <h2>
-            <Calendar size={20} style={{ marginRight: '8px' }} />
+        {/* Reports Table */}
+        <div className="p-4 md:p-6">
+          <h2 className="text-title-md font-semibold text-on-surface flex items-center gap-sm mb-md">
+            <Calendar className="w-5 h-5 text-primary" />
             Rekap Absensi Bulan {new Date(selectedMonth + '-01').toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}
-            {selectedClass && ` - ${classes.find(c => c.id === selectedClass)?.name || 'Unknown'}`}
+            {selectedClass && ` - ${classes.find(c => c.id === selectedClass)?.name || ''}`}
           </h2>
 
           {reports.length > 0 ? (
-            <div className="table-responsive">
-              <table className="dashboard-table">
+            <div className="overflow-x-auto">
+              <table className="w-full">
                 <thead>
-                  <tr>
-                    <th>Tanggal</th>
-                    <th>Mata Pelajaran</th>
-                    <th>Total Siswa</th>
-                    <th>Hadir</th>
-                    <th>Tidak Hadir</th>
-                    <th>Sakit</th>
-                    <th>Izin</th>
-                    <th>Terlambat</th>
+                  <tr className="bg-surface-dim/50">
+                    <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Tanggal</th>
+                    <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Mata Pelajaran</th>
+                    <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Total</th>
+                    <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">
+                      <span className="text-success">Hadir</span>
+                    </th>
+                    <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">
+                      <span className="text-error">Alpha</span>
+                    </th>
+                    <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">
+                      <span className="text-warning">Sakit</span>
+                    </th>
+                    <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">
+                      <span className="text-tertiary">Izin</span>
+                    </th>
+                    <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">
+                      <span className="text-on-surface-variant">Terlambat</span>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
-                  {reports.map(report => (
-                    <tr key={report.id}>
-                      <td>{new Date(report.date).toLocaleDateString('id-ID')}</td>
-                      <td>{report.subject}</td>
-                      <td>{report.totalStudents}</td>
-                      <td className="text-green-600 font-semibold">{report.presentCount}</td>
-                      <td className="text-red-600 font-semibold">{report.absentCount}</td>
-                      <td className="text-orange-600 font-semibold">{report.sickCount}</td>
-                      <td className="text-blue-600 font-semibold">{report.permitCount}</td>
-                      <td className="text-purple-600 font-semibold">{report.lateCount}</td>
+                  {reports.map((report, idx) => (
+                    <tr key={report.id} className={"border-t border-outline-variant/50 hover:bg-surface-dim/30 transition-colors " + (idx % 2 === 0 ? 'bg-surface' : 'bg-surface-dim/10')}>
+                      <td className="px-4 py-3 text-body-sm text-on-surface">{new Date(report.date).toLocaleDateString('id-ID')}</td>
+                      <td className="px-4 py-3 text-body-sm text-on-surface">{report.subject}</td>
+                      <td className="px-4 py-3 text-body-sm text-center font-medium">{report.totalStudents}</td>
+                      <td className="px-4 py-3 text-body-sm text-center font-semibold text-success">{report.presentCount}</td>
+                      <td className="px-4 py-3 text-body-sm text-center font-semibold text-error">{report.absentCount}</td>
+                      <td className="px-4 py-3 text-body-sm text-center font-semibold text-warning">{report.sickCount}</td>
+                      <td className="px-4 py-3 text-body-sm text-center font-semibold text-tertiary">{report.permitCount}</td>
+                      <td className="px-4 py-3 text-body-sm text-center font-semibold text-on-surface-variant">{report.lateCount}</td>
                     </tr>
                   ))}
                 </tbody>
               </table>
             </div>
           ) : (
-            <div className="empty-state">
-              <span className="empty-icon"><FileText size={48} /></span>
-              <p>Belum ada data absensi untuk periode yang dipilih.</p>
-              <p>Pastikan Anda telah memilih kelas dan bulan dengan benar.</p>
+            <div className="text-center py-12">
+              <FileText className="w-16 h-16 mx-auto text-on-surface-variant/30 mb-4" />
+              <p className="text-body-lg text-on-surface-variant mb-2">Belum ada data absensi untuk periode yang dipilih.</p>
+              <p className="text-body-sm text-on-surface-variant/70">Pastikan Anda telah memilih kelas dan bulan dengan benar.</p>
             </div>
           )}
-        </section>
+        </div>
       </div>
     </div>
   );

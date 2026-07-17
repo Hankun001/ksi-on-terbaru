@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
 import {
-  TrendingUp, Target, Award, Clock, CheckCircle,
-  BookOpen, BarChart3, Calendar, Plus, Edit, Trash2,
-  Flame, Trophy, Star, Zap, ChevronRight, Activity,
-  FileText, HelpCircle, Play, Pause, Square
+  TrendingUp, Target, Clock, CheckCircle,
+  BookOpen, Plus, Trash2,
+  Flame, Trophy, Activity,
+  Play, Square, X
 } from 'lucide-react';
 
 const StudentProgressModule = () => {
@@ -381,120 +381,93 @@ const StudentProgressModule = () => {
   };
 
   if (loading) {
-    return <div className="dashboard-container"><div className="loading-spinner">Memuat progres Anda...</div></div>;
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="flex flex-col items-center gap-md animate-pulse">
+          <div className="w-10 h-10 rounded-full bg-surface-container-high"></div>
+          <p className="text-body-md text-on-surface-variant">Memuat progres Anda...</p>
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="dashboard-container" style={{ padding: '1rem' }}>
-      <div style={{ marginBottom: '1.5rem' }}>
-        <h1 style={{
-          display: 'flex',
-          alignItems: 'center',
-          gap: '0.5rem',
-          marginBottom: '0.5rem',
-          fontSize: 'clamp(1.25rem, 5vw, 1.75rem)',
-          lineHeight: 1.3
-        }}>
-          <TrendingUp size={24} style={{ color: '#8b5cf6' }} />
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="mb-xl">
+        <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+          <TrendingUp className="w-6 h-6 md:w-7 md:h-7 text-primary" />
           Progres Belajar Saya
         </h1>
-        <p style={{
-          color: '#6b7280',
-          margin: 0,
-          fontSize: '0.9rem',
-          lineHeight: 1.4
-        }}>
+        <p className="text-body-md text-on-surface-variant mt-xs">
           Pantau perkembangan dan pencapaian belajar Anda
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1rem',
-        marginBottom: '2rem'
-      }}>
-        <div className="card" style={{
-          background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-          color: 'white',
-          border: 'none'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Clock size={32} />
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-md mb-xl">
+        <div className="rounded-xl p-lg text-white bg-gradient-to-br from-[#8b5cf6] to-[#7c3aed] shadow-md">
+          <div className="flex items-center gap-md">
+            <Clock className="w-8 h-8" />
             <div>
-              <div style={{ fontSize: '1.75rem', fontWeight: '700' }}>{formatDuration(stats.totalStudyTime)}</div>
-              <div style={{ opacity: 0.9 }}>Total Waktu Belajar</div>
+              <div className="text-2xl font-bold">{formatDuration(stats.totalStudyTime)}</div>
+              <div className="opacity-90 text-body-sm">Total Waktu Belajar</div>
             </div>
           </div>
         </div>
 
-        <div className="card" style={{
-          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-          color: 'white',
-          border: 'none'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <CheckCircle size={32} />
+        <div className="rounded-xl p-lg text-white bg-gradient-to-br from-[#10b981] to-[#059669] shadow-md">
+          <div className="flex items-center gap-md">
+            <CheckCircle className="w-8 h-8" />
             <div>
-              <div style={{ fontSize: '1.75rem', fontWeight: '700' }}>{stats.coursesCompleted}</div>
-              <div style={{ opacity: 0.9 }}>Kursus Selesai</div>
+              <div className="text-2xl font-bold">{stats.coursesCompleted}</div>
+              <div className="opacity-90 text-body-sm">Kursus Selesai</div>
             </div>
           </div>
         </div>
 
-        <div className="card" style={{
-          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-          color: 'white',
-          border: 'none'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Target size={32} />
+        <div className="rounded-xl p-lg text-white bg-gradient-to-br from-[#f59e0b] to-[#d97706] shadow-md">
+          <div className="flex items-center gap-md">
+            <Target className="w-8 h-8" />
             <div>
-              <div style={{ fontSize: '1.75rem', fontWeight: '700' }}>{stats.goalsAchieved}</div>
-              <div style={{ opacity: 0.9 }}>Goal Tercapai</div>
+              <div className="text-2xl font-bold">{stats.goalsAchieved}</div>
+              <div className="opacity-90 text-body-sm">Goal Tercapai</div>
             </div>
           </div>
         </div>
 
-        <div className="card" style={{
-          background: 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)',
-          color: 'white',
-          border: 'none'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <Flame size={32} />
+        <div className="rounded-xl p-lg text-white bg-gradient-to-br from-[#ec4899] to-[#db2777] shadow-md">
+          <div className="flex items-center gap-md">
+            <Flame className="w-8 h-8" />
             <div>
-              <div style={{ fontSize: '1.75rem', fontWeight: '700' }}>{stats.currentStreak}</div>
-              <div style={{ opacity: 0.9 }}>Hari Berturut-turut</div>
+              <div className="text-2xl font-bold">{stats.currentStreak}</div>
+              <div className="opacity-90 text-body-sm">Hari Berturut-turut</div>
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr', gap: '2rem' }}>
-        {/* Main Content */}
-        <div>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-xl">
+        {/* Main Content - 2/3 */}
+        <div className="lg:col-span-2 space-y-xl">
           {/* Course Progress */}
-          <div className="card" style={{ marginBottom: '2rem' }}>
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '1.5rem'
-            }}>
-              <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                <BookOpen size={22} style={{ color: '#8b5cf6' }} />
+          <div className="bg-surface rounded-xl p-lg shadow-sm border border-outline-variant/30">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md mb-lg">
+              <h2 className="flex items-center gap-sm text-title-lg font-bold text-on-surface m-0">
+                <BookOpen className="w-5 h-5 text-primary" />
                 Progres Kursus
               </h2>
               {activeSession && (
-                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                  <div style={{ color: '#10b981', fontWeight: '600' }}>● Sedang Belajar</div>
+                <div className="flex items-center gap-sm">
+                  <div className="flex items-center gap-1.5 text-success font-semibold text-body-sm">
+                    <span className="w-2 h-2 rounded-full bg-success animate-pulse"></span>
+                    Sedang Belajar
+                  </div>
                   <button
-                    className="btn btn-danger btn-sm"
+                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-error-container text-on-error-container text-label-sm font-medium hover:bg-error-container/80 transition-colors"
                     onClick={() => endLearningSession()}
                   >
-                    <Square size={14} />
+                    <Square className="w-3.5 h-3.5" />
                     Akhiri Sesi
                   </button>
                 </div>
@@ -502,46 +475,34 @@ const StudentProgressModule = () => {
             </div>
 
             {courses.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="flex flex-col gap-md">
                 {courses.map(course => (
-                  <div key={course.id} style={{
-                    padding: '1rem',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    background: '#fafafa'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '0.5rem' }}>
-                      <h3 style={{ margin: 0, fontSize: '1.1rem' }}>{course.title}</h3>
-                      <span style={{ fontWeight: '700', color: '#8b5cf6' }}>{course.progress.progressPercent}%</span>
+                  <div key={course.id} className="p-md border border-outline-variant/40 rounded-xl bg-surface-container-low/50 hover:bg-surface-container-low transition-colors">
+                    <div className="flex justify-between items-center mb-sm">
+                      <h3 className="text-title-md font-semibold text-on-surface m-0">{course.title}</h3>
+                      <span className="font-bold text-primary">{course.progress.progressPercent}%</span>
                     </div>
 
-                    <div style={{
-                      width: '100%',
-                      height: '8px',
-                      background: '#e5e7eb',
-                      borderRadius: '4px',
-                      overflow: 'hidden',
-                      marginBottom: '0.5rem'
-                    }}>
+                    <div className="w-full h-2 bg-surface-container-high rounded-full overflow-hidden mb-sm">
                       <div style={{
                         width: `${course.progress.progressPercent}%`,
                         height: '100%',
-                        background: course.progress.progressPercent === 100 ? '#10b981' : '#8b5cf6',
-                        borderRadius: '4px',
+                        background: course.progress.progressPercent === 100 ? 'var(--color-success)' : 'var(--color-primary)',
+                        borderRadius: '999px',
                         transition: 'width 0.3s ease'
                       }} />
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                      <small style={{ color: '#6b7280' }}>
+                    <div className="flex justify-between items-center">
+                      <span className="text-body-sm text-on-surface-variant">
                         {course.progress.completedMaterials}/{course.progress.totalMaterials} materi selesai
-                      </small>
+                      </span>
                       <button
-                        className="btn btn-primary btn-sm"
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                         onClick={() => startLearningSession(course.id, null)}
                         disabled={!!activeSession}
                       >
-                        <Play size={14} />
+                        <Play className="w-3.5 h-3.5" />
                         Mulai Belajar
                       </button>
                     </div>
@@ -549,73 +510,57 @@ const StudentProgressModule = () => {
                 ))}
               </div>
             ) : (
-              <div style={{
-                textAlign: 'center',
-                padding: '2rem',
-                color: '#6b7280',
-                background: '#f9fafb',
-                borderRadius: '8px'
-              }}>
-                <BookOpen size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
-                <p>Anda belum terdaftar di kursus mana pun.</p>
+              <div className="text-center py-2xl text-on-surface-variant bg-surface-container-low rounded-lg">
+                <BookOpen className="w-12 h-12 mx-auto mb-md opacity-50" />
+                <p className="text-body-md">Anda belum terdaftar di kursus mana pun.</p>
               </div>
             )}
           </div>
 
           {/* Learning Goals */}
-          <div className="card">
-            <div style={{
-              display: 'flex',
-              justifyContent: 'space-between',
-              alignItems: 'center',
-              marginBottom: '1.5rem'
-            }}>
-              <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', margin: 0 }}>
-                <Target size={22} style={{ color: '#f59e0b' }} />
+          <div className="bg-surface rounded-xl p-lg shadow-sm border border-outline-variant/30">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md mb-lg">
+              <h2 className="flex items-center gap-sm text-title-lg font-bold text-on-surface m-0">
+                <Target className="w-5 h-5 text-warning" />
                 Target Belajar
               </h2>
               <button
-                className="btn btn-primary btn-sm"
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm"
                 onClick={() => setShowGoalModal(true)}
               >
-                <Plus size={14} />
+                <Plus className="w-4 h-4" />
                 Tambah Goal
               </button>
             </div>
 
             {goals.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="flex flex-col gap-md">
                 {goals.map(goal => (
-                  <div key={goal.id} style={{
-                    padding: '1rem',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '8px',
-                    background: goal.is_completed ? '#d1fae5' : '#fafafa'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '0.5rem' }}>
+                  <div key={goal.id} className={`p-md border rounded-xl transition-colors ${goal.is_completed ? 'bg-success-container/30 border-success' : 'bg-surface-container-low/50 border-outline-variant/40'}`}>
+                    <div className="flex justify-between items-start mb-sm">
                       <div>
-                        <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem' }}>{goal.title}</h4>
-                        <small style={{ color: '#6b7280' }}>
+                        <h4 className="text-title-md font-semibold text-on-surface m-0 mb-1">{goal.title}</h4>
+                        <span className="text-body-sm text-on-surface-variant">
                           {getGoalTypeLabel(goal.goal_type)}
                           {goal.deadline && ` • Deadline: ${new Date(goal.deadline).toLocaleDateString('id-ID')}`}
-                        </small>
+                        </span>
                       </div>
-                      <div style={{ display: 'flex', gap: '0.5rem' }}>
+                      <div className="flex gap-sm shrink-0">
                         {goal.is_completed ? (
-                          <CheckCircle size={20} style={{ color: '#10b981' }} />
+                          <CheckCircle className="w-5 h-5 text-success" />
                         ) : (
                           <>
                             <button
-                              className="btn btn-secondary btn-sm"
+                              className="w-8 h-8 flex items-center justify-center rounded-lg bg-primary-container/50 text-on-primary-container text-label-sm font-bold hover:bg-primary-container/80 transition-colors"
                               onClick={() => updateGoalProgress(goal.id, goal.current_value + 1)}
                             >
                               +
                             </button>
                             <button
-                              className="btn btn-danger btn-sm"
+                              className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-error-container/50 text-on-surface-variant hover:text-error transition-colors"
                               onClick={() => deleteGoal(goal.id)}
                             >
-                              <Trash2 size={14} />
+                              <Trash2 className="w-4 h-4" />
                             </button>
                           </>
                         )}
@@ -623,145 +568,112 @@ const StudentProgressModule = () => {
                     </div>
 
                     {goal.description && (
-                      <p style={{ margin: '0.5rem 0', fontSize: '0.9rem', color: '#6b7280' }}>
+                      <p className="text-body-sm text-on-surface-variant mb-sm">
                         {goal.description}
                       </p>
                     )}
 
-                    <div style={{
-                      width: '100%',
-                      height: '6px',
-                      background: '#e5e7eb',
-                      borderRadius: '3px',
-                      overflow: 'hidden'
-                    }}>
+                    <div className="w-full h-1.5 bg-surface-container-high rounded-full overflow-hidden">
                       <div style={{
                         width: `${Math.min((goal.current_value / goal.target_value) * 100, 100)}%`,
                         height: '100%',
-                        background: goal.is_completed ? '#10b981' : '#f59e0b',
-                        borderRadius: '3px'
+                        background: goal.is_completed ? 'var(--color-success)' : 'var(--color-warning)',
+                        borderRadius: '999px'
                       }} />
                     </div>
 
-                    <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '0.25rem' }}>
-                      <small style={{ color: '#6b7280' }}>
+                    <div className="flex justify-between mt-1">
+                      <span className="text-label-xs text-on-surface-variant">
                         {goal.current_value}/{goal.target_value}
-                      </small>
+                      </span>
                       {goal.is_completed && (
-                        <small style={{ color: '#10b981', fontWeight: '600' }}>
-                          ✅ Selesai {new Date(goal.completed_at).toLocaleDateString('id-ID')}
-                        </small>
+                        <span className="text-label-xs font-semibold text-success">
+                          Selesai {new Date(goal.completed_at).toLocaleDateString('id-ID')}
+                        </span>
                       )}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={{
-                textAlign: 'center',
-                padding: '2rem',
-                color: '#6b7280',
-                background: '#f9fafb',
-                borderRadius: '8px'
-              }}>
-                <Target size={48} style={{ opacity: 0.5, marginBottom: '1rem' }} />
-                <p>Belum ada target belajar. Buat target pertama Anda!</p>
+              <div className="text-center py-2xl text-on-surface-variant bg-surface-container-low rounded-lg">
+                <Target className="w-12 h-12 mx-auto mb-md opacity-50" />
+                <p className="text-body-md">Belum ada target belajar. Buat target pertama Anda!</p>
               </div>
             )}
           </div>
         </div>
 
-        {/* Sidebar */}
-        <div>
+        {/* Sidebar - 1/3 */}
+        <div className="space-y-xl">
           {/* Achievements */}
-          <div className="card" style={{ marginBottom: '2rem' }}>
-            <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              <Trophy size={22} style={{ color: '#ec4899' }} />
+          <div className="bg-surface rounded-xl p-lg shadow-sm border border-outline-variant/30">
+            <h2 className="flex items-center gap-sm text-title-lg font-bold text-on-surface mb-lg">
+              <Trophy className="w-5 h-5 text-[#ec4899]" />
               Pencapaian ({achievements.length})
             </h2>
 
             {achievements.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+              <div className="flex flex-col gap-md">
                 {achievements.slice(0, 5).map(achievement => (
-                  <div key={achievement.id} style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    padding: '1rem',
-                    background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-                    borderRadius: '8px',
-                    border: '1px solid #f59e0b'
-                  }}>
-                    <div style={{ fontSize: '2rem' }}>{achievement.icon}</div>
+                  <div key={achievement.id} className="flex items-center gap-md p-md bg-gradient-to-br from-amber-50 to-amber-100 rounded-xl border border-warning/40">
+                    <div className="text-2xl shrink-0">{achievement.icon}</div>
                     <div>
-                      <h4 style={{ margin: '0 0 0.25rem 0', fontSize: '1rem' }}>{achievement.title}</h4>
-                      <p style={{ margin: 0, fontSize: '0.8rem', color: '#6b7280' }}>
+                      <h4 className="text-title-sm font-semibold text-on-surface m-0">{achievement.title}</h4>
+                      <p className="text-body-xs text-on-surface-variant m-0">
                         {achievement.description}
                       </p>
-                      <small style={{ color: '#6b7280' }}>
+                      <span className="text-label-xs text-on-surface-variant">
                         {new Date(achievement.earned_at).toLocaleDateString('id-ID')}
-                      </small>
+                      </span>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={{
-                textAlign: 'center',
-                padding: '1rem',
-                color: '#6b7280'
-              }}>
-                <Trophy size={32} style={{ opacity: 0.5, marginBottom: '0.5rem' }} />
-                <p>Belum ada pencapaian.</p>
+              <div className="text-center py-lg text-on-surface-variant">
+                <Trophy className="w-8 h-8 mx-auto mb-sm opacity-50" />
+                <p className="text-body-sm">Belum ada pencapaian.</p>
               </div>
             )}
           </div>
 
           {/* Recent Learning Sessions */}
-          <div className="card">
-            <h2 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '1.5rem' }}>
-              <Activity size={22} style={{ color: '#10b981' }} />
+          <div className="bg-surface rounded-xl p-lg shadow-sm border border-outline-variant/30">
+            <h2 className="flex items-center gap-sm text-title-lg font-bold text-on-surface mb-lg">
+              <Activity className="w-5 h-5 text-success" />
               Sesi Belajar Terbaru
             </h2>
 
             {learningSessions.length > 0 ? (
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
+              <div className="flex flex-col gap-md">
                 {learningSessions.slice(0, 5).map(session => (
-                  <div key={session.id} style={{
-                    padding: '0.75rem',
-                    border: '1px solid #e5e7eb',
-                    borderRadius: '6px',
-                    background: '#fafafa'
-                  }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                  <div key={session.id} className="p-md border border-outline-variant/40 rounded-lg bg-surface-container-low/50">
+                    <div className="flex justify-between items-center">
                       <div>
-                        <small style={{ color: '#6b7280' }}>
+                        <span className="text-body-xs text-on-surface-variant">
                           {session.courses?.title || 'Kursus'}
-                        </small>
-                        <div style={{ fontSize: '0.9rem', fontWeight: '600' }}>
+                        </span>
+                        <div className="text-body-sm font-semibold text-on-surface">
                           {session.materials?.title || 'Materi'}
                         </div>
                       </div>
-                      <div style={{ textAlign: 'right' }}>
-                        <div style={{ fontSize: '0.8rem', fontWeight: '600' }}>
+                      <div className="text-right">
+                        <div className="text-body-xs font-semibold text-on-surface">
                           {session.duration_minutes ? formatDuration(session.duration_minutes) : '-'}
                         </div>
-                        <small style={{ color: '#6b7280' }}>
+                        <span className="text-label-xs text-on-surface-variant">
                           {new Date(session.started_at).toLocaleDateString('id-ID')}
-                        </small>
+                        </span>
                       </div>
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div style={{
-                textAlign: 'center',
-                padding: '1rem',
-                color: '#6b7280'
-              }}>
-                <Activity size={32} style={{ opacity: 0.5, marginBottom: '0.5rem' }} />
-                <p>Belum ada sesi belajar.</p>
+              <div className="text-center py-lg text-on-surface-variant">
+                <Activity className="w-8 h-8 mx-auto mb-sm opacity-50" />
+                <p className="text-body-sm">Belum ada sesi belajar.</p>
               </div>
             )}
           </div>
@@ -770,101 +682,104 @@ const StudentProgressModule = () => {
 
       {/* Add Goal Modal */}
       {showGoalModal && (
-        <div className="modal-overlay" onClick={() => setShowGoalModal(false)}>
-          <div className="modal-content" onClick={e => e.stopPropagation()}>
-            <div className="modal-header">
-              <h3>Tambah Target Belajar</h3>
-              <button className="close-btn" onClick={() => setShowGoalModal(false)}>×</button>
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-md" onClick={() => setShowGoalModal(false)}>
+          <div className="bg-surface rounded-2xl shadow-xl max-w-lg w-full" onClick={e => e.stopPropagation()}>
+            <div className="flex items-center justify-between px-xl pt-lg pb-md border-b border-outline-variant/30">
+              <h3 className="text-title-lg font-semibold text-on-surface m-0">Tambah Target Belajar</h3>
+              <button 
+                className="w-8 h-8 flex items-center justify-center rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant"
+                onClick={() => setShowGoalModal(false)}
+              >
+                <X className="w-5 h-5" />
+              </button>
             </div>
-            <div style={{ padding: '1.5rem' }}>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                <div className="form-group">
-                  <label>Kursus</label>
-                  <select
-                    value={goalForm.course_id}
-                    onChange={(e) => setGoalForm({...goalForm, course_id: e.target.value})}
-                    className="form-control"
-                  >
-                    <option value="">Pilih Kursus</option>
-                    {courses.map(course => (
-                      <option key={course.id} value={course.id}>{course.title}</option>
-                    ))}
-                  </select>
-                </div>
+            <div className="p-xl space-y-md">
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Kursus</label>
+                <select
+                  value={goalForm.course_id}
+                  onChange={(e) => setGoalForm({...goalForm, course_id: e.target.value})}
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                >
+                  <option value="">Pilih Kursus</option>
+                  {courses.map(course => (
+                    <option key={course.id} value={course.id}>{course.title}</option>
+                  ))}
+                </select>
+              </div>
 
-                <div className="form-group">
-                  <label>Jenis Goal</label>
-                  <select
-                    value={goalForm.goal_type}
-                    onChange={(e) => setGoalForm({...goalForm, goal_type: e.target.value})}
-                    className="form-control"
-                  >
-                    <option value="weekly_materials">Materi Mingguan</option>
-                    <option value="assignment_completion">Tugas Selesai</option>
-                    <option value="quiz_score">Nilai Quiz</option>
-                    <option value="study_hours">Jam Belajar</option>
-                    <option value="custom">Kustom</option>
-                  </select>
-                </div>
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Jenis Goal</label>
+                <select
+                  value={goalForm.goal_type}
+                  onChange={(e) => setGoalForm({...goalForm, goal_type: e.target.value})}
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                >
+                  <option value="weekly_materials">Materi Mingguan</option>
+                  <option value="assignment_completion">Tugas Selesai</option>
+                  <option value="quiz_score">Nilai Quiz</option>
+                  <option value="study_hours">Jam Belajar</option>
+                  <option value="custom">Kustom</option>
+                </select>
+              </div>
 
-                <div className="form-group">
-                  <label>Judul Goal</label>
-                  <input
-                    type="text"
-                    value={goalForm.title}
-                    onChange={(e) => setGoalForm({...goalForm, title: e.target.value})}
-                    className="form-control"
-                    placeholder="Contoh: Selesai 5 materi minggu ini"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Judul Goal</label>
+                <input
+                  type="text"
+                  value={goalForm.title}
+                  onChange={(e) => setGoalForm({...goalForm, title: e.target.value})}
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  placeholder="Contoh: Selesai 5 materi minggu ini"
+                />
+              </div>
 
-                <div className="form-group">
-                  <label>Deskripsi (Opsional)</label>
-                  <textarea
-                    value={goalForm.description}
-                    onChange={(e) => setGoalForm({...goalForm, description: e.target.value})}
-                    className="form-control"
-                    rows={3}
-                    placeholder="Deskripsi detail goal Anda"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Deskripsi (Opsional)</label>
+                <textarea
+                  value={goalForm.description}
+                  onChange={(e) => setGoalForm({...goalForm, description: e.target.value})}
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  rows={3}
+                  placeholder="Deskripsi detail goal Anda"
+                />
+              </div>
 
-                <div className="form-group">
-                  <label>Target</label>
-                  <input
-                    type="number"
-                    value={goalForm.target_value}
-                    onChange={(e) => setGoalForm({...goalForm, target_value: parseInt(e.target.value) || 1})}
-                    className="form-control"
-                    min={1}
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Target</label>
+                <input
+                  type="number"
+                  value={goalForm.target_value}
+                  onChange={(e) => setGoalForm({...goalForm, target_value: parseInt(e.target.value) || 1})}
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                  min={1}
+                />
+              </div>
 
-                <div className="form-group">
-                  <label>Deadline (Opsional)</label>
-                  <input
-                    type="date"
-                    value={goalForm.deadline}
-                    onChange={(e) => setGoalForm({...goalForm, deadline: e.target.value})}
-                    className="form-control"
-                  />
-                </div>
+              <div className="space-y-1.5">
+                <label className="block text-label-sm font-medium text-on-surface">Deadline (Opsional)</label>
+                <input
+                  type="date"
+                  value={goalForm.deadline}
+                  onChange={(e) => setGoalForm({...goalForm, deadline: e.target.value})}
+                  className="w-full px-3 py-2.5 rounded-xl border border-outline bg-surface text-body-md text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all"
+                />
+              </div>
 
-                <div style={{ display: 'flex', gap: '1rem', justifyContent: 'flex-end' }}>
-                  <button
-                    className="btn btn-secondary"
-                    onClick={() => setShowGoalModal(false)}
-                  >
-                    Batal
-                  </button>
-                  <button
-                    className="btn btn-primary"
-                    onClick={addGoal}
-                    disabled={!goalForm.title || !goalForm.course_id}
-                  >
-                    Simpan Goal
-                  </button>
-                </div>
+              <div className="flex gap-md justify-end pt-sm">
+                <button
+                  className="px-4 py-2 rounded-xl text-label-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors"
+                  onClick={() => setShowGoalModal(false)}
+                >
+                  Batal
+                </button>
+                <button
+                  className="px-4 py-2 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+                  onClick={addGoal}
+                  disabled={!goalForm.title || !goalForm.course_id}
+                >
+                  Simpan Goal
+                </button>
               </div>
             </div>
           </div>

@@ -2,27 +2,27 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import {
   Home, BookOpen, Search, FileText, Bell,
-  BarChart3, Mail, User, Users, Settings,
-  LogOut, Upload, GraduationCap, HelpCircle, FileCheck,
-  ClipboardList, UserCheck, Award, Eye, PieChart, Printer,
-  Building2, UserCog, Activity, BookMarked, MoreVertical, X,
-  FileSignature, TrendingUp
+  BarChart3, User, Users, Settings,
+  LogOut, Upload, GraduationCap, HelpCircle,
+  ClipboardList, UserCheck, Award, Printer,
+  FileCheck, Building2, UserCog, TrendingUp,
+  FileSignature, MoreVertical, X, School,
+  Menu
 } from 'lucide-react';
 
 const Sidebar = ({ role, onNavigate, activeSection }) => {
   const { signOut, profile, user } = useAuth();
   const [isMobile, setIsMobile] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Detect mobile screen size
   useEffect(() => {
     const handleResize = () => {
-      setIsMobile(window.innerWidth <= 1024);
+      setIsMobile(window.innerWidth <= 768);
     };
-
     handleResize();
     window.addEventListener('resize', handleResize);
-
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
@@ -34,66 +34,72 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
     }
   };
 
-  // Define menu items based on role with proper icons
+  const handleNavigation = (action) => {
+    if (onNavigate) {
+      onNavigate(action);
+    }
+    setShowMoreMenu(false);
+    setMobileSidebarOpen(false);
+  };
+
+  // Define menu items based on role
   const getMenuItems = () => {
     switch (role) {
       case 'murid':
         return [
-          { name: 'Beranda', icon: Home, action: 'dashboard-murid' },
-          { name: 'Kursus', icon: BookOpen, action: 'courses-murid' },
+          { name: 'Dashboard', icon: Home, action: 'dashboard-murid' },
+          { name: 'Kursus', icon: School, action: 'courses-murid' },
           { name: 'Jelajahi', icon: Search, action: 'browse-courses' },
           { name: 'Tugas', icon: FileText, action: 'assignments-murid' },
           { name: 'Ujian', icon: FileSignature, action: 'exams-murid' },
-          { name: 'Pengumuman', icon: Bell, action: 'announcements-murid' },
           { name: 'Progres', icon: BarChart3, action: 'progress-murid' },
-          { name: 'Pesan', icon: Mail, action: 'messages-murid' },
+          { name: 'Pengumuman', icon: Bell, action: 'announcements-murid' },
           { name: 'Profil', icon: User, action: 'profile-murid' },
         ];
       case 'guru':
         return [
-          { name: 'Beranda', icon: Home, action: 'dashboard-guru' },
+          { name: 'Dashboard', icon: Home, action: 'dashboard-guru' },
           { name: 'Kursus', icon: BookOpen, action: 'courses-guru' },
           { name: 'Ujian', icon: FileSignature, action: 'exams-guru' },
           { name: 'Materi', icon: FileText, action: 'materials-guru' },
-          { name: 'Tugas', icon: FileText, action: 'assignments-guru' },
+          { name: 'Tugas', icon: HelpCircle, action: 'assignments-guru' },
           { name: 'Quiz', icon: HelpCircle, action: 'quiz-guru' },
           { name: 'Kumpul', icon: Upload, action: 'submissions-guru' },
           { name: 'Progres', icon: BarChart3, action: 'progress-guru' },
           { name: 'Pengumuman', icon: Bell, action: 'announcements-guru' },
           { name: 'Murid', icon: GraduationCap, action: 'students-guru' },
-          { name: 'Pesan', icon: Mail, action: 'messages-guru' },
-           // Hasil Ujian Section
-           { type: 'divider', name: 'HASIL UJIAN' },
-            { name: 'Rekap Hasil Ujian', icon: TrendingUp, action: 'exam-results-guru' },
-           // Administrasi Section
-           { type: 'divider', name: 'ADMINISTRASI' },
-           { name: 'Jurnal Mengajar', icon: ClipboardList, action: 'journal-guru' },
-           { name: 'Absensi Siswa', icon: UserCheck, action: 'attendance-guru' },
-           { name: 'Penilaian Siswa', icon: Award, action: 'evaluation-guru' },
-           // Laporan Section
-           { type: 'divider', name: 'LAPORAN' },
-           { name: 'Laporan Absensi', icon: Printer, action: 'attendance-report-guru' },
-           { name: 'Laporan Penilaian', icon: FileCheck, action: 'evaluation-report-guru' },
-           { name: 'Profil', icon: User, action: 'profile-guru' },
+          // Hasil Ujian Section
+          { type: 'divider', name: 'HASIL UJIAN' },
+          { name: 'Rekap Hasil Ujian', icon: TrendingUp, action: 'exam-results-guru' },
+          // Administrasi Section
+          { type: 'divider', name: 'ADMINISTRASI' },
+          { name: 'Jurnal Mengajar', icon: ClipboardList, action: 'journal-guru' },
+          { name: 'Absensi Siswa', icon: UserCheck, action: 'attendance-guru' },
+          { name: 'Penilaian Siswa', icon: Award, action: 'evaluation-guru' },
+          // Laporan Section
+          { type: 'divider', name: 'LAPORAN' },
+          { name: 'Laporan Absensi', icon: Printer, action: 'attendance-report-guru' },
+          { name: 'Laporan Penilaian', icon: FileCheck, action: 'evaluation-report-guru' },
+          { name: 'Profil', icon: User, action: 'profile-guru' },
         ];
       case 'admin':
         return [
-          { name: 'Beranda', icon: Home, action: 'dashboard-admin' },
+          { name: 'Dashboard', icon: Home, action: 'dashboard-admin' },
           { name: 'Pengguna', icon: Users, action: 'users-admin' },
           { name: 'Kursus', icon: BookOpen, action: 'courses-admin' },
           { name: 'Ujian', icon: FileSignature, action: 'exams-admin' },
           { name: 'Pengumuman', icon: Bell, action: 'announcements-admin' },
           { name: 'Aktivitas', icon: FileText, action: 'activity-admin' },
           { name: 'Pengaturan', icon: Settings, action: 'settings-admin' },
-           // Administrasi Section
-           { type: 'divider', name: 'ADMINISTRASI' },
-            { name: 'Data Kelas', icon: Building2, action: 'classes-admin' },
-            { name: 'Data Pengajar', icon: UserCog, action: 'teachers-admin' },
-           { name: 'Data Siswa', icon: GraduationCap, action: 'students-admin' },
-           { name: 'Monitoring Absensi', icon: UserCheck, action: 'attendance-admin' },
-           { name: 'Evaluasi Pengajar', icon: Award, action: 'teacher-eval-admin' },
-           { name: 'Laporan', icon: Printer, action: 'reports-admin' },
-           { name: 'Profil', icon: User, action: 'profile-admin' },
+          // Administrasi Section
+          { type: 'divider', name: 'ADMINISTRASI' },
+          { name: 'Data Kelas', icon: Building2, action: 'classes-admin' },
+          { name: 'Data Pengajar', icon: UserCog, action: 'teachers-admin' },
+          { name: 'Data Siswa', icon: GraduationCap, action: 'students-admin' },
+          { name: 'Monitoring Absensi', icon: UserCheck, action: 'attendance-admin' },
+          { name: 'Evaluasi Pengajar', icon: Award, action: 'teacher-eval-admin' },
+          { name: 'Laporan', icon: Printer, action: 'reports-admin' },
+          { name: 'Profil', icon: User, action: 'profile-admin' },
         ];
       default:
         return [];
@@ -111,7 +117,7 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
         return {
           primary: [
             { name: 'Beranda', icon: Home, action: 'dashboard-murid' },
-            { name: 'Kursus', icon: BookOpen, action: 'courses-murid' },
+            { name: 'Kursus', icon: School, action: 'courses-murid' },
             { name: 'Ujian', icon: FileSignature, action: 'exams-murid' },
             { name: 'Progres', icon: BarChart3, action: 'progress-murid' },
             { name: 'Profil', icon: User, action: 'profile-murid' },
@@ -120,7 +126,6 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
             { name: 'Jelajahi', icon: Search, action: 'browse-courses' },
             { name: 'Tugas', icon: FileText, action: 'assignments-murid' },
             { name: 'Pengumuman', icon: Bell, action: 'announcements-murid' },
-            { name: 'Pesan', icon: Mail, action: 'messages-murid' },
           ]
         };
       case 'guru':
@@ -134,19 +139,16 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
           ],
           additional: [
             { name: 'Materi', icon: FileText, action: 'materials-guru' },
-            { name: 'Tugas', icon: FileText, action: 'assignments-guru' },
+            { name: 'Tugas', icon: HelpCircle, action: 'assignments-guru' },
             { name: 'Quiz', icon: HelpCircle, action: 'quiz-guru' },
             { name: 'Kumpul', icon: Upload, action: 'submissions-guru' },
             { name: 'Progres', icon: BarChart3, action: 'progress-guru' },
             { name: 'Rekap Hasil Ujian', icon: TrendingUp, action: 'exam-results-guru' },
             { name: 'Pengumuman', icon: Bell, action: 'announcements-guru' },
-            { name: 'Pesan', icon: Mail, action: 'messages-guru' },
-            // Administrasi
             { type: 'divider', name: 'ADMINISTRASI' },
             { name: 'Jurnal Mengajar', icon: ClipboardList, action: 'journal-guru' },
             { name: 'Absensi Siswa', icon: UserCheck, action: 'attendance-guru' },
             { name: 'Penilaian Siswa', icon: Award, action: 'evaluation-guru' },
-            // Laporan
             { type: 'divider', name: 'LAPORAN' },
             { name: 'Laporan Absensi', icon: Printer, action: 'attendance-report-guru' },
             { name: 'Laporan Penilaian', icon: FileCheck, action: 'evaluation-report-guru' },
@@ -166,13 +168,11 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
             { name: 'Pengumuman', icon: Bell, action: 'announcements-admin' },
             { name: 'Aktivitas', icon: FileText, action: 'activity-admin' },
             { name: 'Pengaturan', icon: Settings, action: 'settings-admin' },
-            // Administrasi Section
             { type: 'divider', name: 'DATA & MONITORING' },
             { name: 'Data Pengajar', icon: UserCog, action: 'teachers-admin' },
             { name: 'Data Siswa', icon: GraduationCap, action: 'students-admin' },
             { name: 'Monitoring Absensi', icon: UserCheck, action: 'attendance-admin' },
             { name: 'Evaluasi Pengajar', icon: Award, action: 'teacher-eval-admin' },
-            // Laporan Section
             { type: 'divider', name: 'LAPORAN' },
             { name: 'Laporan Sistem', icon: Printer, action: 'reports-admin' },
           ]
@@ -184,13 +184,6 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
 
   const { primary: primaryMenuItems = [], additional: additionalMenuItems = [] } = getMobileMenuConfig();
 
-  const handleNavigation = (action) => {
-    if (onNavigate) {
-      onNavigate(action);
-    }
-    setShowMoreMenu(false); // Close more menu when navigating
-  };
-
   // Get display name
   const getDisplayName = () => {
     if (profile?.display_name) return profile.display_name;
@@ -199,226 +192,276 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
     return 'Pengguna';
   };
 
-  // Render desktop sidebar
+  // Get user initials for avatar
+  const getUserInitials = () => {
+    const name = getDisplayName();
+    return name.charAt(0).toUpperCase();
+  };
+
+  // Get role display name
+  const getRoleLabel = () => {
+    switch (role) {
+      case 'murid': return 'Murid';
+      case 'guru': return 'Guru';
+      case 'admin': return 'Admin';
+      default: return 'Pengguna';
+    }
+  };
+
+  // ====== DESKTOP SIDEBAR ======
   const renderDesktopSidebar = () => (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <img src="/logo.png" alt="KSI-ON Logo" className="sidebar-logo" />
+    <aside className="hidden md:flex w-sidebar-width h-screen fixed left-0 top-0 bg-surface flex-col border-r border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.05)] z-50 overflow-y-auto">
+      {/* Logo Area */}
+      <div className="px-lg py-lg border-b border-outline-variant/30 flex items-center gap-sm shrink-0">
+        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+          <School className="text-primary fill-current" size={22} />
+        </div>
+        <div>
+          <h1 className="text-headline-md font-display font-extrabold text-primary leading-tight">KSI-ON LMS</h1>
+          <p className="text-label-sm text-on-surface-variant font-label">Academic Excellence</p>
+        </div>
       </div>
-      <nav className="sidebar-nav">
-        <ul>
-          {allMenuItems.map((item, index) => {
-            // Handle divider items (section headers)
-            if (item.type === 'divider') {
-              return (
-                <li key={index} className="sidebar-divider">
-                  <span className="sidebar-divider-text">{item.name}</span>
-                </li>
-              );
-            }
+
+      {/* Navigation Links */}
+      <nav className="flex-1 overflow-y-auto sidebar-scroll py-md flex flex-col gap-0.5 px-0">
+        {allMenuItems.map((item, index) => {
+          // Divider items (section headers)
+          if (item.type === 'divider') {
             return (
-              <li key={index}>
-                <button
-                  className={`sidebar-link ${activeSection === item.action ? 'active' : ''}`}
-                  onClick={() => handleNavigation(item.action)}
-                >
-                  <span className="nav-icon">
-                    <item.icon size={20} />
-                  </span>
-                  <span className="nav-text">{item.name}</span>
-                </button>
-              </li>
+              <div key={index} className="px-lg pt-md pb-xs mt-sm">
+                <span className="text-label-sm text-outline uppercase tracking-wider font-label font-semibold">
+                  {item.name}
+                </span>
+              </div>
             );
-          })}
-        </ul>
+          }
+
+          const isActive = activeSection === item.action;
+          return (
+            <button
+              key={index}
+              onClick={() => handleNavigation(item.action)}
+              className={`
+                flex items-center gap-md py-md px-lg mr-sm transition-all duration-200 ease-in-out group
+                ${isActive 
+                  ? 'bg-primary/10 text-primary border-l-4 border-primary rounded-r-full font-semibold' 
+                  : 'text-on-surface-variant border-l-4 border-transparent hover:bg-surface-container-low hover:text-primary rounded-r-full'
+                }
+              `}
+            >
+              <span className={`transition-transform duration-200 group-hover:scale-110 ${isActive ? 'scale-110' : ''}`}>
+                <item.icon size={20} />
+              </span>
+              <span className="text-label-md font-label">{item.name}</span>
+            </button>
+          );
+        })}
       </nav>
-      <div className="sidebar-footer">
-        <button onClick={handleSignOut} className="sidebar-link">
-          <span className="nav-icon">
-            <LogOut size={20} />
-          </span>
-          <span className="nav-text">Keluar</span>
+
+      {/* Footer / Logout */}
+      <div className="p-md border-t border-outline-variant/30 shrink-0">
+        <button
+          onClick={handleSignOut}
+          className="w-full text-on-surface-variant py-sm px-md flex items-center gap-md hover:bg-error-container hover:text-error transition-all duration-200 ease-in-out rounded-lg group"
+        >
+          <LogOut size={20} className="transition-transform duration-200 group-hover:scale-110" />
+          <span className="text-label-md font-label">Logout</span>
         </button>
       </div>
     </aside>
   );
 
-  // Render mobile bottom navigation bar with all features
+  // ====== MOBILE BOTTOM NAV ======
   const renderMobileBottomNav = () => (
     <>
-      <div className="mobile-bottom-nav">
-        {primaryMenuItems.map((item, index) => (
-          <button
-            key={index}
-            className={`mobile-bottom-nav-item ${activeSection === item.action ? 'active' : ''}`}
-            onClick={() => handleNavigation(item.action)}
-            title={item.name}
-          >
-            <span className="mobile-bottom-nav-icon">
-              <item.icon size={20} />
-            </span>
-            <span className="mobile-bottom-nav-text">{item.name}</span>
-          </button>
-        ))}
+      {/* Mobile Top Bar */}
+      <header className="md:hidden flex items-center justify-between px-md py-sm bg-surface/80 backdrop-blur-md sticky top-0 z-40 border-b border-outline-variant/50">
+        <button
+          onClick={() => setMobileSidebarOpen(true)}
+          className="p-xs rounded-full hover:bg-surface-container-high transition-colors text-primary"
+        >
+          <Menu size={24} />
+        </button>
+        <div className="flex items-center gap-sm">
+          <School className="text-primary" size={20} />
+          <span className="text-title-md font-title font-semibold text-primary">KSI-ON</span>
+        </div>
+        <div className="flex items-center gap-xs">
+          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-label-sm font-bold">
+            {getUserInitials()}
+          </div>
+        </div>
+      </header>
 
-        {/* More menu button if there are additional items */}
+      {/* Mobile Bottom Navigation */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant/50 px-xs pb-[env(safe-area-inset-bottom,0px)] z-50 flex justify-around safe-area-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+        {primaryMenuItems.map((item, index) => {
+          const isActive = activeSection === item.action;
+          return (
+            <button
+              key={index}
+              onClick={() => handleNavigation(item.action)}
+              className={`flex flex-col items-center justify-center py-sm px-1 min-w-0 flex-1 transition-colors duration-200 ${
+                isActive ? 'text-primary' : 'text-on-surface-variant'
+              }`}
+            >
+              <span className={`mb-0.5 ${isActive ? 'scale-110' : ''}`}>
+                <item.icon size={20} />
+              </span>
+              <span className={`text-[10px] font-label font-medium leading-tight ${isActive ? 'font-semibold' : ''}`}>
+                {item.name}
+              </span>
+            </button>
+          );
+        })}
+
+        {/* More button if there are additional items */}
         {additionalMenuItems.filter(item => item.type !== 'divider').length > 0 && (
           <button
-            className="mobile-bottom-nav-item"
             onClick={() => setShowMoreMenu(true)}
-            title="Menu Lainnya"
+            className="flex flex-col items-center justify-center py-sm px-1 min-w-0 text-on-surface-variant"
           >
-            <span className="mobile-bottom-nav-icon">
+            <span className="mb-0.5">
               <MoreVertical size={20} />
             </span>
-            <span className="mobile-bottom-nav-text">Lainnya</span>
+            <span className="text-[10px] font-label font-medium">Lainnya</span>
           </button>
         )}
 
-        {/* Keluar button */}
+        {/* Logout on mobile */}
         <button
-          className="mobile-bottom-nav-item"
           onClick={handleSignOut}
-          title="Keluar"
+          className="flex flex-col items-center justify-center py-sm px-1 min-w-0 text-on-surface-variant"
         >
-          <span className="mobile-bottom-nav-icon">
-            <LogOut size={20} />
-          </span>
-          <span className="mobile-bottom-nav-text">Keluar</span>
+          <LogOut size={20} />
+          <span className="text-[10px] font-label font-medium">Keluar</span>
         </button>
       </div>
 
-      {/* More Menu Modal */}
-      {showMoreMenu && (
-        <div
-          className="modal-overlay"
-          onClick={() => setShowMoreMenu(false)}
-          style={{
-            background: 'rgba(0, 0, 0, 0.5)',
-            backdropFilter: 'blur(4px)',
-            WebkitBackdropFilter: 'blur(4px)',
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            zIndex: 10000,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            padding: '1rem',
-            animation: 'fadeIn 0.2s ease'
-          }}
-        >
+      {/* Mobile Slide-out Sidebar */}
+      {mobileSidebarOpen && (
+        <div className="fixed inset-0 z-[100] md:hidden">
           <div
-            className="modal-content mobile-menu-modal"
-            onClick={e => e.stopPropagation()}
-            style={{
-              maxWidth: '90vw',
-              width: '100%',
-              maxHeight: '80vh',
-              margin: '2rem auto',
-              borderRadius: '16px',
-              background: 'white',
-              boxShadow: '0 20px 40px rgba(0, 0, 0, 0.15)',
-              animation: 'modalSlideUp 0.3s ease-out',
-              overflow: 'hidden'
-            }}
-          >
-            <div
-              className="modal-header"
-              style={{
-                padding: '1.5rem',
-                borderBottom: '1px solid #e5e7eb',
-                borderRadius: '16px 16px 0 0',
-                background: '#fafafa',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'space-between'
-              }}
-            >
-              <h3 style={{ margin: 0, fontSize: '1.25rem', fontWeight: 600, color: '#111827' }}>
-                Menu Lengkap
-              </h3>
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setMobileSidebarOpen(false)}
+          />
+          <aside className="absolute left-0 top-0 bottom-0 w-[280px] bg-surface shadow-2xl flex flex-col animate-slideInLeft">
+            <div className="px-lg py-lg border-b border-outline-variant/30 flex items-center gap-sm">
+              <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                <School className="text-primary" size={22} />
+              </div>
+              <div className="flex-1">
+                <h1 className="text-headline-md font-display font-extrabold text-primary leading-tight">KSI-ON LMS</h1>
+              </div>
               <button
-                className="close-btn"
-                onClick={() => setShowMoreMenu(false)}
-                aria-label="Tutup menu"
-                style={{
-                  background: 'none',
-                  border: 'none',
-                  fontSize: '1.5rem',
-                  color: '#6b7280',
-                  cursor: 'pointer',
-                  padding: '0.25rem',
-                  borderRadius: '4px',
-                  transition: 'all 0.2s ease',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}
-                onMouseEnter={(e) => {
-                  e.target.style.background = '#f3f4f6';
-                  e.target.style.color = '#374151';
-                }}
-                onMouseLeave={(e) => {
-                  e.target.style.background = 'none';
-                  e.target.style.color = '#6b7280';
-                }}
+                onClick={() => setMobileSidebarOpen(false)}
+                className="p-xs rounded-full hover:bg-surface-container-high transition-colors"
               >
                 <X size={20} />
               </button>
             </div>
-            <div
-              className="modal-body"
-              style={{
-                padding: '1rem',
-                maxHeight: 'calc(80vh - 80px)',
-                overflowY: 'auto',
-                WebkitOverflowScrolling: 'touch'
-              }}
-            >
-              <div className="mobile-menu-grid">
+
+            <div className="px-md py-sm border-b border-outline-variant/20 bg-surface-container-low/50">
+              <div className="flex items-center gap-sm">
+                <div className="w-10 h-10 rounded-full bg-primary text-on-primary flex items-center justify-center font-bold text-title-md">
+                  {getUserInitials()}
+                </div>
+                <div>
+                  <p className="text-body-sm font-body font-semibold text-on-surface">{getDisplayName()}</p>
+                  <p className="text-label-sm font-label text-on-surface-variant">{getRoleLabel()}</p>
+                </div>
+              </div>
+            </div>
+
+            <nav className="flex-1 overflow-y-auto sidebar-scroll py-sm">
+              {allMenuItems.map((item, index) => {
+                if (item.type === 'divider') {
+                  return (
+                    <div key={index} className="px-lg pt-md pb-xs mt-sm">
+                      <span className="text-label-sm text-outline uppercase tracking-wider font-label font-semibold">
+                        {item.name}
+                      </span>
+                    </div>
+                  );
+                }
+                const isActive = activeSection === item.action;
+                return (
+                  <button
+                    key={index}
+                    onClick={() => handleNavigation(item.action)}
+                    className={`w-full flex items-center gap-md py-md px-lg mr-sm transition-all duration-200 group ${
+                      isActive 
+                        ? 'bg-primary/10 text-primary border-l-4 border-primary rounded-r-full font-semibold' 
+                        : 'text-on-surface-variant border-l-4 border-transparent hover:bg-surface-container-low hover:text-primary rounded-r-full'
+                    }`}
+                  >
+                    <span className={`transition-transform duration-200 group-hover:scale-110 ${isActive ? 'scale-110' : ''}`}>
+                      <item.icon size={20} />
+                    </span>
+                    <span className="text-label-md font-label">{item.name}</span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            <div className="p-md border-t border-outline-variant/30">
+              <button
+                onClick={handleSignOut}
+                className="w-full text-on-surface-variant py-sm px-md flex items-center gap-md hover:bg-error-container hover:text-error transition-colors rounded-lg"
+              >
+                <LogOut size={20} />
+                <span className="text-label-md font-label">Logout</span>
+              </button>
+            </div>
+          </aside>
+        </div>
+      )}
+
+      {/* More Menu Modal */}
+      {showMoreMenu && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-md md:hidden">
+          <div
+            className="absolute inset-0 bg-black/40 backdrop-blur-sm"
+            onClick={() => setShowMoreMenu(false)}
+          />
+          <div
+            className="relative bg-surface rounded-2xl shadow-2xl w-full max-w-sm max-h-[80vh] overflow-hidden animate-scaleIn"
+            onClick={e => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between px-lg py-md border-b border-outline-variant/30 bg-surface-container-low">
+              <h3 className="text-title-md font-title font-semibold text-on-surface">Menu Lengkap</h3>
+              <button
+                onClick={() => setShowMoreMenu(false)}
+                className="p-1 rounded-full hover:bg-surface-container-high transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+            <div className="overflow-y-auto max-h-[calc(80vh-60px)] p-sm">
+              <div className="grid grid-cols-2 gap-sm">
                 {additionalMenuItems.map((item, index) => {
                   if (item.type === 'divider') {
                     return (
-                      <div key={index} className="mobile-menu-divider">
-                        <span className="mobile-menu-divider-text">{item.name}</span>
+                      <div key={index} className="col-span-2 px-sm pt-md pb-xs">
+                        <span className="text-label-sm text-outline uppercase tracking-wider font-label font-semibold">
+                          {item.name}
+                        </span>
                       </div>
                     );
                   }
+                  const isActive = activeSection === item.action;
                   return (
                     <button
                       key={index}
-                      className={`mobile-menu-item ${activeSection === item.action ? 'active' : ''}`}
                       onClick={() => handleNavigation(item.action)}
-                      style={{
-                        display: 'flex',
-                        flexDirection: 'column',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        padding: '1rem 0.75rem',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '12px',
-                        background: 'white',
-                        color: '#374151',
-                        fontSize: '0.875rem',
-                        fontWeight: 500,
-                        cursor: 'pointer',
-                        transition: 'all 0.2s ease',
-                        minHeight: '80px',
-                        textAlign: 'center',
-                        gap: '0.5rem',
-                        boxShadow: '0 1px 3px rgba(0, 0, 0, 0.1)',
-                        position: 'relative',
-                        overflow: 'hidden',
-                        width: '100%'
-                      }}
+                      className={`flex flex-col items-center justify-center gap-sm p-md rounded-xl border transition-all duration-200 min-h-[80px] ${
+                        isActive
+                          ? 'bg-primary/10 border-primary/30 text-primary'
+                          : 'bg-surface border-outline-variant/30 text-on-surface-variant hover:border-primary/30 hover:bg-surface-container-low'
+                      }`}
                     >
-                      <span className="mobile-menu-item-icon">
-                        <item.icon size={20} />
-                      </span>
-                      <span className="mobile-menu-item-text">{item.name}</span>
+                      <item.icon size={24} />
+                      <span className="text-label-sm font-label text-center leading-tight">{item.name}</span>
                     </button>
                   );
                 })}
@@ -430,18 +473,14 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
     </>
   );
 
-  // Don't render until we have role and menu data
   if (!role || !allMenuItems) {
     return null;
   }
 
   return (
     <>
-      {/* Desktop sidebar */}
-      {!isMobile && renderDesktopSidebar()}
-
-      {/* Mobile bottom navigation */}
-      {isMobile && renderMobileBottomNav()}
+      {renderDesktopSidebar()}
+      {renderMobileBottomNav()}
     </>
   );
 };

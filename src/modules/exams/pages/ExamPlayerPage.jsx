@@ -5,7 +5,6 @@ import { fetchExamById, fetchQuestionsWithOptions, createAttempt, submitAttempt,
 import { useExamTimer } from '../hooks/useExamTimer';
 import { useAutoSave } from '../hooks/useAutoSave';
 import { Clock, AlertTriangle, Check, X, ChevronLeft, ChevronRight, Send, Save } from 'lucide-react';
-import '../styles/examStyles.css';
 
 const ExamPlayerPage = ({ examId, onFinish }) => {
   const { user } = useAuth();
@@ -237,10 +236,12 @@ const ExamPlayerPage = ({ examId, onFinish }) => {
   // --- RENDER STATES ---
   if (loading) {
     return (
-      <div className="dashboard-container" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '60vh' }}>
-        <div style={{ textAlign: 'center' }}>
-          <div className="loading-spinner" style={{ width: 40, height: 40, border: '4px solid #e5e7eb', borderTopColor: '#8b5cf6', borderRadius: '50%', animation: 'spin 0.8s linear infinite', margin: '0 auto 1rem' }} />
-          <p style={{ color: '#6b7280' }}>Memuat ujian...</p>
+      <div className="p-margin-mobile md:p-margin-desktop max-w-5xl mx-auto">
+        <div className="flex items-center justify-center min-h-[60vh]">
+          <div className="flex flex-col items-center gap-md">
+            <div className="w-10 h-10 rounded-full border-4 border-primary border-t-transparent animate-spin"></div>
+            <p className="text-body-md text-on-surface-variant">Memuat ujian...</p>
+          </div>
         </div>
       </div>
     );
@@ -248,100 +249,97 @@ const ExamPlayerPage = ({ examId, onFinish }) => {
 
   if (error) {
     return (
-      <div className="dashboard-container" style={{ textAlign: 'center', padding: '3rem 1rem' }}>
-        <AlertTriangle size={48} style={{ color: '#ef4444', marginBottom: '1rem' }} />
-        <h2 style={{ color: '#1f2937', marginBottom: '0.5rem' }}>Gagal Memuat Ujian</h2>
-        <p style={{ color: '#6b7280' }}>{error}</p>
+      <div className="p-margin-mobile md:p-margin-desktop max-w-5xl mx-auto py-2xl">
+        <div className="bg-surface rounded-xl p-xl text-center border border-outline-variant/30 shadow-sm">
+          <AlertTriangle className="w-12 h-12 text-error mx-auto mb-md" />
+          <h2 className="text-title-md font-semibold text-on-surface mb-sm">Gagal Memuat Ujian</h2>
+          <p className="text-body-md text-on-surface-variant">{error}</p>
+        </div>
       </div>
     );
   }
 
-  // Not published yet
   if (examState === 'not_started') {
     return (
-      <div className="dashboard-container" style={{ textAlign: 'center', padding: '3rem 1rem', maxWidth: '500px', margin: '0 auto' }}>
-        <Clock size={48} style={{ color: '#f59e0b', marginBottom: '1rem' }} />
-        <h2 style={{ color: '#1f2937', marginBottom: '0.5rem' }}>Ujian Belum Dimulai</h2>
-        <p style={{ color: '#6b7280' }}>
-          Ujian "{exam?.title}" belum dipublikasikan. Silakan tunggu pengumuman dari guru Anda.
-        </p>
+      <div className="p-margin-mobile md:p-margin-desktop max-w-lg mx-auto py-3xl">
+        <div className="bg-surface rounded-xl p-xl text-center border border-outline-variant/30 shadow-sm">
+          <Clock className="w-12 h-12 text-warning mx-auto mb-md" />
+          <h2 className="text-title-md font-semibold text-on-surface mb-sm">Ujian Belum Dimulai</h2>
+          <p className="text-body-md text-on-surface-variant">Ujian "{exam?.title}" belum dipublikasikan. Silakan tunggu pengumuman dari guru Anda.</p>
+        </div>
       </div>
     );
   }
 
-  // Closed by teacher
   if (examState === 'closed' && !attempt) {
     return (
-      <div className="dashboard-container" style={{ textAlign: 'center', padding: '3rem 1rem', maxWidth: '500px', margin: '0 auto' }}>
-        <X size={48} style={{ color: '#ef4444', marginBottom: '1rem' }} />
-        <h2 style={{ color: '#1f2937', marginBottom: '0.5rem' }}>Ujian Telah Ditutup</h2>
-        <p style={{ color: '#6b7280' }}>
-          Ujian "{exam?.title}" telah ditutup oleh guru.
-        </p>
+      <div className="p-margin-mobile md:p-margin-desktop max-w-lg mx-auto py-3xl">
+        <div className="bg-surface rounded-xl p-xl text-center border border-outline-variant/30 shadow-sm">
+          <X className="w-12 h-12 text-error mx-auto mb-md" />
+          <h2 className="text-title-md font-semibold text-on-surface mb-sm">Ujian Telah Ditutup</h2>
+          <p className="text-body-md text-on-surface-variant">Ujian "{exam?.title}" telah ditutup oleh guru.</p>
+        </div>
       </div>
     );
   }
 
-  // Ready to start
   if (examState === 'ready') {
     const totalPoints = questions.reduce((sum, q) => sum + (q.points || 0), 0);
     return (
-      <div className="dashboard-container" style={{ textAlign: 'center', padding: '2rem 1rem', maxWidth: '500px', margin: '0 auto' }}>
-        <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '2rem 1.5rem' }}>
-          <h1 style={{ fontSize: '1.5rem', color: '#1f2937', margin: '0 0 0.5rem' }}>{exam?.title}</h1>
-          {exam?.description && (
-            <p style={{ color: '#6b7280', marginBottom: '1.5rem' }}>{exam.description}</p>
-          )}
-          <div style={{ display: 'flex', justifyContent: 'center', gap: '2rem', marginBottom: '1.5rem' }}>
+      <div className="p-margin-mobile md:p-margin-desktop max-w-lg mx-auto py-3xl">
+        <div className="bg-surface rounded-2xl p-xl shadow-sm border border-outline-variant/30 text-center">
+          <h1 className="text-headline-sm font-bold text-on-surface m-0 mb-sm">{exam?.title}</h1>
+          {exam?.description && <p className="text-body-md text-on-surface-variant mb-lg">{exam.description}</p>}
+          <div className="flex items-center justify-center gap-xl mb-lg">
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#8b5cf6' }}>{questions.length}</div>
-              <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>Soal</div>
+              <div className="text-2xl font-bold text-primary">{questions.length}</div>
+              <div className="text-label-xs text-on-surface-variant">Soal</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#8b5cf6' }}>{exam.duration_minutes}</div>
-              <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>Menit</div>
+              <div className="text-2xl font-bold text-primary">{exam.duration_minutes}</div>
+              <div className="text-label-xs text-on-surface-variant">Menit</div>
             </div>
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#8b5cf6' }}>{totalPoints}</div>
-              <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>Total Poin</div>
+              <div className="text-2xl font-bold text-primary">{totalPoints}</div>
+              <div className="text-label-xs text-on-surface-variant">Total Poin</div>
             </div>
           </div>
-          <button onClick={handleStartExam} className="btn btn-primary" style={{ padding: '0.75rem 2rem', fontSize: '1.1rem' }}>
-            Mulai Ujian
-          </button>
+          <button onClick={handleStartExam}
+            className="px-6 py-3 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-lg">Mulai Ujian</button>
         </div>
       </div>
     );
   }
 
-  // Already submitted
   if (examState === 'submitted' && attempt) {
     return (
-      <div className="dashboard-container" style={{ textAlign: 'center', padding: '2rem 1rem', maxWidth: '500px', margin: '0 auto' }}>
-        <div style={{ background: 'white', border: '1px solid #e5e7eb', borderRadius: '16px', padding: '2rem 1.5rem' }}>
-          <div style={{ width: 64, height: 64, background: '#d1fae5', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', margin: '0 auto 1rem' }}>
-            <Check size={32} style={{ color: '#059669' }} />
+      <div className="p-margin-mobile md:p-margin-desktop max-w-lg mx-auto py-3xl">
+        <div className="bg-surface rounded-2xl p-xl shadow-sm border border-outline-variant/30 text-center">
+          <div className="w-16 h-16 rounded-full bg-success-container flex items-center justify-center mx-auto mb-md">
+            <Check className="w-8 h-8 text-success" />
           </div>
-          <h2 style={{ color: '#1f2937', margin: '0 0 0.5rem' }}>Ujian Terkumpul!</h2>
-          <p style={{ color: '#6b7280', marginBottom: '1rem' }}>
-            Jawaban Anda telah berhasil dikumpulkan. Hasil akan diumumkan oleh guru.
-          </p>
+          <h2 className="text-title-md font-semibold text-on-surface mb-sm">Ujian Terkumpul!</h2>
+          <p className="text-body-md text-on-surface-variant mb-md">Jawaban Anda telah berhasil dikumpulkan. Hasil akan diumumkan oleh guru.</p>
           {attempt.status === 'auto_submitted' && (
-            <div style={{ background: '#fef3c7', color: '#92400e', padding: '0.5rem 1rem', borderRadius: '8px', fontSize: '0.85rem', marginBottom: '1rem' }}>
+            <div className="flex items-center gap-2 px-md py-3 rounded-xl bg-warning-container/50 text-body-sm text-on-warning-container mb-md">
+              <AlertTriangle className="w-4 h-4 shrink-0" />
               Ujian ditutup oleh guru. Jawaban otomatis terkumpul.
             </div>
           )}
-          <button onClick={onFinish} className="btn btn-secondary">
-            Kembali
-          </button>
+          <button onClick={onFinish} className="px-5 py-2.5 rounded-xl text-label-sm font-medium text-on-surface-variant hover:bg-surface-container-high transition-colors">Kembali</button>
         </div>
       </div>
     );
   }
 
-  // --- MAIN EXAM PLAYER --- (in_progress)
   if (!currentQuestion) {
-    return <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>Tidak ada soal...</div>;
+    return (
+      <div className="p-margin-mobile md:p-margin-desktop max-w-5xl mx-auto py-3xl">
+        <div className="text-center text-on-surface-variant">
+          <p className="text-body-md">Tidak ada soal...</p>
+        </div>
+      </div>
+    );
   }
 
   const q = currentQuestion;
@@ -350,200 +348,141 @@ const ExamPlayerPage = ({ examId, onFinish }) => {
   const isFirstQuestion = currentIndex === 0;
 
   return (
-    <div className="exam-player-container">
-      {/* Sticky Top Bar */}
-      <div className="exam-player-topbar no-print">
-        <span className="exam-player-topbar-title">{exam?.title}</span>
-        <div className="exam-timer" style={{ color: getTimerColor(), background: getTimerColor() + '15' }}>
-          <Clock size={18} />
-          {formattedTime}
+    <div className="h-full flex flex-col bg-surface-container-high">
+      {/* Header bar */}
+      <div className="bg-surface border-b border-outline-variant/20 px-margin-mobile md:px-margin-desktop py-md shrink-0">
+        <div className="max-w-5xl mx-auto flex items-center justify-between">
+          <span className="text-title-md font-semibold text-on-surface truncate">{exam?.title}</span>
+          <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg text-label-sm font-mono font-semibold"
+            style={{ color: getTimerColor(), background: getTimerColor() + '20' }}>
+            <Clock className="w-4 h-4" />
+            {formattedTime}
+          </div>
         </div>
-      </div>
-
-      {/* Progress Bar */}
-      <div className="exam-progress-bar-container no-print">
-        <div className="exam-progress-bar-fill" style={{ width: `${progress}%` }} />
+        {/* Progress bar */}
+        <div className="max-w-5xl mx-auto mt-md">
+          <div className="w-full h-1 bg-surface-container-high rounded-full overflow-hidden">
+            <div className="h-full bg-primary rounded-full transition-all duration-500" style={{ width: `${progress}%` }} />
+          </div>
+        </div>
       </div>
 
       {/* Autosave indicator */}
-      <div className="no-print" style={{ textAlign: 'center', padding: '0.25rem', fontSize: '0.75rem', color: '#9ca3af' }}>
+      <div className="text-center py-1 text-label-xs text-outline">
         {isSaving ? 'Menyimpan...' : lastSaveRef.current ? 'Tersimpan' : ''}
       </div>
 
-      <div className="question-display">
-        {/* Question Navigator */}
-        <div className="no-print" style={{ marginBottom: '1.5rem' }}>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            marginBottom: '0.75rem',
-            flexWrap: 'wrap',
-            gap: '0.5rem'
-          }}>
-            <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>
-              Soal {currentIndex + 1} dari {questions.length}
-            </span>
-            <span style={{
-              fontSize: '0.85rem',
-              color: '#6b7280',
-              background: '#f3f4f6',
-              padding: '0.25rem 0.5rem',
-              borderRadius: '4px'
-            }}>
-              Terjawab: {answeredCount}/{questions.length}
-            </span>
-          </div>
-          <div className="question-nav-grid">
-            {questions.map((question, idx) => {
-              const hasAnswer = answers[question.id] && (
-                (answers[question.id].selected_option_ids?.length > 0) ||
-                (answers[question.id].answer_text?.trim())
-              );
-              return (
-                <button
-                  key={question.id}
-                  className={`question-dot ${idx === currentIndex ? 'active current' : ''} ${hasAnswer ? 'answered' : ''}`}
-                  onClick={() => goToQuestion(idx)}
-                  aria-label={`Go to question ${idx + 1}${hasAnswer ? ' (answered)' : ''}`}
-                  title={`Question ${idx + 1}${hasAnswer ? ' - Answered' : ' - Not answered'}`}
-                >
-                  {idx + 1}
-                </button>
-              );
-            })}
-          </div>
-        </div>
-
-        {/* Question Type Badge */}
-        <div style={{ marginBottom: '0.75rem' }}>
-          <span className="question-points">
-            {q.type === 'multiple_choice' ? 'Pilihan Ganda' : q.type === 'checkbox' ? 'Checkbox' : 'Essay'}
-            {' • '}{q.points} poin
-          </span>
-        </div>
-
-        {/* Question Text */}
-        <div className="question-text">{q.question}</div>
-
-        {/* Question Image */}
-        {q.image_url && (
-          <div style={{
-            marginBottom: '1.5rem',
-            textAlign: 'center',
-            border: '1px solid #e5e7eb',
-            borderRadius: '8px',
-            padding: '1rem',
-            background: '#fafafa'
-          }}>
-            <img
-              src={q.image_url}
-              alt="Gambar soal"
-              style={{
-                maxWidth: '100%',
-                maxHeight: '400px',
-                width: 'auto',
-                height: 'auto',
-                borderRadius: '6px',
-                boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-                objectFit: 'contain'
-              }}
-              onError={(e) => {
-                e.target.style.display = 'none';
-                e.target.nextSibling.style.display = 'block';
-              }}
-            />
-            <div style={{
-              display: 'none',
-              textAlign: 'center',
-              color: '#ef4444',
-              fontSize: '0.9rem',
-              padding: '2rem'
-            }}>
-              Gagal memuat gambar soal
+      {/* Main content */}
+      <div className="flex-1 overflow-y-auto px-margin-mobile md:px-margin-desktop py-lg">
+        <div className="max-w-3xl mx-auto space-y-lg">
+          {/* Question Navigator */}
+          <div className="bg-surface rounded-xl p-md shadow-sm border border-outline-variant/30">
+            <div className="flex items-center justify-between gap-sm mb-md">
+              <span className="text-label-sm text-on-surface-variant">Soal {currentIndex + 1} dari {questions.length}</span>
+              <span className="text-label-xs text-on-surface-variant bg-surface-container-low px-2 py-1 rounded">Terjawab: {answeredCount}/{questions.length}</span>
+            </div>
+            <div className="flex flex-wrap gap-1.5">
+              {questions.map((question, idx) => {
+                const hasAnswer = answers[question.id] && (
+                  (answers[question.id].selected_option_ids?.length > 0) ||
+                  (answers[question.id].answer_text?.trim())
+                );
+                return (
+                  <button key={question.id}
+                    onClick={() => goToQuestion(idx)}
+                    className={`w-9 h-9 rounded-lg text-label-sm font-medium transition-all ${
+                      idx === currentIndex
+                        ? 'bg-primary text-on-primary shadow-sm'
+                        : hasAnswer
+                          ? 'bg-success-container text-on-success-container'
+                          : 'bg-surface-container-high text-on-surface-variant hover:bg-surface-container-high/80'
+                    }`}
+                    aria-label={`Go to question ${idx + 1}`}
+                    title={`Question ${idx + 1}${hasAnswer ? ' - Answered' : ' - Not answered'}`}>
+                    {idx + 1}
+                  </button>
+                );
+              })}
             </div>
           </div>
-        )}
 
-        {/* Options or Essay */}
-        {(q.type === 'multiple_choice' || q.type === 'checkbox') && (
-          <div className="options-list">
-            {(q.options || []).map(opt => {
-              const isSelected = (currentAnswer.selected_option_ids || []).includes(opt.id);
-              return (
-                <div
-                  key={opt.id}
-                  className={`option-item ${isSelected ? 'selected' : ''}`}
-                  onClick={() => handleAnswerChange(q.id, opt.id)}
-                  role="button"
-                  tabIndex={0}
-                  onKeyDown={(e) => {
-                    if (e.key === 'Enter' || e.key === ' ') {
-                      e.preventDefault();
-                      handleAnswerChange(q.id, opt.id);
-                    }
-                  }}
-                  aria-pressed={isSelected}
-                  aria-label={`${q.type === 'multiple_choice' ? 'Select' : 'Toggle'} option: ${opt.option_text}`}
-                >
-                  <input
-                    type={q.type === 'multiple_choice' ? 'radio' : 'checkbox'}
-                    checked={isSelected}
-                    onChange={() => {}}
-                    name={`question-${q.id}`}
-                    aria-hidden="true"
-                  />
-                  <span className="option-text">{opt.option_text}</span>
-                </div>
-              );
-            })}
+          {/* Question card */}
+          <div className="bg-surface rounded-2xl p-xl shadow-sm border border-outline-variant/30">
+            {/* Question type badge */}
+            <span className="inline-flex items-center px-2 py-0.5 rounded text-label-xs font-medium bg-surface-container-low text-on-surface-variant mb-md">
+              {q.type === 'multiple_choice' ? 'Pilihan Ganda' : q.type === 'checkbox' ? 'Checkbox' : 'Essay'}
+              {' • '}{q.points} poin
+            </span>
+
+            {/* Question text */}
+            <div className="text-title-md font-semibold text-on-surface leading-relaxed mb-lg">{q.question}</div>
+
+            {/* Question image */}
+            {q.image_url && (
+              <div className="mb-lg text-center border border-outline-variant/30 rounded-xl p-md bg-surface-container-low">
+                <img src={q.image_url} alt="Gambar soal"
+                  className="max-w-full max-h-[400px] w-auto h-auto rounded-lg shadow-sm object-contain"
+                  onError={(e) => { e.target.style.display = 'none'; if (e.target.nextSibling) e.target.nextSibling.style.display = 'block'; }} />
+                <div className="hidden text-center text-error text-body-sm py-xl">Gagal memuat gambar soal</div>
+              </div>
+            )}
+
+            {/* Options */}
+            {(q.type === 'multiple_choice' || q.type === 'checkbox') && (
+              <div className="space-y-md">
+                {(q.options || []).map(opt => {
+                  const isSelected = (currentAnswer.selected_option_ids || []).includes(opt.id);
+                  return (
+                    <div key={opt.id}
+                      onClick={() => handleAnswerChange(q.id, opt.id)}
+                      role="button" tabIndex={0}
+                      onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); handleAnswerChange(q.id, opt.id); } }}
+                      aria-pressed={isSelected}
+                      className={`flex items-center gap-md p-md rounded-xl border-2 cursor-pointer transition-all ${
+                        isSelected
+                          ? 'border-primary bg-primary-container/20'
+                          : 'border-outline-variant/40 hover:border-primary/50 hover:bg-primary-container/10'
+                      }`}>
+                      <input type={q.type === 'multiple_choice' ? 'radio' : 'checkbox'}
+                        checked={isSelected} onChange={() => {}}
+                        className={`w-5 h-5 ${q.type === 'multiple_choice' ? 'rounded-full' : 'rounded'} accent-primary`} />
+                      <span className="text-body-md text-on-surface">{opt.option_text}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            {/* Essay textarea */}
+            {q.type === 'essay' && (
+              <textarea value={currentAnswer.answer_text || ''}
+                onChange={e => handleAnswerChange(q.id, e.target.value)}
+                placeholder="Tulis jawaban Anda di sini..."
+                className="w-full px-4 py-3 rounded-xl border border-outline bg-surface text-body-md text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all resize-none min-h-[150px]" />
+            )}
           </div>
-        )}
 
-        {q.type === 'essay' && (
-          <textarea
-            className="essay-textarea"
-            value={currentAnswer.answer_text || ''}
-            onChange={e => handleAnswerChange(q.id, e.target.value)}
-            placeholder="Tulis jawaban Anda di sini..."
-          />
-        )}
-      </div>
-
-      {/* Bottom Navigation (fixed on mobile, static on desktop) */}
-      <div className="exam-bottom-nav no-print">
-        <div className="exam-bottom-nav-left">
-          <button
-            className="question-nav-btn"
-            onClick={handlePrev}
-            disabled={isFirstQuestion}
-            aria-label="Previous question"
-          >
-            <ChevronLeft size={18} />
-            <span className="nav-text-mobile">Sebelumnya</span>
-          </button>
-        </div>
-        <div className="exam-bottom-nav-right">
-          {isLastQuestion ? (
-            <button
-              className="submit-btn"
-              onClick={handleManualSubmit}
-              disabled={submitting}
-              aria-label="Submit exam"
-            >
-              <Send size={18} style={{ marginRight: '8px' }} />
-              {submitting ? 'Mengumpulkan...' : 'Kumpulkan'}
+          {/* Bottom Navigation */}
+          <div className="flex items-center justify-between gap-md">
+            <button onClick={handlePrev} disabled={isFirstQuestion}
+              className={`inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-label-sm font-medium transition-colors ${
+                isFirstQuestion ? 'text-outline cursor-not-allowed' : 'text-on-surface-variant hover:bg-surface-container-high'
+              }`} aria-label="Previous question">
+              <ChevronLeft className="w-4 h-4" /> Sebelumnya
             </button>
-          ) : (
-            <button
-              className="question-nav-btn"
-              onClick={handleNext}
-              aria-label="Next question"
-            >
-              <span className="nav-text-mobile">Selanjutnya</span>
-              <ChevronRight size={18} />
-            </button>
-          )}
+            {isLastQuestion ? (
+              <button onClick={handleManualSubmit} disabled={submitting}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm disabled:opacity-50" aria-label="Submit exam">
+                <Send className="w-4 h-4" />
+                {submitting ? 'Mengumpulkan...' : 'Kumpulkan'}
+              </button>
+            ) : (
+              <button onClick={handleNext}
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary/90 transition-colors shadow-sm" aria-label="Next question">
+                Selanjutnya <ChevronRight className="w-4 h-4" />
+              </button>
+            )}
+          </div>
         </div>
       </div>
     </div>

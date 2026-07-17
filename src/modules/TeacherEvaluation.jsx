@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { Award, Star, Users, Calendar, Filter, Printer, Save, Trash2, Edit2, X } from 'lucide-react';
+import { Award, Star, Calendar, Filter, Printer, Save, Trash2, Edit2, X } from 'lucide-react';
 
 const TeacherEvaluation = () => {
   const { user } = useAuth();
@@ -314,123 +314,97 @@ const TeacherEvaluation = () => {
     });
   };
 
-  const FormSection = ({ title, icon, color, name, scoreValue, feedbackValue, description }) => (
-    <div style={{ 
-      background: '#f5f3ff', 
-      padding: '1.25rem', 
-      borderRadius: '12px', 
-      marginBottom: '1.25rem',
-      border: `2px solid ${color}`
-    }}>
-      <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-        <h4 style={{ margin: 0, color: color, display: 'flex', alignItems: 'center', gap: '0.5rem', fontSize: '1rem' }}>
-          {icon} {title}
-        </h4>
-      </div>
-      
-      <div className="form-group" style={{ marginBottom: '0.75rem' }}>
-        <label style={{ fontSize: '0.9rem', color: '#374151', marginBottom: '0.4rem', display: 'block' }}>
-          Nilai (1-5)
-        </label>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+  const FormSection = ({ title, scoreName, feedbackName, scoreValue, description }) => (
+    <div className="bg-primary-container/20 p-4 md:p-5 rounded-xl border-l-4 mb-4" style={{ borderLeftColor: getScoreColor(scoreValue) }}>
+      <h4 className="text-title-sm font-semibold text-on-surface flex items-center gap-sm mb-3">
+        {title}
+      </h4>
+      <div className="mb-3">
+        <label className="text-label-sm font-medium text-on-surface mb-1.5 block">Nilai (1-5)</label>
+        <div className="flex items-center gap-md">
           <input
             type="range"
-            name={name}
-            min="1"
-            max="5"
+            name={scoreName}
+            min="1" max="5"
             value={scoreValue}
             onChange={handleFormChange}
-            style={{ flex: 1 }}
+            className="flex-1 accent-primary"
           />
-          <span style={{ 
-            fontSize: '1.25rem', 
-            fontWeight: 'bold',
-            color: getScoreColor(scoreValue),
-            minWidth: '60px',
-            textAlign: 'center'
-          }}>
+          <span className="text-title-sm font-bold min-w-[60px] text-center" style={{ color: getScoreColor(scoreValue) }}>
             ⭐ {scoreValue}
           </span>
         </div>
-        <p style={{ fontSize: '0.8rem', color: '#6b7280', marginTop: '0.4rem', marginBottom: 0 }}>
-          {description}
-        </p>
+        <p className="text-label-xs text-on-surface-variant mt-1">{description}</p>
       </div>
-
-      <div className="form-group" style={{ margin: 0 }}>
-        <label style={{ fontSize: '0.9rem', color: '#374151', marginBottom: '0.4rem', display: 'block' }}>
-          Umpan Balik (Opsional)
-        </label>
+      <div>
+        <label className="text-label-sm font-medium text-on-surface mb-1.5 block">Umpan Balik (Opsional)</label>
         <textarea
-          name={feedbackValue}
-          value={formData[feedbackValue]}
+          name={feedbackName}
+          value={formData[feedbackName]}
           onChange={handleFormChange}
-          rows="2"
-          placeholder={`Saran untuk peningkatan ${title.toLowerCase()}...`}
-          style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ddd', fontSize: '0.9rem' }}
+          rows={2}
+          placeholder={`Saran untuk peningkatan ${title}...`}
+          className="w-full px-3 py-2 rounded-xl border border-outline bg-surface text-on-surface placeholder:text-on-surface-variant/50 focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-sm resize-none"
         />
       </div>
     </div>
   );
 
   if (loading) {
-    return <div className="dashboard-container">
-      <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
-        <div style={{ fontSize: '1.2rem' }}>Memuat evaluasi...</div>
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse flex flex-col items-center gap-sm">
+          <div className="w-12 h-12 rounded-full bg-surface-dim"></div>
+          <div className="h-4 w-48 bg-surface-dim rounded"></div>
+        </div>
       </div>
-    </div>;
+    );
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
         <div>
-          <h1>
-            <Award size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
+          <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+            <Award className="w-7 h-7 text-primary" />
             Evaluasi Pengajar
           </h1>
-          <p>Penilaian kinerja guru dengan 4 aspek sekaligus dalam satu sesi</p>
+          <p className="text-body-md text-on-surface-variant mt-xs">Penilaian kinerja guru dengan 4 aspek sekaligus dalam satu sesi</p>
         </div>
-        <div style={{ display: 'flex', gap: '0.5rem' }}>
-          <button 
-            className="btn btn-primary"
+        <div className="flex gap-sm">
+          <button
             onClick={openNewForm}
+            className="inline-flex items-center gap-xs px-4 py-2 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium"
           >
-            <Star size={18} style={{ marginRight: '8px' }} />
+            <Star className="w-4 h-4" />
             Evaluasi Baru
           </button>
-          <button 
-            className="btn btn-secondary"
+          <button
             onClick={printEvaluationSummary}
             disabled={evaluations.length === 0}
+            className="inline-flex items-center gap-xs px-4 py-2 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors duration-200 text-label-lg disabled:opacity-50"
           >
-            <Printer size={18} style={{ marginRight: '8px' }} />
+            <Printer className="w-4 h-4" />
             Cetak Rekap
           </button>
         </div>
       </div>
 
-      {/* Filters */}
-      <div style={{ 
-        background: 'linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%)',
-        borderRadius: '12px',
-        padding: '1.25rem',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'center', marginBottom: '1rem' }}>
-          <Filter size={20} style={{ marginRight: '8px', color: '#8b5cf6' }} />
-          <h3 style={{ margin: 0, color: '#7c3aed', fontSize: '1rem' }}>Filter Evaluasi</h3>
+      {/* Filter Section */}
+      <div className="bg-surface-container-low rounded-2xl p-4 md:p-5 mb-xl border border-outline-variant">
+        <div className="flex items-center gap-sm mb-md">
+          <Filter className="w-5 h-5 text-primary" />
+          <h3 className="text-title-sm font-semibold text-on-surface m-0">Filter Evaluasi</h3>
         </div>
-
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-          <div className="form-group" style={{ margin: 0 }}>
-            <label htmlFor="teacher_id">Guru</label>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div>
+            <label className="block text-label-lg font-medium text-on-surface mb-1.5">Guru</label>
             <select
-              id="teacher_id"
               name="teacher_id"
               value={filter.teacher_id}
               onChange={handleFilterChange}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ddd' }}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
             >
               <option value="">Semua Guru</option>
               {teachers.map(t => (
@@ -438,321 +412,246 @@ const TeacherEvaluation = () => {
               ))}
             </select>
           </div>
-
-          <div className="form-group" style={{ margin: 0 }}>
-            <label htmlFor="date_from">Dari Tanggal</label>
+          <div>
+            <label className="block text-label-lg font-medium text-on-surface mb-1.5">Dari Tanggal</label>
             <input
               type="date"
-              id="date_from"
               name="date_from"
               value={filter.date_from}
               onChange={handleFilterChange}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ddd' }}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
             />
           </div>
-
-          <div className="form-group" style={{ margin: 0 }}>
-            <label htmlFor="date_to">Sampai Tanggal</label>
+          <div>
+            <label className="block text-label-lg font-medium text-on-surface mb-1.5">Sampai Tanggal</label>
             <input
               type="date"
-              id="date_to"
               name="date_to"
               value={filter.date_to}
               onChange={handleFilterChange}
-              style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ddd' }}
+              className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
             />
           </div>
         </div>
-
-        <button className="btn btn-secondary" onClick={clearFilters} style={{ marginTop: '1rem' }}>
+        <button onClick={clearFilters} className="mt-md inline-flex items-center gap-xs px-3 py-1.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-sm">
           Hapus Filter
         </button>
       </div>
 
       {/* Evaluation Form Modal */}
       {showForm && (
-        <div className="form-container" style={{ maxWidth: '850px' }}>
-          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
-            <h2 style={{ margin: 0, display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-              <Award size={22} />
-              {editingId ? 'Edit Evaluasi Guru' : 'Evaluasi Guru Baru'}
-            </h2>
-            <button 
-              onClick={() => { setShowForm(false); setEditingId(null); }}
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#9ca3af' }}
-            >
-              <X size={24} />
-            </button>
-          </div>
-          
-          <form onSubmit={handleSubmit}>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem' }}>
-              <div className="form-group">
-                <label htmlFor="teacher_id">Pilih Guru <span style={{ color: 'red' }}>*</span></label>
-                <select
-                  id="teacher_id"
-                  name="teacher_id"
-                  value={formData.teacher_id}
-                  onChange={handleFormChange}
-                  required
-                >
-                  <option value="">-- Pilih Guru --</option>
-                  {teachers.map(teacher => (
-                    <option key={teacher.id} value={teacher.id}>
-                      {teacher.full_name || teacher.email}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="form-group">
-                <label htmlFor="date">Tanggal Evaluasi <span style={{ color: 'red' }}>*</span></label>
-                <input
-                  type="date"
-                  id="date"
-                  name="date"
-                  value={formData.date}
-                  onChange={handleFormChange}
-                  required
-                />
-              </div>
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm overflow-y-auto" onClick={() => { setShowForm(false); setEditingId(null); }}>
+          <div className="bg-surface rounded-2xl shadow-xl w-full max-w-3xl m-4 animate-scaleIn" onClick={e => e.stopPropagation()}>
+            <div className="bg-gradient-to-r from-primary to-primary-container text-on-primary px-6 py-4 rounded-t-2xl flex items-center justify-between">
+              <h2 className="text-title-md font-semibold text-white flex items-center gap-sm">
+                <Award className="w-5 h-5" />
+                {editingId ? 'Edit Evaluasi Guru' : 'Evaluasi Guru Baru'}
+              </h2>
+              <button onClick={() => { setShowForm(false); setEditingId(null); }} className="p-1.5 rounded-full hover:bg-white/20 transition-colors">
+                <X className="w-5 h-5 text-white" />
+              </button>
             </div>
+            <form onSubmit={handleSubmit} className="p-6 space-y-5 max-h-[70vh] overflow-y-auto">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-label-lg font-medium text-on-surface mb-1.5">Pilih Guru <span className="text-error">*</span></label>
+                  <select
+                    name="teacher_id"
+                    value={formData.teacher_id}
+                    onChange={handleFormChange}
+                    required
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
+                  >
+                    <option value="">-- Pilih Guru --</option>
+                    {teachers.map(t => (
+                      <option key={t.id} value={t.id}>{t.full_name || t.email}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-label-lg font-medium text-on-surface mb-1.5">Tanggal Evaluasi <span className="text-error">*</span></label>
+                  <input
+                    type="date"
+                    name="date"
+                    value={formData.date}
+                    onChange={handleFormChange}
+                    required
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
+                  />
+                </div>
+              </div>
 
-            {/* All 4 criteria */}
-            <FormSection 
-              title="Pedagogi" icon="📚" color="#8b5cf6"
-              name="pedagogy_score" feedbackValue="pedagogy_feedback"
-              scoreValue={formData.pedagogy_score}
-              description="Kemampuan mengajar, menyampaikan materi, dan metode pembelajaran"
-            />
+              <FormSection
+                title="📚 Pedagogi"
+                scoreName="pedagogy_score" feedbackName="pedagogy_feedback"
+                scoreValue={formData.pedagogy_score}
+                description="Kemampuan mengajar, menyampaikan materi, dan metode pembelajaran"
+              />
+              <FormSection
+                title="👔 Profesionalisme"
+                scoreName="professionalism_score" feedbackName="professionalism_feedback"
+                scoreValue={formData.professionalism_score}
+                description="Disiplin, etika kerja, tanggung jawab, dan pengembangan diri"
+              />
+              <FormSection
+                title="😊 Kepribadian"
+                scoreName="personality_score" feedbackName="personality_feedback"
+                scoreValue={formData.personality_score}
+                description="Sikap, perilaku, keramahan, dan hubungan interpersonal"
+              />
+              <FormSection
+                title="🎯 Kepemimpinan"
+                scoreName="leadership_score" feedbackName="leadership_feedback"
+                scoreValue={formData.leadership_score}
+                description="Kemampuan memimpin, menginspirasi, dan mengambil inisiatif"
+              />
 
-            <FormSection 
-              title="Profesionalisme" icon="👔" color="#3b82f6"
-              name="professionalism_score" feedbackValue="professionalism_feedback"
-              scoreValue={formData.professionalism_score}
-              description="Disiplin, etika kerja, tanggung jawab, dan pengembangan diri"
-            />
-
-            <FormSection 
-              title="Kepribadian" icon="😊" color="#10b981"
-              name="personality_score" feedbackValue="personality_feedback"
-              scoreValue={formData.personality_score}
-              description="Sikap, perilaku, keramahan, dan hubungan interpersonal"
-            />
-
-            <FormSection 
-              title="Kepemimpinan" icon="🎯" color="#f59e0b"
-              name="leadership_score" feedbackValue="leadership_feedback"
-              scoreValue={formData.leadership_score}
-              description="Kemampuan memimpin, menginspirasi, dan mengambil inisiatif"
-            />
-
-            {/* Notes */}
-            <div style={{ 
-              background: '#fef3c7', 
-              padding: '1rem', 
-              borderRadius: '8px', 
-              marginBottom: '1rem'
-            }}>
-              <div className="form-group" style={{ margin: 0 }}>
-                <label style={{ fontWeight: 600, color: '#92400e' }}>
-                  📝 Catatan Tambahan (Opsional)
-                </label>
+              <div className="bg-warning-container/30 p-4 rounded-xl">
+                <label className="text-label-lg font-semibold text-on-warning-container block mb-2">📝 Catatan Tambahan (Opsional)</label>
                 <textarea
                   name="notes"
                   value={formData.notes}
                   onChange={handleFormChange}
-                  rows="2"
+                  rows={2}
                   placeholder="Catatan umum untuk sesi evaluasi ini..."
-                  style={{ width: '100%', padding: '0.5rem', borderRadius: '6px', border: '1px solid #ddd', marginTop: '0.5rem' }}
+                  className="w-full px-3 py-2 rounded-xl border border-warning/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-sm resize-none"
                 />
               </div>
-            </div>
 
-            {/* Score preview */}
-            <div style={{ 
-              background: 'linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%)',
-              padding: '1rem',
-              borderRadius: '8px',
-              marginBottom: '1.5rem',
-              textAlign: 'center'
-            }}>
-              <p style={{ margin: '0 0 0.5rem', fontWeight: 600, color: '#059669' }}>
-                📊 Ringkasan Nilai
-              </p>
-              <div style={{ display: 'flex', justifyContent: 'center', gap: '1.5rem', flexWrap: 'wrap' }}>
-                <span>📚 Pedagogi: <strong style={{ color: getScoreColor(formData.pedagogy_score) }}>{formData.pedagogy_score}</strong></span>
-                <span>👔 Profesionalisme: <strong style={{ color: getScoreColor(formData.professionalism_score) }}>{formData.professionalism_score}</strong></span>
-                <span>😊 Kepribadian: <strong style={{ color: getScoreColor(formData.personality_score) }}>{formData.personality_score}</strong></span>
-                <span>🎯 Kepemimpinan: <strong style={{ color: getScoreColor(formData.leadership_score) }}>{formData.leadership_score}</strong></span>
-                <span style={{ borderLeft: '2px solid #059669', paddingLeft: '1rem' }}>
-                  Rata-rata: <strong style={{ fontSize: '1.2rem', color: '#059669' }}>
-                    {((parseInt(formData.pedagogy_score) + parseInt(formData.professionalism_score) + parseInt(formData.personality_score) + parseInt(formData.leadership_score)) / 4).toFixed(1)}
-                  </strong>
-                </span>
+              <div className="bg-success-container/30 p-4 rounded-xl text-center">
+                <p className="text-label-lg font-semibold text-on-success-container mb-3">📊 Ringkasan Nilai</p>
+                <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-body-sm">
+                  <span>📚 Pedagogi: <strong style={{ color: getScoreColor(formData.pedagogy_score) }} className="text-title-sm">{formData.pedagogy_score}</strong></span>
+                  <span>👔 Profesionalisme: <strong style={{ color: getScoreColor(formData.professionalism_score) }} className="text-title-sm">{formData.professionalism_score}</strong></span>
+                  <span>😊 Kepribadian: <strong style={{ color: getScoreColor(formData.personality_score) }} className="text-title-sm">{formData.personality_score}</strong></span>
+                  <span>🎯 Kepemimpinan: <strong style={{ color: getScoreColor(formData.leadership_score) }} className="text-title-sm">{formData.leadership_score}</strong></span>
+                  <span className="md:border-l md:border-outline-variant md:pl-5">
+                    Rata-rata: <strong className="text-title-md text-success">
+                      {((parseInt(formData.pedagogy_score) + parseInt(formData.professionalism_score) + parseInt(formData.personality_score) + parseInt(formData.leadership_score)) / 4).toFixed(1)}
+                    </strong>
+                  </span>
+                </div>
               </div>
-            </div>
 
-            <div className="form-actions">
-              <button type="submit" className="btn btn-primary">
-                <Save size={18} style={{ marginRight: '8px' }} />
-                {editingId ? 'Perbarui Evaluasi' : 'Simpan Evaluasi'}
-              </button>
-              <button type="button" className="btn btn-secondary" onClick={() => { setShowForm(false); setEditingId(null); }}>
-                Batal
-              </button>
-            </div>
-          </form>
+              <div className="flex gap-sm pt-2 border-t border-outline-variant">
+                <button type="submit" className="flex-1 inline-flex items-center justify-center gap-xs px-4 py-2.5 rounded-full bg-primary text-on-primary hover:bg-primary/90 transition-all duration-200 shadow-sm text-label-lg font-medium">
+                  <Save className="w-4 h-4" />
+                  {editingId ? 'Perbarui Evaluasi' : 'Simpan Evaluasi'}
+                </button>
+                <button type="button" onClick={() => { setShowForm(false); setEditingId(null); }} className="px-4 py-2.5 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-lg">
+                  Batal
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
       )}
 
-      {/* Stats */}
-      <div style={{ 
-        display: 'grid', 
-        gridTemplateColumns: 'repeat(auto-fit, minmax(160px, 1fr))', 
-        gap: '1rem',
-        marginBottom: '1.5rem'
-      }}>
-        <div style={{ 
-          background: 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)',
-          color: 'white',
-          padding: '1.25rem',
-          borderRadius: '10px',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.75rem' }}>{evaluations.length}</h3>
-          <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.9 }}>Total Sesi Evaluasi</p>
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-xl">
+        <div className="bg-gradient-to-br from-primary to-primary-container text-white rounded-xl p-4 text-center shadow-sm">
+          <div className="text-headline-sm font-bold">{evaluations.length}</div>
+          <div className="text-label-sm opacity-80">Total Sesi Evaluasi</div>
         </div>
-        <div style={{ 
-          background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-          color: 'white',
-          padding: '1.25rem',
-          borderRadius: '10px',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.75rem' }}>
+        <div className="bg-gradient-to-br from-success to-success-container text-white rounded-xl p-4 text-center shadow-sm">
+          <div className="text-headline-sm font-bold">
             {evaluations.length > 0 
               ? (evaluations.reduce((sum, ev) => sum + parseFloat(getAvgScore(ev)), 0) / evaluations.length).toFixed(1)
               : 0}
-          </h3>
-          <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.9 }}>Rata-rata Nilai</p>
+          </div>
+          <div className="text-label-sm opacity-80">Rata-rata Nilai</div>
         </div>
-        <div style={{ 
-          background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-          color: 'white',
-          padding: '1.25rem',
-          borderRadius: '10px',
-          textAlign: 'center'
-        }}>
-          <h3 style={{ margin: '0 0 0.25rem', fontSize: '1.75rem' }}>
-            {teachers.length}
-          </h3>
-          <p style={{ margin: 0, fontSize: '0.85rem', opacity: 0.9 }}>Total Guru</p>
+        <div className="bg-gradient-to-br from-warning to-warning-container text-white rounded-xl p-4 text-center shadow-sm">
+          <div className="text-headline-sm font-bold">{teachers.length}</div>
+          <div className="text-label-sm opacity-80">Total Guru</div>
         </div>
       </div>
 
       {/* Evaluations Table */}
-      <div className="dashboard-content">
-        <section className="dashboard-section">
-          <h2>
-            <Award size={20} style={{ marginRight: '8px' }} />
+      <div className="bg-surface rounded-2xl shadow-sm border border-outline-variant overflow-hidden">
+        <div className="px-4 md:px-6 py-4 border-b border-outline-variant">
+          <h2 className="text-title-md font-semibold text-on-surface flex items-center gap-sm">
+            <Award className="w-5 h-5 text-primary" />
             Riwayat Evaluasi
           </h2>
+        </div>
 
-          {evaluations.length > 0 ? (
-            <div className="table-responsive">
-              <table className="dashboard-table">
-                <thead>
-                  <tr>
-                    <th>Tanggal</th>
-                    <th>Guru</th>
-                    <th style={{ textAlign: 'center' }}>📚 Pedagogi</th>
-                    <th style={{ textAlign: 'center' }}>👔 Profesional</th>
-                    <th style={{ textAlign: 'center' }}>😊 Kepribadian</th>
-                    <th style={{ textAlign: 'center' }}>🎯 Kepemimpinan</th>
-                    <th style={{ textAlign: 'center' }}>Rata-rata</th>
-                    <th>Evaluator</th>
-                    <th>Aksi</th>
+        {evaluations.length > 0 ? (
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead>
+                <tr className="bg-surface-dim/50">
+                  <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Tanggal</th>
+                  <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Guru</th>
+                  <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Pedagogi</th>
+                  <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Profesional</th>
+                  <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Kepribadian</th>
+                  <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Kepemimpinan</th>
+                  <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Rata-rata</th>
+                  <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Evaluator</th>
+                  <th className="text-center px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Aksi</th>
+                </tr>
+              </thead>
+              <tbody>
+                {evaluations.map((ev, idx) => (
+                  <tr key={ev.id} className={"border-t border-outline-variant/50 hover:bg-surface-dim/30 transition-colors " + (idx % 2 === 0 ? 'bg-surface' : 'bg-surface-dim/10')}>
+                    <td className="px-4 py-3 text-body-sm text-on-surface">
+                      <div className="flex items-center gap-1.5">
+                        <Calendar className="w-3.5 h-3.5 text-on-surface-variant" />
+                        {new Date(ev.date).toLocaleDateString('id-ID')}
+                      </div>
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center gap-2">
+                        <div className="w-8 h-8 rounded-full bg-gradient-to-br from-primary to-primary-container flex items-center justify-center text-white font-bold text-label-sm shrink-0">
+                          {(ev.profiles?.full_name || ev.profiles?.email || 'G').charAt(0).toUpperCase()}
+                        </div>
+                        <span className="text-body-sm font-medium text-on-surface">{ev.profiles?.full_name || ev.profiles?.email}</span>
+                      </div>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="text-body-sm font-bold" style={{ color: getScoreColor(ev.pedagogy_score) }}>{ev.pedagogy_score}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="text-body-sm font-bold" style={{ color: getScoreColor(ev.professionalism_score) }}>{ev.professionalism_score}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="text-body-sm font-bold" style={{ color: getScoreColor(ev.personality_score) }}>{ev.personality_score}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="text-body-sm font-bold" style={{ color: getScoreColor(ev.leadership_score) }}>{ev.leadership_score}</span>
+                    </td>
+                    <td className="px-4 py-3 text-center">
+                      <span className="inline-flex items-center justify-center px-2 py-1 rounded-full text-label-sm font-bold text-white"
+                        style={{ background: getScoreColor(Math.round(parseFloat(getAvgScore(ev)))) }}>
+                        {getAvgScore(ev)}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-body-sm text-on-surface-variant">{ev.admin?.full_name || 'Admin'}</td>
+                    <td className="px-4 py-3">
+                      <div className="flex items-center justify-center gap-1">
+                        <button onClick={() => openEditForm(ev)} className="p-1.5 rounded-full bg-primary-container/50 text-on-primary-container hover:bg-primary-container/80 transition-colors" title="Edit">
+                          <Edit2 className="w-4 h-4" />
+                        </button>
+                        <button onClick={() => handleDelete(ev.id)} className="p-1.5 rounded-full bg-error-container/50 text-on-error-container hover:bg-error-container/80 transition-colors" title="Hapus">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </td>
                   </tr>
-                </thead>
-                <tbody>
-                  {evaluations.map(ev => (
-                    <tr key={ev.id}>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
-                          <Calendar size={14} />
-                          {new Date(ev.date).toLocaleDateString('id-ID')}
-                        </div>
-                      </td>
-                      <td>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                          <Users size={16} />
-                          <strong>{ev.profiles?.full_name || ev.profiles?.email}</strong>
-                        </div>
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <span style={{ color: getScoreColor(ev.pedagogy_score), fontWeight: 'bold' }}>
-                          {ev.pedagogy_score}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <span style={{ color: getScoreColor(ev.professionalism_score), fontWeight: 'bold' }}>
-                          {ev.professionalism_score}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <span style={{ color: getScoreColor(ev.personality_score), fontWeight: 'bold' }}>
-                          {ev.personality_score}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <span style={{ color: getScoreColor(ev.leadership_score), fontWeight: 'bold' }}>
-                          {ev.leadership_score}
-                        </span>
-                      </td>
-                      <td style={{ textAlign: 'center' }}>
-                        <span style={{ 
-                          fontSize: '1.1rem', 
-                          fontWeight: 'bold',
-                          color: getScoreColor(Math.round(parseFloat(getAvgScore(ev))))
-                        }}>
-                          {getAvgScore(ev)}
-                        </span>
-                      </td>
-                      <td>{ev.admin?.full_name || 'Admin'}</td>
-                      <td>
-                        <div style={{ display: 'flex', gap: '0.4rem' }}>
-                          <button
-                            onClick={() => openEditForm(ev)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#3b82f6', padding: '4px' }}
-                            title="Edit"
-                          >
-                            <Edit2 size={16} />
-                          </button>
-                          <button
-                            onClick={() => handleDelete(ev.id)}
-                            style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', padding: '4px' }}
-                            title="Hapus"
-                          >
-                            <Trash2 size={16} />
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          ) : (
-            <div className="empty-state">
-              <span className="empty-icon"><Award size={48} /></span>
-              <p>Belum ada evaluasi guru.</p>
-              <p style={{ fontSize: '0.875rem', color: '#6b7280' }}>
-                Klik tombol "Evaluasi Baru" untuk menambahkan evaluasi pertama.
-              </p>
-            </div>
-          )}
-        </section>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        ) : (
+          <div className="text-center py-12">
+            <Award className="w-16 h-16 mx-auto text-on-surface-variant/30 mb-4" />
+            <p className="text-body-lg text-on-surface-variant mb-2">Belum ada evaluasi guru.</p>
+            <p className="text-body-sm text-on-surface-variant/70">
+              Klik tombol "Evaluasi Baru" untuk menambahkan evaluasi pertama.
+            </p>
+          </div>
+        )}
       </div>
     </div>
   );

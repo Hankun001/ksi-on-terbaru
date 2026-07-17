@@ -2,10 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { supabase } from '../../../lib/supabaseClient';
 import { fetchTeacherExams, fetchQuestionsWithOptions, fetchExamById, fetchAttemptAnswers, updateAttemptStatusIfFullyGraded } from '../services/examService';
-import { Check, X, Clock, Save, ArrowLeft, Search, BookOpen, FileSignature, AlertTriangle } from 'lucide-react';
-import '../styles/examStyles.css';
+import { Check, Clock, Save, ArrowLeft, BookOpen, FileSignature } from 'lucide-react';
 
-const ExamGradingPage = ({ onBack }) => {
+const ExamGradingPage = () => {
   const { user } = useAuth();
   const [exams, setExams] = useState([]);
   const [selectedExamId, setSelectedExamId] = useState(null);
@@ -170,203 +169,148 @@ const ExamGradingPage = ({ onBack }) => {
 
   if (loading && !selectedExamId) {
     return (
-      <div className="dashboard-container" style={{ textAlign: 'center', padding: '3rem' }}>
-        <p style={{ color: '#6b7280' }}>Memuat data...</p>
+      <div className="p-margin-mobile md:p-margin-desktop flex items-center justify-center min-h-[60vh]">
+        <div className="flex flex-col items-center gap-md text-on-surface-variant">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-body-md">Memuat data...</p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      <div style={{ display: 'flex', alignItems: 'center', gap: '1rem', marginBottom: '1.5rem' }}>
+    <div className="p-margin-mobile md:p-margin-desktop max-w-5xl mx-auto space-y-xl">
+      {/* Header */}
+      <div className="flex items-center gap-md">
         {selectedExamId && (
-          <button onClick={() => { setSelectedExamId(null); setData(null); }} className="btn btn-secondary" style={{ padding: '0.5rem' }}>
+          <button onClick={() => { setSelectedExamId(null); setData(null); }} className="flex items-center justify-center w-10 h-10 rounded-xl bg-surface border border-outline-variant/30 text-on-surface-variant hover:bg-surface-container-higher transition-all duration-200 shrink-0">
             <ArrowLeft size={20} />
           </button>
         )}
-        <div>
-          <h1 style={{ margin: 0, fontSize: '1.25rem', display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-            <FileSignature size={28} style={{ color: '#8b5cf6' }} />
-            Penilaian Ujian
-          </h1>
-          <p style={{ margin: '0.25rem 0 0', color: '#6b7280', fontSize: '0.85rem' }}>
-            {selectedExamId ? 'Nilai jawaban essay siswa' : 'Pilih ujian untuk mulai menilai'}
-          </p>
+        <div className="flex-1">
+          <div className="flex items-center gap-lg">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-br from-secondary/20 to-tertiary/20 flex items-center justify-center">
+              <FileSignature size={28} className="text-secondary" />
+            </div>
+            <div>
+              <h1 className="text-title-md font-semibold text-on-surface m-0">Penilaian Ujian</h1>
+              <p className="text-body-sm text-on-surface-variant mt-1">{selectedExamId ? 'Nilai jawaban essay siswa' : 'Pilih ujian untuk mulai menilai'}</p>
+            </div>
+          </div>
         </div>
       </div>
 
       {message && (
-        <div style={{ background: '#d1fae5', color: '#065f46', padding: '0.75rem 1rem', borderRadius: '8px', marginBottom: '1rem', fontSize: '0.9rem' }}>
-          {message}
+        <div className="flex items-center gap-sm px-lg py-md rounded-xl bg-success-container text-on-success-container text-body-sm">
+          <Check size={18} className="shrink-0" />
+          <span>{message}</span>
         </div>
       )}
 
       {!selectedExamId ? (
-        // Exam selection list
-        <div className="exam-grid">
+        /* Exam selection list */
+        <>
           {exams.length === 0 ? (
-            <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
-              <BookOpen size={48} style={{ color: '#d1d5db', marginBottom: '1rem' }} />
-              <p>Belum ada ujian yang perlu dinilai.</p>
+            <div className="flex flex-col items-center justify-center py-3xl text-on-surface-variant">
+              <div className="w-20 h-20 rounded-full bg-surface-container-high flex items-center justify-center mb-lg">
+                <BookOpen size={40} className="text-outline" />
+              </div>
+              <p className="text-body-lg font-medium text-on-surface">Belum Ada Ujian</p>
+              <p className="text-body-sm text-on-surface-variant mt-1">Belum ada ujian yang perlu dinilai.</p>
             </div>
           ) : (
-            exams.map(exam => (
-              <div key={exam.id} className="exam-card" onClick={() => loadExamDetails(exam.id)}>
-                <div className="exam-card-header">
-                  <h3 className="exam-card-title">{exam.title}</h3>
-                  <span className={`status-badge status-${exam.status}`}>
-                    {exam.status === 'closed' ? 'Ditutup' : 'Dipublikasikan'}
-                  </span>
-                </div>
-                <div className="exam-card-meta" style={{ marginTop: '0.5rem' }}>
-                  <span className="exam-card-meta-item">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-md">
+              {exams.map(exam => (
+                <button key={exam.id} onClick={() => loadExamDetails(exam.id)} className="text-left bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30 hover:shadow-md hover:border-primary/40 hover:-translate-y-0.5 transition-all duration-200 cursor-pointer">
+                  <div className="flex items-start justify-between gap-md mb-md">
+                    <h3 className="text-body-lg font-semibold text-on-surface flex-1 line-clamp-2 m-0">{exam.title}</h3>
+                    <span className={`shrink-0 inline-flex items-center px-2.5 py-0.5 rounded-full text-label-xs font-medium ${exam.status === 'closed' ? 'bg-error-container text-on-error-container' : 'bg-tertiary-container text-on-tertiary-container'}`}>
+                      {exam.status === 'closed' ? 'Ditutup' : 'Dipublikasikan'}
+                    </span>
+                  </div>
+                  <div className="flex items-center gap-xs text-label-sm text-on-surface-variant mb-sm">
                     <Clock size={14} />
-                    {exam.duration_minutes} menit
-                  </span>
-                </div>
-                <p style={{ fontSize: '0.85rem', color: '#6b7280', marginTop: '0.5rem' }}>
-                  Klik untuk menilai jawaban essay
-                </p>
-              </div>
-            ))
+                    <span>{exam.duration_minutes} menit</span>
+                  </div>
+                  <p className="text-label-sm text-on-surface-variant m-0">Klik untuk menilai jawaban essay</p>
+                </button>
+              ))}
+            </div>
           )}
-        </div>
+        </>
       ) : (
-        // Grading interface
+        /* Grading interface */
         <>
           {loading ? (
-            <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>Memuat data ujian...</div>
+            <div className="flex items-center justify-center py-3xl">
+              <div className="flex flex-col items-center gap-md text-on-surface-variant">
+                <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                <p className="text-body-md">Memuat data ujian...</p>
+              </div>
+            </div>
           ) : !data || data.attempts.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '3rem' }}>
-              <Check size={48} style={{ color: '#10b981', marginBottom: '1rem' }} />
-              <h3 style={{ color: '#1f2937', marginBottom: '0.5rem' }}>Semua Sudah Dinilai</h3>
-              <p style={{ color: '#6b7280' }}>Tidak ada jawaban essay yang perlu dinilai.</p>
+            <div className="flex flex-col items-center justify-center py-3xl">
+              <div className="w-20 h-20 rounded-full bg-success-container flex items-center justify-center mb-lg">
+                <Check size={40} className="text-success" />
+              </div>
+              <h3 className="text-body-lg font-semibold text-on-surface mb-sm">Semua Sudah Dinilai</h3>
+              <p className="text-body-sm text-on-surface-variant">Tidak ada jawaban essay yang perlu dinilai.</p>
             </div>
           ) : (
             <>
-              <div style={{ marginBottom: '1.5rem' }}>
-                <h2 style={{ fontSize: '1.1rem', color: '#1f2937', margin: 0 }}>{data.exam.title}</h2>
-                <p style={{ color: '#6b7280', fontSize: '0.85rem', margin: '0.25rem 0 0' }}>
-                  {data.attempts.length} siswa perlu dinilai • {data.questions.length} soal essay
-                </p>
+              <div className="bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30">
+                <h2 className="text-title-sm font-semibold text-on-surface m-0">{data.exam.title}</h2>
+                <p className="text-label-sm text-on-surface-variant mt-1 m-0">{data.attempts.length} siswa perlu dinilai · {data.questions.length} soal essay</p>
               </div>
 
               {data.attempts.map(attempt => (
-                <div key={attempt.id} style={{ 
-                  background: 'white', 
-                  border: '1px solid #e5e7eb', 
-                  borderRadius: '12px', 
-                  padding: '1.25rem',
-                  marginBottom: '1.5rem'
-                }}>
-                  <div style={{ 
-                    display: 'flex', 
-                    justifyContent: 'space-between', 
-                    alignItems: 'center',
-                    marginBottom: '1rem',
-                    paddingBottom: '0.75rem',
-                    borderBottom: '1px solid #e5e7eb'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem' }}>
-                      <div style={{ 
-                        width: '40px', height: '40px', borderRadius: '50%',
-                        background: 'linear-gradient(135deg, #667eea, #764ba2)',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        color: 'white', fontWeight: 'bold', fontSize: '1rem'
-                      }}>
+                <div key={attempt.id} className="bg-surface rounded-2xl p-lg shadow-sm border border-outline-variant/30 space-y-md">
+                  <div className="flex items-center justify-between pb-md border-b border-outline-variant/20">
+                    <div className="flex items-center gap-md">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-secondary to-tertiary flex items-center justify-center text-on-primary text-label-md font-bold shrink-0">
                         {getStudentName(attempt).charAt(0).toUpperCase()}
                       </div>
                       <div>
-                        <div style={{ fontWeight: 600, color: '#1f2937' }}>{getStudentName(attempt)}</div>
-                        <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>
-                          {attempt.score !== null ? `Nilai saat ini: ${attempt.score}` : 'Belum dinilai'}
-                        </div>
+                        <div className="text-body-md font-semibold text-on-surface">{getStudentName(attempt)}</div>
+                        <div className="text-label-sm text-on-surface-variant">{attempt.score !== null ? `Nilai saat ini: ${attempt.score}` : 'Belum dinilai'}</div>
                       </div>
                     </div>
-                    <span className={`status-badge ${attempt.status === 'submitted' ? 'status-published' : 'status-closed'}`}>
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-label-xs font-medium ${attempt.status === 'submitted' ? 'bg-primary-container text-on-primary-container' : 'bg-tertiary-container text-on-tertiary-container'}`}>
                       {attempt.status === 'submitted' ? 'Submit Manual' : 'Auto Submit'}
                     </span>
                   </div>
 
-                  {/* Essay answers */}
-                  {attempt.answers
-                    .filter(a => data.questions.some(q => q.id === a.question_id))
-                    .map(answer => {
-                      const question = data.questions.find(q => q.id === answer.question_id);
-                      const gradeKey = `${attempt.id}-${answer.question_id}`;
-                      const grade = gradingState[gradeKey] || { points: 0, maxPoints: question?.points || 1 };
-                      const isSaved = answer.points_earned !== null && answer.points_earned !== undefined;
-                      
-                      return (
-                        <div key={answer.id} style={{
-                          background: '#f9fafb',
-                          borderRadius: '8px',
-                          padding: '1rem',
-                          marginTop: '0.75rem'
-                        }}>
-                          <div style={{ fontSize: '0.9rem', fontWeight: 500, color: '#1f2937', marginBottom: '0.5rem' }}>
-                            {question?.question || 'Soal essay'}
-                          </div>
-
-                          {/* Student's answer */}
-                          <div style={{
-                            background: 'white',
-                            border: '1px solid #e5e7eb',
-                            borderRadius: '8px',
-                            padding: '0.75rem',
-                            marginBottom: '0.75rem',
-                            fontSize: '0.9rem',
-                            color: '#374151',
-                            lineHeight: 1.6,
-                            whiteSpace: 'pre-wrap'
-                          }}>
-                            {answer.answer_text || <span style={{ color: '#9ca3af', fontStyle: 'italic' }}>Tidak dijawab</span>}
-                          </div>
-
-                          {/* Grading input */}
-                          <div style={{ display: 'flex', alignItems: 'center', gap: '0.75rem', flexWrap: 'wrap' }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                              <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>Nilai:</span>
-                              <input
-                                type="number"
-                                value={grade.points}
-                                onChange={e => handleGradeChange(attempt.id, answer.question_id, e.target.value)}
-                                min="0"
-                                max={grade.maxPoints}
-                                style={{
-                                  width: '80px',
-                                  padding: '0.5rem',
-                                  border: '1px solid #d1d5db',
-                                  borderRadius: '8px',
-                                  fontSize: '0.9rem',
-                                  textAlign: 'center'
-                                }}
-                              />
-                              <span style={{ fontSize: '0.85rem', color: '#6b7280' }}>/ {grade.maxPoints}</span>
-                            </div>
-
-                            <button
-                              onClick={() => handleSaveGrade(attempt.id, answer.question_id)}
-                              disabled={saving === gradeKey}
-                              className="btn btn-primary btn-sm"
-                              style={{ display: 'flex', alignItems: 'center', gap: '0.35rem' }}
-                            >
-                              {saving === gradeKey ? (
-                                'Menyimpan...'
-                              ) : isSaved ? (
-                                <> <Save size={16} /> Simpan Ulang</>
-                              ) : (
-                                <> <Save size={16} /> Simpan Nilai</>
-                              )}
-                            </button>
-
-                            {isSaved && (
-                              <span style={{ color: '#059669', fontSize: '0.8rem' }}>✓ Tersimpan</span>
-                            )}
-                          </div>
+                  {attempt.answers.filter(a => data.questions.some(q => q.id === a.question_id)).map(answer => {
+                    const question = data.questions.find(q => q.id === answer.question_id);
+                    const gradeKey = `${attempt.id}-${answer.question_id}`;
+                    const grade = gradingState[gradeKey] || { points: 0, maxPoints: question?.points || 1 };
+                    const isSaved = answer.points_earned !== null && answer.points_earned !== undefined;
+                    return (
+                      <div key={answer.id} className="bg-surface-container-low rounded-xl p-md space-y-md">
+                        <p className="text-body-md font-medium text-on-surface m-0">{question?.question || 'Soal essay'}</p>
+                        <div className="bg-surface rounded-lg p-md border border-outline-variant/20 text-body-sm text-on-surface leading-relaxed whitespace-pre-wrap">
+                          {answer.answer_text || <span className="text-on-surface-variant italic">Tidak dijawab</span>}
                         </div>
-                      );
-                    })}
+                        <div className="flex items-center gap-md flex-wrap">
+                          <div className="flex items-center gap-sm">
+                            <span className="text-label-sm text-on-surface-variant">Nilai:</span>
+                            <input type="number" value={grade.points} onChange={e => handleGradeChange(attempt.id, answer.question_id, e.target.value)} min="0" max={grade.maxPoints} className="w-20 px-3 py-2 rounded-xl border border-outline bg-surface text-body-sm text-center text-on-surface focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all duration-200 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none" />
+                            <span className="text-label-sm text-on-surface-variant">/ {grade.maxPoints}</span>
+                          </div>
+                          <button onClick={() => handleSaveGrade(attempt.id, answer.question_id)} disabled={saving === gradeKey} className="inline-flex items-center gap-xs px-md py-2 rounded-xl bg-primary text-on-primary text-label-sm font-medium hover:bg-primary-hover disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200">
+                            {saving === gradeKey ? (
+                              <><div className="w-4 h-4 border-2 border-on-primary border-t-transparent rounded-full animate-spin" /> Menyimpan...</>
+                            ) : (
+                              <><Save size={16} /> {isSaved ? 'Simpan Ulang' : 'Simpan Nilai'}</>
+                            )}
+                          </button>
+                          {isSaved && (
+                            <span className="inline-flex items-center gap-xs text-label-sm text-success"><Check size={14} /> Tersimpan</span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
                 </div>
               ))}
             </>

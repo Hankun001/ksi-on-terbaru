@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import { Award, Calendar, Users, Download, Printer, BookOpen, TrendingUp } from 'lucide-react';
+import { Award, Printer, BookOpen, TrendingUp } from 'lucide-react';
 
 const EvaluationReport = () => {
   const { user } = useAuth();
@@ -259,47 +259,42 @@ const EvaluationReport = () => {
 
   if (loading && !reports.length) {
     return (
-      <div className="dashboard-container">
-        <div style={{ textAlign: 'center', padding: '3rem', color: '#6b7280' }}>
-          <div>Memuat laporan penilaian...</div>
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse flex flex-col items-center gap-sm">
+          <div className="w-12 h-12 rounded-full bg-surface-dim"></div>
+          <div className="h-4 w-48 bg-surface-dim rounded"></div>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto">
+      {/* Header */}
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-md mb-xl">
         <div>
-          <h1>
-            <Award size={28} style={{ marginRight: '12px', verticalAlign: 'middle' }} />
+          <h1 className="text-headline-sm md:text-headline-md font-bold text-on-surface flex items-center gap-sm">
+            <Award className="w-7 h-7 text-primary" />
             Laporan Penilaian Siswa
           </h1>
-          <p>Rekapitulasi penilaian siswa per bulan</p>
+          <p className="text-body-md text-on-surface-variant mt-xs">Rekapitulasi penilaian siswa per bulan</p>
         </div>
       </div>
 
-      <div className="dashboard-content">
+      <div className="bg-surface rounded-2xl shadow-sm border border-outline-variant overflow-hidden">
         {/* Filters */}
-        <div style={{
-          background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-          borderRadius: '12px',
-          padding: '1.5rem',
-          marginBottom: '1.5rem'
-        }}>
-          <h3 style={{ marginBottom: '1rem', color: '#92400e' }}>
-            <BookOpen size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
-            Filter Laporan
-          </h3>
-
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-            <div className="form-group">
-              <label htmlFor="class">Kelas</label>
+        <div className="bg-warning-container/20 p-4 md:p-6 border-b border-outline-variant">
+          <div className="flex items-center gap-sm mb-md">
+            <BookOpen className="w-5 h-5 text-primary" />
+            <h3 className="text-title-sm font-semibold text-on-surface m-0">Filter Laporan</h3>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Kelas</label>
               <select
-                id="class"
                 value={selectedClass}
                 onChange={(e) => setSelectedClass(e.target.value)}
-                style={{ width: '100%' }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
               >
                 <option value="">Pilih Kelas</option>
                 {classes.map(cls => (
@@ -309,198 +304,126 @@ const EvaluationReport = () => {
                 ))}
               </select>
             </div>
-
-            <div className="form-group">
-              <label htmlFor="month">Bulan</label>
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Bulan</label>
               <input
                 type="month"
-                id="month"
                 value={selectedMonth}
                 onChange={(e) => setSelectedMonth(e.target.value)}
-                style={{ width: '100%' }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
               />
             </div>
-
-            <div className="form-group">
-              <label htmlFor="aspect">Aspek Penilaian</label>
+            <div>
+              <label className="block text-label-lg font-medium text-on-surface mb-1.5">Aspek Penilaian</label>
               <select
-                id="aspect"
                 value={selectedAspect}
                 onChange={(e) => setSelectedAspect(e.target.value)}
-                style={{ width: '100%' }}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-md"
               >
                 {aspects.map(aspect => (
-                  <option key={aspect.value} value={aspect.value}>
-                    {aspect.label}
-                  </option>
+                  <option key={aspect.value} value={aspect.value}>{aspect.label}</option>
                 ))}
               </select>
             </div>
           </div>
-
           {reports.length > 0 && (
-            <div style={{ marginTop: '1rem', display: 'flex', gap: '0.5rem' }}>
-              <button
-                className="btn btn-secondary"
-                onClick={printReport}
-              >
-                <Printer size={18} style={{ marginRight: '8px' }} />
-                Cetak Laporan
-              </button>
-            </div>
+            <button onClick={printReport} className="mt-md inline-flex items-center gap-xs px-4 py-2 rounded-full border border-outline text-on-surface-variant hover:bg-surface-dim transition-colors text-label-lg">
+              <Printer className="w-4 h-4" />
+              Cetak Laporan
+            </button>
           )}
         </div>
 
-        {/* Reports Summary */}
+        {/* Summary */}
         {reports.length > 0 && (
-          <div style={{
-            background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
-            borderRadius: '12px',
-            padding: '1.5rem',
-            marginBottom: '1.5rem'
-          }}>
-            <h3 style={{ marginBottom: '1rem', color: '#1e40af' }}>
-              <TrendingUp size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
+          <div className="bg-info-container/20 p-4 md:p-6 border-b border-outline-variant">
+            <h3 className="text-title-sm font-semibold text-on-surface flex items-center gap-sm mb-md">
+              <TrendingUp className="w-5 h-5 text-primary" />
               Ringkasan Penilaian
             </h3>
-
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem' }}>
-              <div style={{ textAlign: 'center', padding: '1rem', background: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#059669' }}>
-                  {reports.length}
-                </div>
-                <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>Total Siswa</div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              <div className="bg-surface rounded-xl p-4 text-center shadow-sm">
+                <div className="text-headline-sm font-bold text-success">{reports.length}</div>
+                <div className="text-label-sm text-on-surface-variant">Total Siswa</div>
               </div>
-
-              <div style={{ textAlign: 'center', padding: '1rem', background: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#059669' }}>
+              <div className="bg-surface rounded-xl p-4 text-center shadow-sm">
+                <div className="text-headline-sm font-bold text-success">
                   {Math.round(reports.reduce((sum, r) => sum + r.averageScore, 0) / reports.length) || 0}
                 </div>
-                <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>Rata-rata Kelas</div>
+                <div className="text-label-sm text-on-surface-variant">Rata-rata Kelas</div>
               </div>
-
-              <div style={{ textAlign: 'center', padding: '1rem', background: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#dc2626' }}>
-                  {Math.max(...reports.map(r => r.averageScore)) || 0}
-                </div>
-                <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>Nilai Tertinggi</div>
+              <div className="bg-surface rounded-xl p-4 text-center shadow-sm">
+                <div className="text-headline-sm font-bold text-error">{Math.max(...reports.map(r => r.averageScore)) || 0}</div>
+                <div className="text-label-sm text-on-surface-variant">Nilai Tertinggi</div>
               </div>
-
-              <div style={{ textAlign: 'center', padding: '1rem', background: 'white', borderRadius: '8px' }}>
-                <div style={{ fontSize: '2rem', fontWeight: 'bold', color: '#ea580c' }}>
-                  {Math.min(...reports.map(r => r.averageScore)) || 0}
-                </div>
-                <div style={{ color: '#6b7280', fontSize: '0.9rem' }}>Nilai Terendah</div>
+              <div className="bg-surface rounded-xl p-4 text-center shadow-sm">
+                <div className="text-headline-sm font-bold text-warning">{Math.min(...reports.map(r => r.averageScore)) || 0}</div>
+                <div className="text-label-sm text-on-surface-variant">Nilai Terendah</div>
               </div>
             </div>
           </div>
         )}
 
-        {/* Reports List */}
-        <section className="dashboard-section">
-          <h2>
-            <Award size={20} style={{ marginRight: '8px' }} />
+        {/* Reports Table */}
+        <div className="p-4 md:p-6">
+          <h2 className="text-title-md font-semibold text-on-surface flex items-center gap-sm mb-md">
+            <Award className="w-5 h-5 text-primary" />
             Rekap Penilaian Bulan {new Date(selectedMonth + '-01').toLocaleDateString('id-ID', { year: 'numeric', month: 'long' })}
-            {selectedClass && ` - ${classes.find(c => c.id === selectedClass)?.name || 'Unknown'}`}
+            {selectedClass && ` - ${classes.find(c => c.id === selectedClass)?.name || ''}`}
           </h2>
 
           {reports.length > 0 ? (
-            <div className="table-responsive">
-              <table className="dashboard-table">
+            <div className="overflow-x-auto">
+              <table className="w-full">
                 <thead>
-                  <tr>
-                    <th>No</th>
-                    <th>Nama Siswa</th>
-                    <th>Rata-rata</th>
-                    <th>Total Penilaian</th>
-                    <th>Sikap</th>
-                    <th>Pengetahuan</th>
-                    <th>Keterampilan</th>
-                    <th>Karakter</th>
-                    <th>Kreativitas</th>
-                    <th>Kerjasama</th>
+                  <tr className="bg-surface-dim/50">
+                    <th className="text-left px-3 py-3 text-label-xs font-semibold text-on-surface-variant">No</th>
+                    <th className="text-left px-3 py-3 text-label-xs font-semibold text-on-surface-variant">Nama Siswa</th>
+                    <th className="text-center px-3 py-3 text-label-xs font-semibold text-on-surface-variant">Rata-rata</th>
+                    <th className="text-center px-3 py-3 text-label-xs font-semibold text-on-surface-variant">Total</th>
+                    <th className="text-center px-3 py-3 text-label-xs font-semibold text-on-surface-variant">Sikap</th>
+                    <th className="text-center px-3 py-3 text-label-xs font-semibold text-on-surface-variant">Pengetahuan</th>
+                    <th className="text-center px-3 py-3 text-label-xs font-semibold text-on-surface-variant">Ketrampilan</th>
+                    <th className="text-center px-3 py-3 text-label-xs font-semibold text-on-surface-variant">Karakter</th>
+                    <th className="text-center px-3 py-3 text-label-xs font-semibold text-on-surface-variant">Kreativitas</th>
+                    <th className="text-center px-3 py-3 text-label-xs font-semibold text-on-surface-variant">Kerjasama</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {reports.map((student, index) => (
-                    <tr key={student.id}>
-                      <td>{index + 1}</td>
-                      <td>
-                        <div>
-                          <div style={{ fontWeight: 'bold' }}>{student.name}</div>
-                          <div style={{ fontSize: '0.8rem', color: '#6b7280' }}>{student.email}</div>
-                        </div>
-                      </td>
-                      <td>
-                        <span style={{
-                          fontWeight: 'bold',
-                          color: student.averageScore >= 85 ? '#059669' : student.averageScore >= 70 ? '#ea580c' : '#dc2626'
-                        }}>
-                          {student.averageScore}
-                        </span>
-                      </td>
-                      <td>{student.totalEvaluations}</td>
-                      <td>{student.aspectScores.attitude !== null ? (
-                        <span style={{
-                          fontWeight: 'bold',
-                          color: student.aspectScores.attitude >= 85 ? '#059669' : student.aspectScores.attitude >= 70 ? '#ea580c' : '#dc2626'
-                        }}>
-                          {student.aspectScores.attitude}
-                        </span>
-                      ) : '-'}</td>
-                      <td>{student.aspectScores.knowledge !== null ? (
-                        <span style={{
-                          fontWeight: 'bold',
-                          color: student.aspectScores.knowledge >= 85 ? '#059669' : student.aspectScores.knowledge >= 70 ? '#ea580c' : '#dc2626'
-                        }}>
-                          {student.aspectScores.knowledge}
-                        </span>
-                      ) : '-'}</td>
-                      <td>{student.aspectScores.skill !== null ? (
-                        <span style={{
-                          fontWeight: 'bold',
-                          color: student.aspectScores.skill >= 85 ? '#059669' : student.aspectScores.skill >= 70 ? '#ea580c' : '#dc2626'
-                        }}>
-                          {student.aspectScores.skill}
-                        </span>
-                      ) : '-'}</td>
-                      <td>{student.aspectScores.character !== null ? (
-                        <span style={{
-                          fontWeight: 'bold',
-                          color: student.aspectScores.character >= 85 ? '#059669' : student.aspectScores.character >= 70 ? '#ea580c' : '#dc2626'
-                        }}>
-                          {student.aspectScores.character}
-                        </span>
-                      ) : '-'}</td>
-                      <td>{student.aspectScores.creativity !== null ? (
-                        <span style={{
-                          fontWeight: 'bold',
-                          color: student.aspectScores.creativity >= 85 ? '#059669' : student.aspectScores.creativity >= 70 ? '#ea580c' : '#dc2626'
-                        }}>
-                          {student.aspectScores.creativity}
-                        </span>
-                      ) : '-'}</td>
-                      <td>{student.aspectScores.cooperation !== null ? (
-                        <span style={{
-                          fontWeight: 'bold',
-                          color: student.aspectScores.cooperation >= 85 ? '#059669' : student.aspectScores.cooperation >= 70 ? '#ea580c' : '#dc2626'
-                        }}>
-                          {student.aspectScores.cooperation}
-                        </span>
-                      ) : '-'}</td>
-                    </tr>
-                  ))}
+                  {reports.map((student, index) => {
+                    const getScoreStyle = (score) => ({
+                      color: score >= 85 ? 'var(--color-success, #10b981)' : score >= 70 ? 'var(--color-warning, #f59e0b)' : 'var(--color-error, #ef4444)',
+                      fontWeight: 'bold'
+                    });
+                    return (
+                      <tr key={student.id} className={"border-t border-outline-variant/50 hover:bg-surface-dim/30 transition-colors " + (index % 2 === 0 ? 'bg-surface' : 'bg-surface-dim/10')}>
+                        <td className="px-3 py-3 text-body-sm text-on-surface-variant text-center">{index + 1}</td>
+                        <td className="px-3 py-3">
+                          <div className="font-medium text-body-sm text-on-surface">{student.name}</div>
+                          <div className="text-label-xs text-on-surface-variant">{student.email}</div>
+                        </td>
+                        <td className="px-3 py-3 text-center text-body-sm" style={getScoreStyle(student.averageScore)}>{student.averageScore}</td>
+                        <td className="px-3 py-3 text-center text-body-sm text-on-surface-variant">{student.totalEvaluations}</td>
+                        <td className="px-3 py-3 text-center text-body-sm">{student.aspectScores.attitude !== null ? <span style={getScoreStyle(student.aspectScores.attitude)}>{student.aspectScores.attitude}</span> : '-'}</td>
+                        <td className="px-3 py-3 text-center text-body-sm">{student.aspectScores.knowledge !== null ? <span style={getScoreStyle(student.aspectScores.knowledge)}>{student.aspectScores.knowledge}</span> : '-'}</td>
+                        <td className="px-3 py-3 text-center text-body-sm">{student.aspectScores.skill !== null ? <span style={getScoreStyle(student.aspectScores.skill)}>{student.aspectScores.skill}</span> : '-'}</td>
+                        <td className="px-3 py-3 text-center text-body-sm">{student.aspectScores.character !== null ? <span style={getScoreStyle(student.aspectScores.character)}>{student.aspectScores.character}</span> : '-'}</td>
+                        <td className="px-3 py-3 text-center text-body-sm">{student.aspectScores.creativity !== null ? <span style={getScoreStyle(student.aspectScores.creativity)}>{student.aspectScores.creativity}</span> : '-'}</td>
+                        <td className="px-3 py-3 text-center text-body-sm">{student.aspectScores.cooperation !== null ? <span style={getScoreStyle(student.aspectScores.cooperation)}>{student.aspectScores.cooperation}</span> : '-'}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
           ) : (
-            <div className="empty-state">
-              <span className="empty-icon"><Award size={48} /></span>
-              <p>Belum ada data penilaian untuk periode yang dipilih.</p>
-              <p>Pastikan Anda telah memilih kelas dan bulan dengan benar.</p>
+            <div className="text-center py-12">
+              <Award className="w-16 h-16 mx-auto text-on-surface-variant/30 mb-4" />
+              <p className="text-body-lg text-on-surface-variant mb-2">Belum ada data penilaian untuk periode yang dipilih.</p>
+              <p className="text-body-sm text-on-surface-variant/70">Pastikan Anda telah memilih kelas dan bulan dengan benar.</p>
             </div>
           )}
-        </section>
+        </div>
       </div>
     </div>
   );
