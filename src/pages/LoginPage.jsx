@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { LogIn, Eye, EyeOff, AlertCircle, GraduationCap, ArrowRight } from 'lucide-react';
+import { LogIn, Eye, EyeOff, AlertCircle, ArrowRight, BookOpen, Users, BarChart3, Shield } from 'lucide-react';
 
 const LoginPage = ({ setCurrentPage }) => {
   const [email, setEmail] = useState('');
@@ -54,8 +54,8 @@ const LoginPage = ({ setCurrentPage }) => {
         <div className="absolute top-1/3 left-1/4 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
         
         <div className="relative z-10 text-center max-w-lg">
-          <div className="w-20 h-20 mx-auto mb-xl rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center shadow-lg">
-            <GraduationCap size={42} className="text-white" />
+          <div className="w-24 h-24 mx-auto mb-xl rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center shadow-lg p-3">
+            <img src="/logo.png" alt="KSI-ON" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-display-lg font-display font-bold text-white mb-md leading-tight">
             KSI-ON LMS
@@ -66,20 +66,42 @@ const LoginPage = ({ setCurrentPage }) => {
           <p className="text-body-lg font-body text-white/80 max-w-sm mx-auto leading-relaxed">
             Sistem Manajemen Pembelajaran terintegrasi untuk mendukung perjalanan akademik Anda.
           </p>
-          <div className="flex justify-center gap-xl mt-xl">
-            <div className="text-center">
-              <p className="text-headline-md font-display font-bold text-white">6+</p>
-              <p className="text-label-sm font-label text-white/70">Kursus</p>
+          <div className="grid grid-cols-2 gap-md mt-xl">
+            <div className="flex items-center gap-sm bg-white/10 rounded-xl p-md text-left">
+              <div className="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
+                <BookOpen size={20} className="text-white" />
+              </div>
+              <div>
+                <p className="text-label-sm font-label text-white/90 font-semibold">Materi Digital</p>
+                <p className="text-[11px] text-white/60">Akses 24/7</p>
+              </div>
             </div>
-            <div className="w-px bg-white/20" />
-            <div className="text-center">
-              <p className="text-headline-md font-display font-bold text-white">40+</p>
-              <p className="text-label-sm font-label text-white/70">Pengguna</p>
+            <div className="flex items-center gap-sm bg-white/10 rounded-xl p-md text-left">
+              <div className="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
+                <BarChart3 size={20} className="text-white" />
+              </div>
+              <div>
+                <p className="text-label-sm font-label text-white/90 font-semibold">Lacak Progres</p>
+                <p className="text-[11px] text-white/60">Nilai & Laporan</p>
+              </div>
             </div>
-            <div className="w-px bg-white/20" />
-            <div className="text-center">
-              <p className="text-headline-md font-display font-bold text-white">100%</p>
-              <p className="text-label-sm font-label text-white/70">Terintegrasi</p>
+            <div className="flex items-center gap-sm bg-white/10 rounded-xl p-md text-left">
+              <div className="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
+                <Users size={20} className="text-white" />
+              </div>
+              <div>
+                <p className="text-label-sm font-label text-white/90 font-semibold">Multi Peran</p>
+                <p className="text-[11px] text-white/60">Murid, Guru, Admin</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-sm bg-white/10 rounded-xl p-md text-left">
+              <div className="w-10 h-10 rounded-lg bg-white/15 flex items-center justify-center shrink-0">
+                <Shield size={20} className="text-white" />
+              </div>
+              <div>
+                <p className="text-label-sm font-label text-white/90 font-semibold">Terintegrasi</p>
+                <p className="text-[11px] text-white/60">PKBM & LMS</p>
+              </div>
             </div>
           </div>
         </div>
@@ -90,8 +112,8 @@ const LoginPage = ({ setCurrentPage }) => {
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-sm mb-xl">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <GraduationCap size={22} className="text-primary" />
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center p-1.5">
+              <img src="/logo.png" alt="KSI-ON" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="text-headline-md font-display font-extrabold text-primary">KSI-ON LMS</h1>

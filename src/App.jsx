@@ -56,6 +56,7 @@ function App() {
 const DashboardLayout = ({ role, user, profile }) => {
   const [activeSection, setActiveSection] = useState('dashboard-' + role);
   const [currentCourseId, setCurrentCourseId] = useState(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   // Handle navigation actions
   const handleSidebarNavigation = (action) => {
@@ -187,11 +188,15 @@ const DashboardLayout = ({ role, user, profile }) => {
       <Sidebar 
         role={role} 
         onNavigate={handleSidebarNavigation} 
-        activeSection={activeSection} 
+        activeSection={activeSection}
+        sidebarCollapsed={sidebarCollapsed}
+        setSidebarCollapsed={setSidebarCollapsed}
       />
       
       {/* Main Content Area */}
-      <main className="flex-1 ml-0 md:ml-sidebar-width min-h-screen flex flex-col bg-surface-bright">
+      <main className={`flex-1 ml-0 min-h-screen flex flex-col bg-surface-bright transition-all duration-300 ${
+          sidebarCollapsed ? 'md:ml-[72px]' : 'md:ml-sidebar-width'
+        }`}>
         {/* Desktop Top Bar */}
         <header className="hidden md:flex bg-surface/70 backdrop-blur-md justify-between items-center px-margin-desktop py-xs w-full z-40 shadow-sm sticky top-0 border-b border-outline-variant">
           {/* Breadcrumb */}

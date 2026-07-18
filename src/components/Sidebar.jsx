@@ -7,10 +7,10 @@ import {
   ClipboardList, UserCheck, Award, Printer,
   FileCheck, Building2, UserCog, TrendingUp,
   FileSignature, MoreVertical, X, School,
-  Menu
+  Menu, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
-const Sidebar = ({ role, onNavigate, activeSection }) => {
+const Sidebar = ({ role, onNavigate, activeSection, sidebarCollapsed, setSidebarCollapsed }) => {
   const { signOut, profile, user } = useAuth();
   const [isMobile, setIsMobile] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
@@ -210,16 +210,27 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
 
   // ====== DESKTOP SIDEBAR ======
   const renderDesktopSidebar = () => (
-    <aside className="hidden md:flex w-sidebar-width h-screen fixed left-0 top-0 bg-surface flex-col border-r border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.05)] z-50 overflow-y-auto">
-      {/* Logo Area */}
-      <div className="px-lg py-lg border-b border-outline-variant/30 flex items-center gap-sm shrink-0">
-        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-          <School className="text-primary fill-current" size={22} />
+    <aside className={`hidden md:flex ${sidebarCollapsed ? 'w-[72px]' : 'w-sidebar-width'} h-screen fixed left-0 top-0 bg-surface flex-col border-r border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.05)] z-50 overflow-y-auto transition-all duration-300`}>
+      {/* Logo Area + Toggle */}
+      <div className="px-lg py-lg border-b border-outline-variant/30 flex items-center shrink-0 justify-between">
+        <div className={`flex items-center gap-sm ${sidebarCollapsed ? 'justify-center w-full' : ''}`}>
+          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center p-1.5">
+            <img src="/logo.png" alt="KSI-ON" className="w-full h-full object-contain" />
+          </div>
+          {!sidebarCollapsed && (
+            <div>
+              <h1 className="text-headline-md font-display font-extrabold text-primary leading-tight">KSI-ON LMS</h1>
+              <p className="text-label-sm text-on-surface-variant font-label">Academic Excellence</p>
+            </div>
+          )}
         </div>
-        <div>
-          <h1 className="text-headline-md font-display font-extrabold text-primary leading-tight">KSI-ON LMS</h1>
-          <p className="text-label-sm text-on-surface-variant font-label">Academic Excellence</p>
-        </div>
+        <button
+          onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          className={`p-1.5 rounded-lg hover:bg-surface-container-high transition-colors text-on-surface-variant hover:text-primary shrink-0 ${sidebarCollapsed ? 'mx-auto' : ''}`}
+          title={sidebarCollapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
+        >
+          {sidebarCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+        </button>
       </div>
 
       {/* Navigation Links */}
@@ -228,10 +239,14 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
           // Divider items (section headers)
           if (item.type === 'divider') {
             return (
-              <div key={index} className="px-lg pt-md pb-xs mt-sm">
-                <span className="text-label-sm text-outline uppercase tracking-wider font-label font-semibold">
-                  {item.name}
-                </span>
+              <div key={index} className={`${sidebarCollapsed ? 'px-0 py-md flex justify-center' : 'px-lg pt-md pb-xs mt-sm'}`}>
+                {sidebarCollapsed ? (
+                  <div className="w-8 h-px bg-outline-variant/50" />
+                ) : (
+                  <span className="text-label-sm text-outline uppercase tracking-wider font-label font-semibold">
+                    {item.name}
+                  </span>
+                )}
               </div>
             );
           }
@@ -242,7 +257,7 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
               key={index}
               onClick={() => handleNavigation(item.action)}
               className={`
-                flex items-center gap-md py-md px-lg mr-sm transition-all duration-200 ease-in-out group
+                flex items-center gap-md py-md ${sidebarCollapsed ? 'px-0 justify-center mx-2' : 'px-lg mr-sm'} transition-all duration-200 ease-in-out group
                 ${isActive 
                   ? 'bg-primary/10 text-primary border-l-4 border-primary rounded-r-full font-semibold' 
                   : 'text-on-surface-variant border-l-4 border-transparent hover:bg-surface-container-low hover:text-primary rounded-r-full'
@@ -250,22 +265,23 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
               `}
             >
               <span className={`transition-transform duration-200 group-hover:scale-110 ${isActive ? 'scale-110' : ''}`}>
-                <item.icon size={20} />
+                <item.icon size={sidebarCollapsed ? 22 : 20} />
               </span>
-              <span className="text-label-md font-label">{item.name}</span>
+              {!sidebarCollapsed && <span className="text-label-md font-label">{item.name}</span>}
             </button>
           );
         })}
       </nav>
 
       {/* Footer / Logout */}
-      <div className="p-md border-t border-outline-variant/30 shrink-0">
+      <div className={`p-md border-t border-outline-variant/30 shrink-0 ${sidebarCollapsed ? 'flex justify-center' : ''}`}>
         <button
           onClick={handleSignOut}
-          className="w-full text-on-surface-variant py-sm px-md flex items-center gap-md hover:bg-error-container hover:text-error transition-all duration-200 ease-in-out rounded-lg group"
+          className={`text-on-surface-variant py-sm flex items-center gap-md hover:bg-error-container hover:text-error transition-all duration-200 ease-in-out rounded-lg group ${sidebarCollapsed ? 'px-0 justify-center w-10 h-10' : 'px-md w-full'}`}
+          title="Logout"
         >
           <LogOut size={20} className="transition-transform duration-200 group-hover:scale-110" />
-          <span className="text-label-md font-label">Logout</span>
+          {!sidebarCollapsed && <span className="text-label-md font-label">Logout</span>}
         </button>
       </div>
     </aside>
@@ -395,10 +411,10 @@ const Sidebar = ({ role, onNavigate, activeSection }) => {
                         : 'text-on-surface-variant border-l-4 border-transparent hover:bg-surface-container-low hover:text-primary rounded-r-full'
                     }`}
                   >
-                    <span className={`transition-transform duration-200 group-hover:scale-110 ${isActive ? 'scale-110' : ''}`}>
-                      <item.icon size={20} />
-                    </span>
-                    <span className="text-label-md font-label">{item.name}</span>
+              <span className={`transition-transform duration-200 group-hover:scale-110 ${isActive ? 'scale-110' : ''}`}>
+                <item.icon size={20} />
+              </span>
+              <span className="text-label-md font-label">{item.name}</span>
                   </button>
                 );
               })}
