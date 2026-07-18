@@ -373,6 +373,18 @@ body {
   border-radius: 20px;
 }
 
+/* Sidebar thin scrollbar */
+.sidebar-scroll::-webkit-scrollbar {
+  width: 4px;
+}
+.sidebar-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.sidebar-scroll::-webkit-scrollbar-thumb {
+  background-color: var(--color-outline-variant, #c7c4d8);
+  border-radius: 20px;
+}
+
 /* Hide scrollbar */
 .hide-scrollbar {
   -ms-overflow-style: none;

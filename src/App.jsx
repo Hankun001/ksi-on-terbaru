@@ -11,7 +11,6 @@ import LoginPage from './pages/LoginPage';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import LoadingSpinner from './components/common/LoadingSpinner';
 import { Construction, Bell, HelpCircle, RefreshCw } from 'lucide-react';
-import './App.css';
 
 function App() {
   const { user, role, loading, signOut, profile } = useAuth();
