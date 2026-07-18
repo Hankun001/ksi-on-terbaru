@@ -839,4 +839,3 @@ export const CourseDetail = ({ courseId }) => {
 
 export default { TeacherCourseManagement, StudentCourseEnrollment, CourseDetail };
 
-document.head.appendChild(style);
