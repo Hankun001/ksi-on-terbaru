@@ -85,6 +85,19 @@
   --spacing-margin-mobile: 16px;
   --spacing-margin-desktop: 32px;
 
+  /* ===== Container (Max-Width) ===== */
+  --container-xs: 20rem;
+  --container-sm: 24rem;
+  --container-md: 28rem;
+  --container-lg: 32rem;
+  --container-xl: 36rem;
+  --container-2xl: 42rem;
+  --container-3xl: 48rem;
+  --container-4xl: 56rem;
+  --container-5xl: 64rem;
+  --container-6xl: 72rem;
+  --container-7xl: 80rem;
+
   /* ===== Typography ===== */
   --text-display-lg: 48px;
   --text-display-lg--line-height: 56px;
@@ -343,6 +356,19 @@ body {
   from { transform: translateX(-100%); }
   to { transform: translateX(0); }
 }
+
+/* ===== Max-Width Override (fix for custom spacing overriding Tailwind) ===== */
+.max-w-xs { max-width: 20rem; }
+.max-w-sm { max-width: 24rem; }
+.max-w-md { max-width: 28rem; }
+.max-w-lg { max-width: 32rem; }
+.max-w-xl { max-width: 36rem; }
+.max-w-2xl { max-width: 42rem; }
+.max-w-3xl { max-width: 48rem; }
+.max-w-4xl { max-width: 56rem; }
+.max-w-5xl { max-width: 64rem; }
+.max-w-6xl { max-width: 72rem; }
+.max-w-7xl { max-width: 80rem; }
 
 /* ===== Utility Classes ===== */
 
