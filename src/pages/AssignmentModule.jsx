@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
+import { AlertCircle, Plus, Eye, Trash2 } from 'lucide-react';
 
 // Assignment Management Module for Teachers
 export const AssignmentModule = ({ courseId, onBack }) => {
@@ -224,34 +225,27 @@ export const AssignmentModule = ({ courseId, onBack }) => {
   };
 
   return (
-    <div className="dashboard-container">
-      <div className="dashboard-header">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto space-y-lg">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
         <div>
-          <button onClick={onBack} className="btn btn-secondary btn-sm" style={{ marginBottom: '0.5rem' }}>
-            ← Kembali
-          </button>
-          <h1>Manajemen Tugas</h1>
-          <p>{assignments.length} tugas dibuat • {submissions.length} submission</p>
+          <button onClick={onBack} className="inline-flex items-center gap-xs px-md py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-surface-container-highest transition-colors mb-sm">← Kembali</button>
+          <h1 className="text-headline-md font-display font-bold text-on-surface">Manajemen Tugas</h1>
+          <p className="text-body-md text-on-surface-variant mt-1">{assignments.length} tugas dibuat • {submissions.length} submission</p>
         </div>
-        <button onClick={openCreateModal} className="btn btn-primary">
-          + Buat Tugas Baru
-        </button>
+        <button onClick={openCreateModal} className="inline-flex items-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-xl text-label-md font-medium hover:bg-primary/90 transition-all shadow-sm">+ Buat Tugas Baru</button>
       </div>
 
-      {error && <div className="error-message">{error}</div>}
+      {error && <div className="flex items-center gap-sm p-md rounded-xl bg-error-container border border-error/20"><AlertCircle size={18} className="text-error shrink-0" /><span>{error}</span></div>}
 
       {loading ? (
-        <div className="loading-container">
-          <div className="spinner spinner-medium"></div>
-          <p>Memuat...</p>
-        </div>
+        <div className="flex items-center justify-center min-h-[30vh]"><div className="animate-pulse"><div className="h-4 w-48 bg-surface-container-high rounded-lg"></div></div></div>
       ) : (
         <>
-          <section className="dashboard-section">
-            <h2>📝 Daftar Tugas</h2>
+          <section className="bg-surface rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm">
+            <div className="px-xl py-lg border-b border-outline-variant/20"><h2 className="text-title-md font-bold text-on-surface">📝 Daftar Tugas</h2></div>
             {assignments.length > 0 ? (
-              <div className="table-responsive">
-                <table className="dashboard-table">
+              <div className="overflow-x-auto">
+                <table className="w-full text-body-sm">
                   <thead>
                     <tr>
                       <th>Judul</th>
@@ -285,31 +279,31 @@ export const AssignmentModule = ({ courseId, onBack }) => {
                           <td>
                             <span style={{ fontWeight: 'bold' }}>{assignmentSubmissions.length}</span>
                             {gradedCount > 0 && (
-                              <small style={{ display: 'block', color: '#10b981' }}>
+                              <small className="text-primary block">
                                 ✓ {gradedCount} sudah dinilai
                               </small>
                             )}
                           </td>
                           <td>
                             {isOpen && !isPastDue ? (
-                              <span className="status-open">Dibuka</span>
+                              <span className="inline-flex items-center gap-1 bg-primary-container text-primary text-label-xs px-sm py-0.5 rounded-full">Dibuka</span>
                             ) : isPastDue ? (
-                              <span className="status-closed">Tutup</span>
+                              <span className="inline-flex items-center gap-1 bg-surface-container-high text-on-surface-variant text-label-xs px-sm py-0.5 rounded-full">Tutup</span>
                             ) : (
-                              <span className="status-closed">Tutup</span>
+                              <span className="inline-flex items-center gap-1 bg-surface-container-high text-on-surface-variant text-label-xs px-sm py-0.5 rounded-full">Tutup</span>
                             )}
                           </td>
                           <td>
                             <div className="table-actions">
                               <button 
                                 onClick={() => handleEdit(assignment)}
-                                className="btn btn-edit btn-sm"
+                                className="inline-flex items-center justify-center px-md py-sm bg-surface-container-high text-on-surface rounded-lg text-label-sm font-medium hover:bg-primary hover:text-on-primary transition-all"
                               >
                                 ✏️ Edit
                               </button>
                               <button 
                                 onClick={() => handleDelete(assignment.id)}
-                                className="btn btn-danger btn-sm"
+                                className="inline-flex items-center justify-center px-md py-sm bg-surface-container-high text-on-surface rounded-lg text-label-sm font-medium hover:bg-error-container hover:text-error transition-colors"
                               >
                                 🗑️
                               </button>
@@ -322,13 +316,13 @@ export const AssignmentModule = ({ courseId, onBack }) => {
                 </table>
               </div>
             ) : (
-              <div className="empty-state">
-                <span className="empty-icon">📝</span>
+              <div className="flex flex-col items-center justify-center py-xl text-center">
+                <span className="text-3xl mb-sm">📝</span>
                 <p>Belum ada tugas.</p>
                 <p style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '0.5rem' }}>
                   Buat tugas pertama untuk murid Anda.
                 </p>
-                <button onClick={openCreateModal} className="btn btn-primary" style={{ marginTop: '1rem' }}>
+                <button onClick={openCreateModal} className="inline-flex items-center gap-xs px-lg py-sm bg-primary text-on-primary rounded-xl text-label-md font-medium hover:bg-primary/90 transition-all shadow-sm" style={{ marginTop: '1rem' }}>
                   Buat Tugas Pertama
                 </button>
               </div>
@@ -338,8 +332,8 @@ export const AssignmentModule = ({ courseId, onBack }) => {
           {submissions.length > 0 && (
             <section className="dashboard-section">
               <h2>📋 Submission Terbaru</h2>
-              <div className="table-responsive">
-                <table className="dashboard-table">
+              <div className="overflow-x-auto">
+                <table className="w-full text-body-sm">
                   <thead>
                     <tr>
                       <th>Siswa</th>
@@ -376,7 +370,7 @@ export const AssignmentModule = ({ courseId, onBack }) => {
                                 href={submission.attachment_url} 
                                 target="_blank" 
                                 rel="noopener noreferrer"
-                                className="btn btn-secondary btn-sm"
+                                className="inline-flex items-center gap-xs px-md py-sm bg-surface-container-high text-on-surface rounded-lg text-label-sm font-medium hover:bg-surface-container-highest transition-colors"
                               >
                                 📎 Lihat
                               </a>
@@ -387,11 +381,11 @@ export const AssignmentModule = ({ courseId, onBack }) => {
                           <td>
                             {submission?.grade !== null 
                               ? (
-                                <span className="status-completed">
+                                <span className="inline-flex items-center gap-1 bg-primary-container text-primary text-label-xs px-sm py-0.5 rounded-full">
                                   {submission.grade}/{assignment?.max_points || 100}
                                 </span>
                               )
-                              : <span className="status-pending">Belum dinilai</span>
+                              : <span className="inline-flex items-center gap-1 bg-surface-container-high text-on-surface-variant text-label-xs px-sm py-0.5 rounded-full">Belum dinilai</span>
                             }
                             {submission.feedback && (
                               <small style={{ display: 'block', marginTop: '0.25rem', color: '#6b7280' }}>
@@ -469,13 +463,13 @@ const GradingForm = ({ submission, assignment, onGrade }) => {
               onGrade(submission.id, parseInt(grade) || null, feedback);
               setGrading(false);
             }}
-            className="btn btn-primary btn-sm"
+            className="inline-flex items-center gap-xs px-md py-sm bg-primary text-on-primary rounded-lg text-label-sm font-medium hover:bg-primary/90 transition-all"
           >
             💾 Simpan
           </button>
           <button 
             onClick={() => setGrading(false)}
-            className="btn btn-secondary btn-sm"
+            className="inline-flex items-center gap-xs px-md py-sm bg-surface-container-high text-on-surface rounded-lg text-label-sm font-medium hover:bg-surface-container-highest transition-colors"
           >
             Batal
           </button>
@@ -487,7 +481,7 @@ const GradingForm = ({ submission, assignment, onGrade }) => {
   return (
     <button 
       onClick={() => setGrading(true)}
-      className="btn btn-primary btn-sm"
+      className="inline-flex items-center gap-xs px-md py-sm bg-primary text-on-primary rounded-lg text-label-sm font-medium hover:bg-primary/90 transition-all"
     >
       {submission?.grade !== null ? '✏️ Nilai Ulang' : '📝 Nilai'}
     </button>
@@ -496,11 +490,11 @@ const GradingForm = ({ submission, assignment, onGrade }) => {
 
 // Assignment Modal Component
 const AssignmentModal = ({ formData, setFormData, onSubmit, onClose, isEditing, loading }) => (
-  <div className="modal-overlay" onClick={onClose}>
-    <div className="modal-content modal-large" onClick={e => e.stopPropagation()}>
-      <div className="modal-header">
+  <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-[1000] p-md" onClick={onClose}>
+    <div className="bg-surface rounded-2xl shadow-xl max-w-2xl w-full max-h-[85vh] overflow-y-auto" onClick={e => e.stopPropagation()}>
+      <div className="flex items-center justify-between px-xl py-lg border-b border-outline-variant/20">
         <h2>{isEditing ? 'Edit Tugas' : 'Buat Tugas Baru'}</h2>
-        <button onClick={onClose} className="modal-close">&times;</button>
+        <button onClick={onClose} className="w-10 h-10 rounded-full flex items-center justify-center hover:bg-surface-container-high transition-colors text-on-surface-variant">&times;</button>
       </div>
       
       <form onSubmit={onSubmit}>
@@ -603,11 +597,11 @@ const AssignmentModal = ({ formData, setFormData, onSubmit, onClose, isEditing, 
           )}
         </div>
         
-        <div className="modal-actions">
-          <button type="button" onClick={onClose} className="btn btn-secondary">
+        <div className="flex justify-end gap-md px-xl py-lg border-t border-outline-variant/20">
+          <button type="button" onClick={onClose} className="inline-flex items-center gap-xs px-lg py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-surface-container-highest transition-colors">
             Batal
           </button>
-          <button type="submit" disabled={loading} className="btn btn-primary">
+          <button type="submit" disabled={loading} className="inline-flex items-center gap-xs px-lg py-sm bg-primary text-on-primary rounded-xl text-label-md font-medium hover:bg-primary/90 transition-all shadow-sm">
             {loading ? 'Memproses...' : (isEditing ? '💾 Simpan Perubahan' : '✅ Buat Tugas')}
           </button>
         </div>
@@ -812,22 +806,22 @@ export const StudentSubmission = ({ assignments, studentSubmissions, onSubmitAss
                       <td>{assignment.max_points}</td>
                       <td>
                         {isGraded ? (
-                          <span className="status-completed">
+                          <span className="inline-flex items-center gap-1 bg-primary-container text-primary text-label-xs px-sm py-0.5 rounded-full">
                             ✅ Dinilai: {submission?.grade}/{assignment.max_points}
                           </span>
                         ) : isSubmitted ? (
-                          <span className="status-pending">📤 Dikumpulkan</span>
+                          <span className="inline-flex items-center gap-1 bg-primary-container text-primary text-label-xs px-sm py-0.5 rounded-full">📤 Dikumpulkan</span>
                         ) : isOverdue ? (
-                          <span className="status-closed">❌ Terlambat</span>
+                          <span className="inline-flex items-center gap-1 bg-error-container text-error text-label-xs px-sm py-0.5 rounded-full">❌ Terlambat</span>
                         ) : (
-                          <span className="status-open">⏳ Menunggu</span>
+                          <span className="inline-flex items-center gap-1 bg-surface-container-high text-on-surface-variant text-label-xs px-sm py-0.5 rounded-full">⏳ Menunggu</span>
                         )}
                       </td>
                       <td>
                         {!isSubmitted && !isOverdue && (
                           <button 
                             onClick={() => setSelectedAssignment(assignment)}
-                            className="btn btn-primary btn-sm"
+                            className="inline-flex items-center gap-xs px-md py-sm bg-primary text-on-primary rounded-lg text-label-sm font-medium hover:bg-primary/90 transition-all"
                           >
                             📤 Kumpulkan
                           </button>
@@ -835,7 +829,7 @@ export const StudentSubmission = ({ assignments, studentSubmissions, onSubmitAss
                         {isSubmitted && (
                           <button 
                             onClick={() => setSelectedAssignment(assignment)}
-                            className="btn btn-secondary btn-sm"
+                            className="inline-flex items-center gap-xs px-md py-sm bg-surface-container-high text-on-surface rounded-lg text-label-sm font-medium hover:bg-surface-container-highest transition-colors"
                           >
                             {isGraded ? '📋 Lihat' : '📤 Update'}
                           </button>
@@ -988,7 +982,7 @@ export const StudentSubmission = ({ assignments, studentSubmissions, onSubmitAss
                             e.preventDefault(); 
                             setSubmissionFile(null); 
                           }}
-                          className="btn btn-secondary btn-sm"
+                          className="inline-flex items-center gap-xs px-md py-sm bg-surface-container-high text-on-surface rounded-lg text-label-sm font-medium hover:bg-surface-container-highest transition-colors"
                           style={{ marginTop: '0.5rem' }}
                         >
                           ❌ Hapus
@@ -1005,7 +999,7 @@ export const StudentSubmission = ({ assignments, studentSubmissions, onSubmitAss
                   </label>
                 </div>
                 {submissionFile && (
-                  <p style={{ marginTop: '0.5rem', color: '#10b981', fontSize: '0.875rem' }}>
+                  <p className="mt-sm text-primary text-body-sm">
                     ✅ {getFileIcon(submissionFile.name)} {getFileTypeLabel(submissionFile.name)} siap diupload
                   </p>
                 )}
@@ -1028,7 +1022,7 @@ export const StudentSubmission = ({ assignments, studentSubmissions, onSubmitAss
                   style={{ width: '100%', padding: '0.75rem', border: '1px solid #d1d5db', borderRadius: '0.5rem' }}
                 />
                 {submissionLink && (
-                  <p style={{ marginTop: '0.5rem', color: '#10b981', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                  <p className="mt-sm text-primary text-body-sm flex items-center gap-sm">
                     ✅ Link akan disertakan dalam submission Anda
                   </p>
                 )}
@@ -1039,7 +1033,7 @@ export const StudentSubmission = ({ assignments, studentSubmissions, onSubmitAss
                 <button 
                   onClick={handleSubmit}
                   disabled={submitting || (!submissionContent && !submissionFile && !submissionLink)}
-                  className="btn btn-primary"
+                  className="inline-flex items-center gap-xs px-lg py-sm bg-primary text-on-primary rounded-xl text-label-md font-medium hover:bg-primary/90 transition-all shadow-sm"
                   style={{ flex: 1, padding: '0.875rem' }}
                 >
                   {submitting ? (
@@ -1058,7 +1052,7 @@ export const StudentSubmission = ({ assignments, studentSubmissions, onSubmitAss
                     setSubmissionFile(null);
                     setSubmissionLink('');
                   }}
-                  className="btn btn-secondary"
+                  className="inline-flex items-center gap-xs px-lg py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-surface-container-highest transition-colors"
                   disabled={submitting}
                 >
                   Batal

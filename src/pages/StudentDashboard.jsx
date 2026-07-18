@@ -378,16 +378,9 @@ const StudentDashboard = ({ activeSection = 'dashboard-murid', onNavigate }) => 
         />;
       case 'assignments-murid':
         return (
-          <div className="dashboard-content">
+          <div className="bg-surface rounded-xl border border-outline-variant/30 p-md">
             {/* Welcome Message */}
-            <div style={{ 
-              background: 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)',
-              borderRadius: '16px',
-              padding: '1.5rem',
-              color: 'white',
-              marginBottom: '1.5rem',
-              textAlign: 'center'
-            }}>
+            <div className="bg-gradient-to-br from-primary to-[#5a4fcf] rounded-2xl p-xl text-white text-center mb-lg">
               <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>📝 Tugas Saya</h2>
               <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
                 Kerjakan dan kumpulkan tugas Anda tepat waktu.
@@ -404,9 +397,9 @@ const StudentDashboard = ({ activeSection = 'dashboard-murid', onNavigate }) => 
         return <StudentProgressModule />;
       case 'announcements-murid':
         return (
-          <div className="dashboard-content">
+          <div className="bg-surface rounded-xl border border-outline-variant/30 p-md">
             {/* Welcome Message */}
-            <div style={{ 
+            <div className="bg-gradient-to-br from-primary to-[#5a4fcf] rounded-2xl p-xl text-white text-center mb-lg"> 
               background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
               borderRadius: '16px',
               padding: '1.5rem',

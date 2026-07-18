@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { supabase } from '../lib/supabaseClient';
-import AddMaterialModal from '../components/AddMaterialModal';
+import { BookOpen, FileText, Plus, Edit3, Trash2, Calendar, AlertCircle } from 'lucide-react';
 
 // Enhanced Materials Module for Teachers
 export const MaterialsModule = ({ courseId, onBack, courses }) => {
@@ -105,34 +105,24 @@ export const MaterialsModule = ({ courseId, onBack, courses }) => {
   };
 
   return (
-    <div className="dashboard-container" style={{ marginTop: '1rem' }}>
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto space-y-lg">
       {/* Header */}
-      <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.5rem' }}>
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md">
         <div>
-          <h1 style={{ margin: 0, fontSize: '1.5rem' }}>📚 Manajemen Materi</h1>
-          <p style={{ margin: '0.5rem 0 0 0', color: '#6b7280' }}>
-            Kelola materi pembelajaran untuk kursus Anda
-          </p>
+          <h1 className="text-headline-md md:text-headline-lg font-display font-bold text-on-surface flex items-center gap-sm">📚 Manajemen Materi</h1>
+          <p className="text-body-md text-on-surface-variant mt-1">Kelola materi pembelajaran untuk kursus Anda</p>
         </div>
         {onBack && (
-          <button onClick={onBack} className="btn btn-secondary">
-            ← Kembali
-          </button>
+          <button onClick={onBack} className="inline-flex items-center gap-xs px-md py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-surface-container-highest transition-colors">← Kembali</button>
         )}
       </div>
 
-      {/* Course Selection */}
       {availableCourses.length > 0 && (
-        <div className="filter-controls" style={{ marginBottom: '1.5rem' }}>
-          <label htmlFor="course-select" style={{ fontWeight: 500, marginRight: '0.5rem' }}>
-            Pilih Kursus:
-          </label>
-          <select
-            id="course-select"
-            value={selectedCourseId}
+        <div className="flex items-center gap-md">
+          <label htmlFor="course-select" className="text-label-md text-on-surface-variant font-medium">Pilih Kursus:</label>
+          <select id="course-select" value={selectedCourseId}
             onChange={(e) => setSelectedCourseId(e.target.value)}
-            style={{ padding: '0.5rem', borderRadius: '0.375rem', border: '1px solid #d1d5db' }}
-          >
+            className="px-md py-sm bg-surface-container-high border border-outline-variant/30 rounded-xl text-body-md text-on-surface appearance-none cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
             {availableCourses.map(course => (
               <option key={course.id} value={course.id}>{course.title}</option>
             ))}
@@ -143,83 +133,61 @@ export const MaterialsModule = ({ courseId, onBack, courses }) => {
       {/* Add Button */}
       {selectedCourseId && (
         <div style={{ marginBottom: '1.5rem' }}>
-          <button 
-            className="btn btn-primary" 
-            onClick={handleAddMaterial}
-          >
-            + Tambah Materi Baru
-          </button>
+          <button onClick={handleAddMaterial} className="inline-flex items-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-xl text-label-md font-medium hover:bg-primary/90 transition-all shadow-sm">+ Tambah Materi Baru</button>
         </div>
       )}
 
       {/* Error */}
       {error && (
-        <div style={{ padding: '1rem', background: '#fee2e2', borderRadius: '0.5rem', color: '#dc2626', marginBottom: '1rem' }}>
-          {error}
+        <div className="flex items-center gap-sm p-md rounded-xl bg-error-container border border-error/20">
+          <AlertCircle size={18} className="text-error shrink-0" />
+          <p className="text-body-sm text-on-surface-variant">{error}</p>
         </div>
       )}
 
       {/* Materials List */}
       {loading ? (
-        <div style={{ textAlign: 'center', padding: '2rem' }}>
-          Memuat materi...
+        <div className="flex items-center justify-center min-h-[30vh]">
+          <div className="animate-pulse flex flex-col items-center gap-md">
+            <div className="w-12 h-12 rounded-full bg-primary/20"></div>
+            <div className="h-4 w-48 bg-surface-container-high rounded-lg"></div>
+          </div>
         </div>
       ) : materials.length === 0 ? (
-        <div className="empty-state" style={{ textAlign: 'center', padding: '3rem', background: '#f9fafb', borderRadius: '0.75rem' }}>
-          <span style={{ fontSize: '3rem' }}>📚</span>
-          <h3>Belum Ada Materi</h3>
-          <p style={{ color: '#6b7280' }}>Mulai tambahkan materi untuk kursus ini.</p>
+        <div className="flex flex-col items-center justify-center py-2xl text-center">
+          <div className="w-16 h-16 rounded-full bg-surface-container-high flex items-center justify-center mb-md">
+            <BookOpen size={32} className="text-on-surface-variant/50" />
+          </div>
+          <p className="text-body-lg text-on-surface-variant">Belum Ada Materi</p>
+          <p className="text-body-sm text-on-surface-variant/60 mt-1">Mulai tambahkan materi untuk kursus ini.</p>
           {selectedCourseId && (
-            <button className="btn btn-primary" onClick={handleAddMaterial} style={{ marginTop: '1rem' }}>
-              + Tambah Materi Pertama
-            </button>
+            <button onClick={handleAddMaterial} className="mt-lg inline-flex items-center gap-sm px-lg py-sm bg-primary text-on-primary rounded-xl text-label-md font-medium hover:bg-primary/90 transition-all shadow-sm">+ Tambah Materi Pertama</button>
           )}
         </div>
       ) : (
-        <div className="materials-grid">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-lg">
           {materials.map(material => (
-            <div key={material.id} className="card" style={{ padding: '1rem' }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                <div>
-                  <span style={{ fontSize: '1.5rem', marginRight: '0.5rem' }}>
-                    {getMaterialIcon(material)}
-                  </span>
-                  <h3 style={{ margin: '0.5rem 0', fontSize: '1.1rem' }}>{material.title}</h3>
+            <div key={material.id} className="bg-surface-container-low rounded-xl border border-outline-variant/20 p-lg hover:shadow-md hover:border-primary/30 transition-all duration-200">
+              <div className="flex items-start justify-between mb-md">
+                <div className="flex items-center gap-md">
+                  <span className="text-2xl shrink-0">{getMaterialIcon(material)}</span>
+                  <div>
+                    <h3 className="text-title-md font-semibold text-on-surface">{material.title}</h3>
+                    <span className="text-label-xs text-on-surface-variant bg-surface-container-high px-sm py-0.5 rounded-md">{getMaterialTypeLabel(material)}</span>
+                  </div>
                 </div>
-                <span style={{ 
-                  fontSize: '0.75rem', 
-                  padding: '0.25rem 0.5rem', 
-                  background: '#e5e7eb', 
-                  borderRadius: '0.25rem',
-                  whiteSpace: 'nowrap'
-                }}>
-                  {getMaterialTypeLabel(material)}
-                </span>
               </div>
-              
               {material.description && (
-                <p style={{ color: '#6b7280', fontSize: '0.875rem', margin: '0.5rem 0' }}>
-                  {material.description.substring(0, 100)}...
-                </p>
+                <p className="text-body-sm text-on-surface-variant mb-lg line-clamp-2">{material.description.substring(0, 100)}...</p>
               )}
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #e5e7eb' }}>
-                <small style={{ color: '#9ca3af' }}>
-                  {new Date(material.created_at).toLocaleDateString('id-ID')}
-                </small>
-                <div style={{ display: 'flex', gap: '0.5rem' }}>
-                  <button 
-                    className="btn btn-secondary btn-sm" 
-                    onClick={() => handleEditMaterial(material)}
-                  >
-                    ✏️ Edit
+              <div className="flex items-center justify-between pt-sm border-t border-outline-variant/10">
+                <span className="text-label-xs text-on-surface-variant/60"><Calendar size={12} className="inline mr-1"/>{new Date(material.created_at).toLocaleDateString('id-ID')}</span>
+                <div className="flex items-center gap-sm">
+                  <button onClick={() => handleEditMaterial(material)} className="inline-flex items-center justify-center px-md py-sm bg-surface-container-high text-on-surface rounded-lg text-label-md font-medium hover:bg-primary hover:text-on-primary transition-all">
+                    <Edit3 size={16}/>
                   </button>
-                  <button 
-                    className="btn btn-secondary btn-sm" 
-                    onClick={() => handleDelete(material.id)}
-                    style={{ color: '#dc2626' }}
-                  >
-                    🗑️
+                  <button onClick={() => handleDelete(material.id)} className="inline-flex items-center justify-center px-md py-sm bg-surface-container-high text-on-surface rounded-lg text-label-md font-medium hover:bg-error-container hover:text-error transition-all">
+                    <Trash2 size={16}/>
                   </button>
                 </div>
               </div>
@@ -246,19 +214,7 @@ export const MaterialsModule = ({ courseId, onBack, courses }) => {
         />
       )}
 
-      <style>{`
-        .materials-grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 1rem;
-        }
-        
-        @media (max-width: 640px) {
-          .materials-grid {
-            grid-template-columns: 1fr;
-          }
-        }
-      `}</style>
+
     </div>
   );
 };

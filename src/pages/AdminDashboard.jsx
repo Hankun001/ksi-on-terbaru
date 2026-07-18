@@ -820,7 +820,7 @@ const UsersManagementView = ({ users, onUpdateRole, onDeleteUser, onCreateUser, 
 /* ─── COURSES ADMIN VIEW ─── */
 const CoursesAdminView = ({ courses, onDeleteCourse, loading }) => (
   <div className="space-y-lg">
-    <div className="relative overflow-hidden bg-gradient-to-br from-success to-[#059669] rounded-2xl p-xl text-white">
+    <div className="relative overflow-hidden bg-gradient-to-br from-primary to-[#5a4fcf] rounded-2xl p-xl text-white">
       <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/4 translate-x-1/4" />
       <div className="relative flex items-center gap-sm">
         <BookOpen className="w-7 h-7" />
@@ -1050,8 +1050,8 @@ const SettingsView = () => (
 const QuickActionsView = ({ onNavigate }) => {
   const quickActions = [
     { title: 'Tambah Pengguna Baru', description: 'Buat akun baru untuk murid, guru, atau admin', icon: '👤➕', action: 'users-admin', color: '#3b82f6' },
-    { title: 'Buat Kursus', description: 'Buat kursus baru untuk platform pembelajaran', icon: '📚➕', action: 'courses-admin', color: '#10b981' },
-    { title: 'Buat Pengumuman', description: 'Umumkan informasi penting ke semua pengguna', icon: '📢➕', action: 'announcements-admin', color: '#f59e0b' },
+    { title: 'Buat Kursus', description: 'Buat kursus baru untuk platform pembelajaran', icon: '📚➕', action: 'courses-admin', color: '#3525cd' },
+    { title: 'Buat Pengumuman', description: 'Umumkan informasi penting ke semua pengguna', icon: '📢➕', action: 'announcements-admin', color: '#3525cd' },
     { title: 'Lihat Aktivitas', description: 'Pantau aktivitas terbaru di platform', icon: '📊', action: 'activity-admin', color: '#8b5cf6' },
     { title: 'Kelola Pengaturan', description: 'Konfigurasi notifikasi, keamanan, dan sistem', icon: '⚙️', action: 'settings-admin', color: '#6b7280' },
     { title: 'Kembali ke Dashboard', description: 'Lihat ringkasan dan statistik utama', icon: '🏠', action: 'dashboard-admin', color: '#1f2937' },
@@ -1059,7 +1059,7 @@ const QuickActionsView = ({ onNavigate }) => {
 
   return (
     <div className="space-y-lg">
-      <div className="relative overflow-hidden bg-gradient-to-br from-warning to-[#d97706] rounded-2xl p-xl text-white">
+      <div className="relative overflow-hidden bg-gradient-to-br from-primary to-[#5a4fcf] rounded-2xl p-xl text-white">
         <div className="absolute top-0 right-0 w-48 h-48 bg-white/5 rounded-full -translate-y-1/4 translate-x-1/4" />
         <div className="relative">
           <h2 className="text-title-lg font-display">⚡ Quick Actions</h2>

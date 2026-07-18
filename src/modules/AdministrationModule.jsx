@@ -149,15 +149,15 @@ const AdministrationModule = () => {
   };
 
   if (loading) {
-    return <div className="dashboard-container">Memuat data administrasi...</div>;
+    return <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto"><div className="animate-pulse"><div className="h-4 w-48 bg-surface-container-high rounded-lg"></div></div></div>;
   }
 
   if (role !== 'admin') {
-    return <div className="dashboard-container">Hanya admin yang dapat mengakses modul ini.</div>;
+    return <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto text-on-surface-variant">Hanya admin yang dapat mengakses modul ini.</div>;
   }
 
   return (
-    <div className="dashboard-container">
+    <div className="p-margin-mobile md:p-margin-desktop max-w-7xl mx-auto space-y-lg">
       <h1>Modul Administrasi Sistem</h1>
 
       <div className="admin-tabs">
@@ -224,10 +224,10 @@ const AdministrationModule = () => {
             </div>
             
             <div className="form-actions">
-              <button type="submit" className="btn btn-primary">
+              <button type="submit" className="inline-flex items-center gap-xs px-lg py-sm bg-primary text-on-primary rounded-xl text-label-md font-medium hover:bg-primary/90 transition-all shadow-sm">
                 {editingUser ? 'Perbarui Pengguna' : 'Tambah Pengguna'}
               </button>
-              <button type="button" className="btn btn-secondary" onClick={handleCancelUserForm}>
+              <button type="button" className="inline-flex items-center gap-xs px-lg py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-surface-container-highest transition-colors" onClick={handleCancelUserForm}>
                 Batal
               </button>
             </div>
@@ -235,13 +235,13 @@ const AdministrationModule = () => {
         </div>
       )}
 
-      <div className="dashboard-content">
+      <div>
         {activeTab === 'users' && (
-          <section className="dashboard-section">
+          <section className="bg-surface rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm p-xl">
             <div className="section-header">
               <h2>Manajemen Pengguna</h2>
               <button 
-                className="btn btn-primary" 
+                className="inline-flex items-center gap-xs px-lg py-sm bg-primary text-on-primary rounded-xl text-label-md font-medium hover:bg-primary/90 transition-all shadow-sm" 
                 onClick={() => {
                   setUserForm({ email: '', role: 'murid', full_name: '' });
                   setEditingUser(null);
@@ -291,14 +291,14 @@ const AdministrationModule = () => {
                       <td>{new Date(userItem.created_at).toLocaleDateString()}</td>
                       <td>
                         <button 
-                          className="btn btn-secondary" 
+                          className="inline-flex items-center gap-xs px-lg py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-surface-container-highest transition-colors" 
                           onClick={() => handleEditUser(userItem)}
                         >
                           Edit
                         </button>
                         {userItem.id !== user.id && ( // Don't allow deleting own account
                           <button 
-                            className="btn btn-danger" 
+                            className="inline-flex items-center gap-xs px-md py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-error-container hover:text-error transition-colors" 
                             onClick={() => handleDeleteUser(userItem.id)}
                           >
                             Hapus
@@ -314,7 +314,7 @@ const AdministrationModule = () => {
         )}
         
         {activeTab === 'courses' && (
-          <section className="dashboard-section">
+          <section className="bg-surface rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm p-xl">
             <h2>Manajemen Kursus</h2>
             <div className="table-responsive">
               <table className="dashboard-table">
@@ -335,8 +335,8 @@ const AdministrationModule = () => {
                       <td>{course.profiles?.email || 'Tidak diketahui'}</td>
                       <td>{new Date(course.created_at).toLocaleDateString()}</td>
                       <td>
-                        <button className="btn btn-secondary">Edit</button>
-                        <button className="btn btn-danger">Hapus</button>
+                        <button className="inline-flex items-center gap-xs px-lg py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-surface-container-highest transition-colors">Edit</button>
+                        <button className="inline-flex items-center gap-xs px-md py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-error-container hover:text-error transition-colors">Hapus</button>
                       </td>
                     </tr>
                   ))}
@@ -347,25 +347,25 @@ const AdministrationModule = () => {
         )}
         
         {activeTab === 'system' && (
-          <section className="dashboard-section">
+          <section className="bg-surface rounded-xl border border-outline-variant/30 overflow-hidden shadow-sm p-xl">
             <h2>Pengaturan Sistem</h2>
             <div className="system-settings">
               <div className="setting-item">
                 <h3>Pengaturan Umum</h3>
                 <p>Atur pengaturan global untuk sistem LMS</p>
-                <button className="btn btn-secondary">Edit Pengaturan</button>
+                <button className="inline-flex items-center gap-xs px-lg py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-surface-container-highest transition-colors">Edit Pengaturan</button>
               </div>
               
               <div className="setting-item">
                 <h3>Statistik Sistem</h3>
                 <p>Lihat statistik penggunaan sistem secara keseluruhan</p>
-                <button className="btn btn-secondary">Lihat Statistik</button>
+                <button className="inline-flex items-center gap-xs px-lg py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-surface-container-highest transition-colors">Lihat Statistik</button>
               </div>
               
               <div className="setting-item">
                 <h3>Backup Data</h3>
                 <p>Buat atau pulihkan backup data sistem</p>
-                <button className="btn btn-secondary">Backup Sekarang</button>
+                <button className="inline-flex items-center gap-xs px-lg py-sm bg-surface-container-high text-on-surface rounded-xl text-label-md font-medium hover:bg-surface-container-highest transition-colors">Backup Sekarang</button>
               </div>
             </div>
           </section>

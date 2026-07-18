@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '../contexts/AuthContext';
-import { UserPlus, Eye, EyeOff, AlertCircle, CheckCircle, GraduationCap, ArrowLeft, Mail, Lock } from 'lucide-react';
+import { UserPlus, Eye, EyeOff, AlertCircle, CheckCircle, ArrowLeft, Mail, Lock } from 'lucide-react';
 
 const RegisterPage = ({ setCurrentPage }) => {
   const [email, setEmail] = useState('');
@@ -82,10 +82,9 @@ const RegisterPage = ({ setCurrentPage }) => {
   if (success) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-surface-container-low to-surface-container p-margin-mobile md:p-margin-desktop">
-        <div className="w-full max-w-md">
-          <div className="flex items-center justify-center gap-sm mb-lg">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <GraduationCap size={22} className="text-primary" />
+        <div className="w-full max-w-md">            <div className="flex items-center justify-center gap-sm mb-lg">
+            <div className="w-10 h-10 rounded-lg bg-white/15 backdrop-blur flex items-center justify-center p-1.5">
+              <img src="/logo.png" alt="KSI-ON" className="w-full h-full object-contain" />
             </div>
             <span className="text-headline-md font-display font-extrabold text-primary">KSI-ON LMS</span>
           </div>
@@ -123,8 +122,8 @@ const RegisterPage = ({ setCurrentPage }) => {
         <div className="absolute top-1/3 left-1/4 w-32 h-32 bg-white/5 rounded-full blur-2xl" />
 
         <div className="relative z-10 text-center max-w-lg">
-          <div className="w-20 h-20 mx-auto mb-xl rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center shadow-lg">
-            <GraduationCap size={42} className="text-white" />
+          <div className="w-20 h-20 mx-auto mb-xl rounded-2xl bg-white/15 backdrop-blur flex items-center justify-center shadow-lg p-3">
+            <img src="/logo.png" alt="KSI-ON" className="w-full h-full object-contain" />
           </div>
           <h1 className="text-display-lg font-display font-bold text-white mb-md leading-tight">
             KSI-ON LMS
@@ -159,8 +158,8 @@ const RegisterPage = ({ setCurrentPage }) => {
         <div className="w-full max-w-md">
           {/* Mobile Logo */}
           <div className="lg:hidden flex items-center justify-center gap-sm mb-xl">
-            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-              <GraduationCap size={22} className="text-primary" />
+            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center p-1.5">
+              <img src="/logo.png" alt="KSI-ON" className="w-full h-full object-contain" />
             </div>
             <div>
               <h1 className="text-headline-md font-display font-extrabold text-primary">KSI-ON LMS</h1>

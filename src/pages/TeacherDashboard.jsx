@@ -313,14 +313,7 @@ const TeacherDashboard = ({ activeSection = 'dashboard-guru', onNavigate }) => {
         if (courses.length === 0) {
           return (
             <div className="dashboard-content">
-              <div style={{ 
-                background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
-                borderRadius: '16px',
-                padding: '1.5rem',
-                color: 'white',
-                marginBottom: '1.5rem',
-                textAlign: 'center'
-              }}>
+              <div className="bg-gradient-to-br from-primary to-[#5a4fcf] rounded-2xl p-xl text-white text-center mb-lg">
                 <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>
                 <FileText size={20} style={{ marginRight: '8px', verticalAlign: 'middle' }} />
                 Manajemen Materi
