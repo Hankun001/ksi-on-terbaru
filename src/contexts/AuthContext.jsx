@@ -38,7 +38,7 @@ export const AuthProvider = ({ children }) => {
         setLoading(false)
       }
 
-      // Listen for auth changes
+      // Listen for auth changes - only update user/role, not loading
       try {
         const { data: { subscription } } = await supabase.auth.onAuthStateChange(
           (_event, session) => {
@@ -49,7 +49,6 @@ export const AuthProvider = ({ children }) => {
               setRole(null)
               setProfile(null)
             }
-            setLoading(false)
           }
         )
 

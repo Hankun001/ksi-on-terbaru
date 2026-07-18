@@ -24,9 +24,8 @@ try {
       auth: {
         autoRefreshToken: true,
         persistSession: true,
-        detectSessionInUrl: true,
-        // Mengurangi frequency refresh untuk performa lebih baik
-        refreshInterval: 300000, // 5 menit
+        detectSessionInUrl: false,
+        refreshInterval: 600000, // 10 menit
       },
       // Enable realtime untuk semua fitur
       db: {

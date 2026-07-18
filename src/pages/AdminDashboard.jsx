@@ -300,11 +300,11 @@ const AdminDashboard = ({ activeSection = 'dashboard-admin', onNavigate }) => {
 const DashboardOverview = ({ stats, recentActivity, users, courses, onRefresh, refreshing, onNavigate }) => {
   const sections = [
     { id: 'users-admin', label: 'Tambah Pengguna', icon: '👤', color: 'from-[#3b82f6] to-[#2563eb]' },
-    { id: 'courses-admin', label: 'Buat Kursus', icon: '📚', color: 'from-[#10b981] to-[#059669]' },
-    { id: 'announcements-admin', label: 'Pengumuman', icon: '📢', color: 'from-[#f59e0b] to-[#d97706]' },
+    { id: 'courses-admin', label: 'Buat Kursus', icon: '📚', color: 'from-primary to-[#5a4fcf]' },
+    { id: 'announcements-admin', label: 'Pengumuman', icon: '📢', color: 'from-primary to-[#5a4fcf]' },
     { id: 'activity-admin', label: 'Aktivitas', icon: '📊', color: 'from-[#8b5cf6] to-[#7c3aed]' },
-    { id: 'settings-admin', label: 'Pengaturan', icon: '⚙️', color: 'from-[#6b7280] to-[#4b5563]' },
-    { id: 'profile-admin', label: 'Profil Saya', icon: '👤', color: 'from-[#ec4899] to-[#db2777]' },
+    { id: 'settings-admin', label: 'Pengaturan', icon: '⚙️', color: 'from-primary to-[#5a4fcf]' },
+    { id: 'profile-admin', label: 'Profil Saya', icon: '👤', color: 'from-primary to-[#5a4fcf]' },
   ];
 
   return (
@@ -348,8 +348,8 @@ const DashboardOverview = ({ stats, recentActivity, users, courses, onRefresh, r
         <div className="grid grid-cols-3 gap-md">
           {[
             { role: 'Murid', count: stats.usersByRole.murid, icon: '🎓', gradient: 'from-primary to-[#5a4fcf]' },
-            { role: 'Guru', count: stats.usersByRole.guru, icon: '👨‍🏫', gradient: 'from-success to-[#059669]' },
-            { role: 'Admin', count: stats.usersByRole.admin, icon: '⚙️', gradient: 'from-warning to-[#d97706]' },
+            { role: 'Guru', count: stats.usersByRole.guru, icon: '👨‍🏫', gradient: 'from-primary to-[#5a4fcf]' },
+            { role: 'Admin', count: stats.usersByRole.admin, icon: '⚙️', gradient: 'from-primary to-[#5a4fcf]' },
           ].map((item, idx) => (
             <div key={idx} className={`bg-gradient-to-br ${item.gradient} rounded-xl p-md text-white text-center`}>
               <span className="text-3xl block mb-xs">{item.icon}</span>
@@ -479,7 +479,7 @@ const StatsView = ({ stats }) => (
       <div className="space-y-sm">
         {[
           { label: 'Tingkat Aktivitas', value: `${stats.activityRate || 0}%`, gradient: 'from-[#3b82f6] to-[#1d4ed8]' },
-          { label: 'Tingkat Penyelesaian', value: `${stats.completionRate || 0}%`, gradient: 'from-[#10b981] to-[#059669]' },
+          { label: 'Tingkat Penyelesaian', value: `${stats.completionRate || 0}%`, gradient: 'from-primary to-[#5a4fcf]' },
           { label: 'Rasio Kursus/Tugas', value: stats.totalCourses > 0 ? (stats.totalAssignments / stats.totalCourses).toFixed(1) : '0', gradient: 'from-[#8b5cf6] to-[#6d28d9]' },
         ].map((metric, idx) => (
           <div key={idx} className={`bg-gradient-to-br ${metric.gradient} rounded-xl p-md text-white`}>
@@ -888,8 +888,8 @@ const ActivityView = ({ recentActivity }) => {
       <div className="grid grid-cols-2 md:grid-cols-4 gap-md">
         {[
           { icon: '📊', label: 'Total Aktivitas', value: recentActivity.length, gradient: 'from-[#3b82f6] to-[#1d4ed8]' },
-          { icon: '✅', label: 'Sudah Dinilai', value: gradedCount, gradient: 'from-[#10b981] to-[#059669]' },
-          { icon: '⏳', label: 'Menunggu Nilai', value: pendingCount, gradient: 'from-[#f59e0b] to-[#d97706]' },
+          { icon: '✅', label: 'Sudah Dinilai', value: gradedCount, gradient: 'from-primary to-[#5a4fcf]' },
+          { icon: '⏳', label: 'Menunggu Nilai', value: pendingCount, gradient: 'from-primary to-[#5a4fcf]' },
           { icon: '📅', label: 'Hari Ini', value: todayActivity, gradient: 'from-[#8b5cf6] to-[#6d28d9]' },
         ].map((stat, idx) => (
           <div key={idx} className={`bg-gradient-to-br ${stat.gradient} rounded-xl p-md text-white text-center`}>

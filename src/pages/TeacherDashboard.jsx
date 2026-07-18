@@ -491,15 +491,15 @@ const DashboardOverview = ({ stats, courses, assignments, submissions = [], noti
             <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-wider">Kursus Saya</p>
           </div>
           <div className="bg-surface rounded-xl p-md border border-outline-variant/30 flex flex-col items-center text-center group hover:shadow-md transition-all">
-            <div className="w-12 h-12 rounded-full bg-emerald-100 flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
-              <FileText size={24} className="text-emerald-600" />
+            <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
+              <FileText size={24} className="text-primary" />
             </div>
             <p className="text-3xl font-display font-bold text-on-background mb-1">{stats.totalAssignments}</p>
             <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-wider">Total Tugas</p>
           </div>
           <div className="bg-surface rounded-xl p-md border border-outline-variant/30 flex flex-col items-center text-center group hover:shadow-md transition-all">
-            <div className="w-12 h-12 rounded-full bg-amber-100 flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
-              <Clock size={24} className="text-amber-600" />
+            <div className="w-12 h-12 rounded-full bg-primary-container flex items-center justify-center mb-sm group-hover:scale-110 transition-transform">
+              <Clock size={24} className="text-primary" />
             </div>
             <p className="text-3xl font-display font-bold text-on-background mb-1">{pendingSubmissions}</p>
             <p className="text-label-sm font-label text-on-surface-variant uppercase tracking-wider">Menunggu Penilaian</p>
@@ -572,7 +572,7 @@ const DashboardOverview = ({ stats, courses, assignments, submissions = [], noti
 // Materials View with Welcome Message
 const MaterialsView = ({ materials, courses, onRefresh, refreshing }) => (
   <div className="flex flex-col gap-lg">
-    <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 rounded-2xl p-xl text-center shadow-md">
+    <div className="bg-gradient-to-r from-primary to-[#5a4fcf] rounded-2xl p-xl text-center shadow-md">
       <h2 className="text-headline-md font-display text-white mb-sm">📄 Manajemen Materi</h2>
       <p className="text-body-md font-body text-white/80">Bagikan pengetahuan Anda melalui materi pembelajaran yang berkualitas.</p>
     </div>
@@ -641,7 +641,7 @@ const AssignmentsView = ({ assignments, submissions, courses, onRefresh, refresh
 
   return (
     <div className="flex flex-col gap-lg">
-      <div className="bg-gradient-to-r from-amber-500 to-amber-600 rounded-2xl p-xl text-center shadow-md">
+      <div className="bg-gradient-to-r from-primary to-[#5a4fcf] rounded-2xl p-xl text-center shadow-md">
         <h2 className="text-headline-md font-display text-white mb-sm">📝 Manajemen Tugas</h2>
         <p className="text-body-md font-body text-white/80">Buat dan kelola tugas untuk murid Anda.</p>
       </div>
@@ -790,11 +790,11 @@ const SubmissionsView = ({ submissions, onRefresh, onGradeSubmit }) => {
           <p className="text-label-sm font-label text-outline uppercase tracking-wider">Total</p>
         </div>
         <div className="bg-surface rounded-xl p-md border border-outline-variant/30 text-center">
-          <p className="text-2xl font-display font-bold text-emerald-600">{gradedCount}</p>
+          <p className="text-2xl font-display font-bold text-primary">{gradedCount}</p>
           <p className="text-label-sm font-label text-outline uppercase tracking-wider">Dinilai</p>
         </div>
         <div className="bg-surface rounded-xl p-md border border-outline-variant/30 text-center">
-          <p className="text-2xl font-display font-bold text-amber-600">{pendingCount}</p>
+          <p className="text-2xl font-display font-bold text-primary">{pendingCount}</p>
           <p className="text-label-sm font-label text-outline uppercase tracking-wider">Menunggu</p>
         </div>
         <div className="bg-surface rounded-xl p-md border border-outline-variant/30 text-center">
@@ -816,7 +816,7 @@ const SubmissionsView = ({ submissions, onRefresh, onGradeSubmit }) => {
       {filteredSubmissions.length > 0 ? (
         <div className="flex flex-col gap-md">
           {filteredSubmissions.map(submission => (
-            <div key={submission.id} className={`bg-surface rounded-2xl p-xl border-2 ${submission.grade === null ? 'border-amber-400/50' : 'border-emerald-400/50'} shadow-sm`}>
+            <div key={submission.id} className={`bg-surface rounded-2xl p-xl border-2 ${submission.grade === null ? 'border-primary/30' : 'border-primary/30'} shadow-sm`}>
               {/* Header */}
               <div className="flex items-start justify-between mb-md">
                 <div className="flex items-center gap-md">
@@ -828,7 +828,7 @@ const SubmissionsView = ({ submissions, onRefresh, onGradeSubmit }) => {
                     <p className="text-label-sm text-outline">📚 {submission.course_title} • 📝 {submission.assignment_title}</p>
                   </div>
                 </div>
-                <span className={`px-md py-0.5 rounded-full text-label-sm font-label ${submission.grade !== null ? 'bg-emerald-100 text-emerald-700' : 'bg-amber-100 text-amber-700'}`}>
+                <span className={`px-md py-0.5 rounded-full text-label-sm font-label ${submission.grade !== null ? 'bg-primary-container text-primary' : 'bg-primary-container text-primary'}`}>
                   {submission.grade !== null ? `⭐ ${submission.grade}/${submission.max_points || 100}` : '⏳ Menunggu'}
                 </span>
               </div>
@@ -852,12 +852,12 @@ const SubmissionsView = ({ submissions, onRefresh, onGradeSubmit }) => {
 
               <div className="flex items-center justify-between text-label-sm text-outline mb-md">
                 <span>🕐 Dikumpulkan: {new Date(submission.submitted_at).toLocaleString()}</span>
-                {submission.graded_at && <span className="text-emerald-600">✅ Dinilai: {new Date(submission.graded_at).toLocaleString()}</span>}
+                {submission.graded_at && <span className="text-primary">✅ Dinilai: {new Date(submission.graded_at).toLocaleString()}</span>}
               </div>
 
               {submission.feedback && (
-                <div className="bg-amber-50 rounded-xl p-md mb-md border border-amber-200">
-                  <p className="text-body-sm font-body text-amber-800"><strong>💬 Feedback:</strong> {submission.feedback}</p>
+                <div className="bg-primary-container/40 rounded-xl p-md mb-md border border-primary/20">
+                  <p className="text-body-sm font-body text-on-primary-container"><strong>💬 Feedback:</strong> {submission.feedback}</p>
                 </div>
               )}
 
@@ -898,7 +898,7 @@ const StudentsView = ({ students, courses, submissions }) => {
 
   return (
     <div className="flex flex-col gap-lg">
-      <div className="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl p-xl text-center shadow-md">
+      <div className="bg-gradient-to-r from-primary to-[#5a4fcf] rounded-2xl p-xl text-center shadow-md">
         <h2 className="text-headline-md font-display text-white mb-sm">👥 Daftar Murid</h2>
         <p className="text-body-md font-body text-white/80">Kelola dan pantau progres belajar murid Anda.</p>
       </div>
@@ -917,11 +917,11 @@ const StudentsView = ({ students, courses, submissions }) => {
                     <p className="text-label-sm text-outline">Submission</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-title-lg font-title text-emerald-600">{stats.graded}</p>
+                    <p className="text-title-lg font-title text-primary">{stats.graded}</p>
                     <p className="text-label-sm text-outline">Dinilai</p>
                   </div>
                   <div className="text-center">
-                    <p className="text-title-lg font-title text-amber-600">{stats.avgGrade}</p>
+                    <p className="text-title-lg font-title text-primary">{stats.avgGrade}</p>
                     <p className="text-label-sm text-outline">Rata-rata</p>
                   </div>
                 </div>
@@ -944,7 +944,7 @@ const MessagesView = ({ notifications }) => {
   const unreadCount = notifications?.filter(n => !n.is_read).length || 0;
   return (
     <div className="flex flex-col gap-lg">
-      <div className="bg-gradient-to-r from-pink-500 to-pink-600 rounded-2xl p-xl text-center shadow-md">
+      <div className="bg-gradient-to-r from-primary to-[#5a4fcf] rounded-2xl p-xl text-center shadow-md">
         <h2 className="text-headline-md font-display text-white mb-sm">✉️ Notifikasi & Pesan</h2>
         <p className="text-body-md font-body text-white/80">Pantau notifikasi dari murid dan sistem.</p>
       </div>

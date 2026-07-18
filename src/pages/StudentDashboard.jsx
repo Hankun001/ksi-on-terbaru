@@ -857,7 +857,7 @@ const MessagesView = ({ notifications, onMarkAsRead }) => {
 
   return (
     <div className="flex flex-col gap-lg">
-      <div className="bg-gradient-to-r from-secondary to-secondary-fixed-dim rounded-2xl p-xl text-center shadow-md">
+      <div className="bg-gradient-to-r from-primary to-[#5a4fcf] rounded-2xl p-xl text-center shadow-md">
         <h2 className="text-headline-md font-display text-white mb-sm">🔔 Notifikasi & Pesan</h2>
         <p className="text-body-md font-body text-white/80">Tetap terupdate dengan informasi penting dari guru dan admin.</p>
       </div>

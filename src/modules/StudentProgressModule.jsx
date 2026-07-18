@@ -416,7 +416,7 @@ const StudentProgressModule = () => {
           </div>
         </div>
 
-        <div className="rounded-xl p-lg text-white bg-gradient-to-br from-[#10b981] to-[#059669] shadow-md">
+        <div className="rounded-xl p-lg text-white bg-gradient-to-br from-primary to-[#5a4fcf] shadow-md">
           <div className="flex items-center gap-md">
             <CheckCircle className="w-8 h-8" />
             <div>
@@ -426,7 +426,7 @@ const StudentProgressModule = () => {
           </div>
         </div>
 
-        <div className="rounded-xl p-lg text-white bg-gradient-to-br from-[#f59e0b] to-[#d97706] shadow-md">
+        <div className="rounded-xl p-lg text-white bg-gradient-to-br from-primary to-[#5a4fcf] shadow-md">
           <div className="flex items-center gap-md">
             <Target className="w-8 h-8" />
             <div>
@@ -436,7 +436,7 @@ const StudentProgressModule = () => {
           </div>
         </div>
 
-        <div className="rounded-xl p-lg text-white bg-gradient-to-br from-[#ec4899] to-[#db2777] shadow-md">
+        <div className="rounded-xl p-lg text-white bg-gradient-to-br from-primary to-[#5a4fcf] shadow-md">
           <div className="flex items-center gap-md">
             <Flame className="w-8 h-8" />
             <div>
