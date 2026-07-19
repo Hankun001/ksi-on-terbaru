@@ -631,7 +631,7 @@ const DashboardOverview = ({ stats, courses, assignments, submissions = [], noti
                 <CheckCircle size={36} className="text-emerald-500 fill-current" />
               </div>
               <h4 className="text-title-md font-title text-on-background mb-1">Semua tugas selesai!</h4>
-              <p className="text-body-sm font-body text-on-surface-variant max-w-[250px]">Tidak ada tugas mendatang. Nikmati waktu luang Anda! 🏖️</p>
+              <p className="text-body-sm font-body text-on-surface-variant w-full max-w-[180px] sm:max-w-[250px]">Tidak ada tugas mendatang. Nikmati waktu luang Anda! 🏖️</p>
             </div>
           )}
         </div>

@@ -233,7 +233,7 @@ const GradingModule = () => {
 
       {/* Filters */}
       <div className="flex flex-wrap gap-md p-md bg-surface-container-low rounded-xl">
-        <div className="flex-1 min-w-[200px]">
+        <div className="flex-1 min-w-0 md:min-w-[200px]">
           <label className="block text-label-sm font-medium text-on-surface mb-xs">Pilih Kursus</label>
           <select value={selectedCourse} onChange={(e) => setSelectedCourse(e.target.value)}
             className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">
@@ -242,7 +242,7 @@ const GradingModule = () => {
           </select>
         </div>
         {selectedCourse && (
-          <div className="flex-1 min-w-[200px]">
+          <div className="flex-1 min-w-0 md:min-w-[200px]">
             <label className="block text-label-sm font-medium text-on-surface mb-xs">Pilih Tugas</label>
             <select value={selectedAssignment} onChange={(e) => setSelectedAssignment(e.target.value)}
               className="w-full px-md py-sm rounded-xl border border-outline-variant bg-surface text-on-surface text-body-md focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-all">

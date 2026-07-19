@@ -382,44 +382,46 @@ const StudentAttendance = () => {
               </button>
             </div>
 
-            <div className="overflow-x-auto p-4 md:p-6">
-              <table className="w-full">
-                <thead>
-                  <tr className="bg-surface-dim/50">
-                    <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">No</th>
-                    <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Nama Siswa</th>
-                    <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Status</th>
-                    <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Keterangan</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {Object.entries(attendanceData).map(([studentId, status], index) => {
-                    const student = classStudents.find(cs => cs.student_id === studentId)?.profiles;
-                    return (
-                      <tr key={studentId} className={"border-t border-outline-variant/50 hover:bg-surface-dim/30 transition-colors " + (index % 2 === 0 ? 'bg-surface' : 'bg-surface-dim/10')}>
-                        <td className="px-4 py-3 text-body-sm text-on-surface-variant">{index + 1}</td>
-                        <td className="px-4 py-3 text-body-sm font-medium text-on-surface">
-                          {student?.full_name || student?.email || 'N/A'}
-                        </td>
-                        <td className="px-4 py-3">
-                          <select
-                            value={status}
-                            onChange={(e) => handleAttendanceChange(studentId, e.target.value)}
-                            className="px-3 py-1.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary text-body-sm min-w-[130px]"
-                          >
-                            <option value="hadir">Hadir</option>
-                            <option value="absent">Alpha</option>
-                            <option value="sick">Sakit</option>
-                            <option value="permit">Izin</option>
-                            <option value="late">Terlambat</option>
-                          </select>
-                        </td>
-                        <td className="px-4 py-3 text-body-sm text-on-surface-variant">-</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
+            <div className="overflow-x-auto -mx-4 md:-mx-6">
+              <div className="min-w-[500px] px-4 md:px-6">
+                <table className="w-full">
+                  <thead>
+                    <tr className="bg-surface-dim/50">
+                      <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">No</th>
+                      <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Nama Siswa</th>
+                      <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Status</th>
+                      <th className="text-left px-4 py-3 text-label-sm font-semibold text-on-surface-variant">Keterangan</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {Object.entries(attendanceData).map(([studentId, status], index) => {
+                      const student = classStudents.find(cs => cs.student_id === studentId)?.profiles;
+                      return (
+                        <tr key={studentId} className={"border-t border-outline-variant/50 hover:bg-surface-dim/30 transition-colors " + (index % 2 === 0 ? 'bg-surface' : 'bg-surface-dim/10')}>
+                          <td className="px-4 py-3 text-body-sm text-on-surface-variant">{index + 1}</td>
+                          <td className="px-4 py-3 text-body-sm font-medium text-on-surface">
+                            {student?.full_name || student?.email || 'N/A'}
+                          </td>
+                          <td className="px-4 py-3">
+                            <select
+                              value={status}
+                              onChange={(e) => handleAttendanceChange(studentId, e.target.value)}
+                              className="px-3 py-1.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary text-body-sm min-w-[120px]"
+                            >
+                              <option value="hadir">Hadir</option>
+                              <option value="absent">Alpha</option>
+                              <option value="sick">Sakit</option>
+                              <option value="permit">Izin</option>
+                              <option value="late">Terlambat</option>
+                            </select>
+                          </td>
+                          <td className="px-4 py-3 text-body-sm text-on-surface-variant">-</td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             <div className="px-4 md:px-6 py-4 border-t border-outline-variant flex gap-sm">

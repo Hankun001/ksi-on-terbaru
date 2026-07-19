@@ -218,7 +218,7 @@ const TeacherExamDashboardPage = ({ examId, onViewDetail, onViewStudentDetail })
 
       {/* Search & Filter */}
       <div className="print:hidden flex items-center gap-md flex-wrap">
-        <div className="flex-1 min-w-[200px] relative">
+        <div className="flex-1 min-w-0 md:min-w-[200px] relative">
           <Search size={18} className="absolute left-3 top-1/2 -translate-y-1/2 text-on-surface-variant" />
           <input
             type="text"

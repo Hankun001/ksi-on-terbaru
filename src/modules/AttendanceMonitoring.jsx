@@ -198,7 +198,8 @@ const AttendanceMonitoring = () => {
             </div>
           </div>
 
-          <table>
+          <div class="overflow-x-auto">
+            <table>
             <thead>
               <tr>
                 <th>No</th>

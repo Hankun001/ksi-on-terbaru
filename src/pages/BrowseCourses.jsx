@@ -151,15 +151,15 @@ const BrowseCourses = ({ activeSection = 'browse-courses', onNavigate }) => {
 
         <div className="flex flex-wrap gap-sm p-md rounded-xl bg-surface-container-low">
           <select value={educationLevel} onChange={(e) => { setEducationLevel(e.target.value); setGradeLevel(''); }}
-            className="px-md py-sm rounded-lg border border-outline-variant bg-surface text-on-surface text-body-sm focus:outline-none transition-all min-w-[160px]">
+            className="flex-1 min-w-0 px-md py-sm rounded-lg border border-outline-variant bg-surface text-on-surface text-body-sm focus:outline-none transition-all">
             {EDUCATION_LEVELS.map(l => <option key={l.value} value={l.value}>{l.label}</option>)}
           </select>
           <select value={gradeLevel} onChange={(e) => setGradeLevel(e.target.value)} disabled={!educationLevel}
-            className={`px-md py-sm rounded-lg border border-outline-variant text-body-sm focus:outline-none transition-all min-w-[120px] ${!educationLevel ? 'bg-surface-dim text-on-surface-variant' : 'bg-surface text-on-surface'}`}>
+            className={`flex-1 min-w-0 px-md py-sm rounded-lg border border-outline-variant text-body-sm focus:outline-none transition-all ${!educationLevel ? 'bg-surface-dim text-on-surface-variant' : 'bg-surface text-on-surface'}`}>
             {getGradeLevels(educationLevel).map(g => <option key={g.value} value={g.value}>{g.label}</option>)}
           </select>
           <select value={subject} onChange={(e) => setSubject(e.target.value)}
-            className="px-md py-sm rounded-lg border border-outline-variant bg-surface text-on-surface text-body-sm focus:outline-none transition-all min-w-[160px]">
+            className="flex-1 min-w-0 px-md py-sm rounded-lg border border-outline-variant bg-surface text-on-surface text-body-sm focus:outline-none transition-all">
             {SUBJECTS.map(s => <option key={s.value} value={s.value}>{s.label}</option>)}
           </select>
           <button onClick={() => { setEducationLevel(''); setGradeLevel(''); setSubject(''); setSearchTerm(''); setFilter('all'); }}

@@ -234,7 +234,7 @@ const SimpleStudentAttendance = () => {
                           <select
                             value={attendanceData[student.id] || 'hadir'}
                             onChange={(e) => handleAttendanceChange(student.id, e.target.value)}
-                            className="px-3 py-1.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary text-body-sm min-w-[130px]"
+                            className="px-3 py-1.5 rounded-xl border border-outline bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary text-body-sm min-w-[120px]"
                           >
                             <option value="hadir">Hadir</option>
                             <option value="absent">Alpha</option>
