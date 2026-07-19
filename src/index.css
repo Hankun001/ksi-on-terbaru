@@ -435,10 +435,34 @@ body {
 
 /* True mobile (below sm breakpoint - 639px) */
 @media (max-width: 639px) {
-  /* Fix content padding on mobile */
+  /* ===== Compact Mobile Layout ===== */
+  
+  /* Reduce overall content padding */
   .p-margin-mobile {
-    padding-left: 14px !important;
-    padding-right: 14px !important;
+    padding-left: 12px !important;
+    padding-right: 12px !important;
+  }
+
+  /* Compact vertical gaps between sections */
+  .gap-lg {
+    gap: 1rem !important;
+  }
+  .gap-md {
+    gap: 0.75rem !important;
+  }
+  .gap-sm {
+    gap: 0.5rem !important;
+  }
+
+  /* Reduce card padding */
+  .p-xl {
+    padding: 1rem !important;
+  }
+  .p-lg {
+    padding: 0.75rem !important;
+  }
+  .p-md {
+    padding: 0.75rem !important;
   }
 
   /* Override max-w-* to 100% on mobile to prevent overflow */
@@ -449,25 +473,37 @@ body {
     max-width: 100% !important;
   }
 
-  /* Reduce large font sizes on tiny screens */
+  /* Reduce large font sizes for better fit */
   .text-3xl {
-    font-size: 1.5rem !important;
-    line-height: 2rem !important;
-  }
-  .text-headline-lg {
-    font-size: 1.5rem !important;
-    line-height: 2rem !important;
-  }
-  .text-headline-md {
-    font-size: 1.25rem !important;
+    font-size: 1.35rem !important;
     line-height: 1.75rem !important;
   }
-  .text-title-lg {
-    font-size: 1.125rem !important;
+  .text-headline-lg {
+    font-size: 1.35rem !important;
+    line-height: 1.75rem !important;
+  }
+  .text-headline-md {
+    font-size: 1.15rem !important;
     line-height: 1.5rem !important;
   }
+  .text-title-lg {
+    font-size: 1rem !important;
+    line-height: 1.35rem !important;
+  }
+  .text-title-md {
+    font-size: 0.9rem !important;
+  }
+  .text-body-md {
+    font-size: 0.85rem !important;
+  }
+  .text-body-sm {
+    font-size: 0.8rem !important;
+  }
+  .text-label-sm {
+    font-size: 0.7rem !important;
+  }
 
-  /* Collapse multi-column grids to single column on small mobile */
+  /* Collapse multi-column grids to single column */
   .grid-cols-2:not(.keep-grid):not(.mobile-grid-2),
   .grid-cols-3:not(.keep-grid),
   .grid-cols-4:not(.keep-grid) {
@@ -479,7 +515,7 @@ body {
     grid-template-columns: repeat(2, 1fr) !important;
   }
 
-  /* Improve touch targets for interactive elements */
+  /* Improve touch targets */
   button, 
   a,
   select,
@@ -487,7 +523,27 @@ body {
     min-height: 44px;
   }
 
-  /* Ensure modal content fits on small screens */
+  /* Reduce bottom margins on sections */
+  .mb-xl {
+    margin-bottom: 1rem !important;
+  }
+  .mb-lg {
+    margin-bottom: 0.75rem !important;
+  }
+  .pb-xl {
+    padding-bottom: 1rem !important;
+  }
+  .pb-lg {
+    padding-bottom: 0.75rem !important;
+  }
+  .mt-xl {
+    margin-top: 1rem !important;
+  }
+  .mt-lg {
+    margin-top: 0.75rem !important;
+  }
+
+  /* Ensure modal content fits */
   .max-h-\[90vh\] {
     max-height: 85vh;
   }
@@ -498,15 +554,7 @@ body {
     box-sizing: border-box !important;
   }
 
-  /* Card padding reduction on mobile */
-  .p-xl {
-    padding: 1.25rem !important;
-  }
-  .p-lg {
-    padding: 1rem !important;
-  }
-
-  /* Prevent horizontal overflow for scrollable containers */
+  /* Prevent horizontal overflow for scrollable tables */
   .overflow-x-auto {
     -webkit-overflow-scrolling: touch;
   }
