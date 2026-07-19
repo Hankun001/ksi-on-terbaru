@@ -244,6 +244,8 @@ html {
   scroll-behavior: smooth;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 body {
@@ -254,12 +256,16 @@ body {
   background-color: var(--color-background, #f8f9ff);
   color: var(--color-on-background, #0b1c30);
   line-height: 1.6;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 #root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  max-width: 100vw;
+  overflow-x: hidden;
 }
 
 /* ===== Material Symbols ===== */
@@ -435,6 +441,32 @@ body {
     padding-right: 14px !important;
   }
 
+  /* Override max-w-* to 100% on mobile to prevent overflow */
+  .max-w-7xl,
+  .max-w-6xl,
+  .max-w-5xl,
+  .max-w-4xl {
+    max-width: 100% !important;
+  }
+
+  /* Reduce large font sizes on tiny screens */
+  .text-3xl {
+    font-size: 1.5rem !important;
+    line-height: 2rem !important;
+  }
+  .text-headline-lg {
+    font-size: 1.5rem !important;
+    line-height: 2rem !important;
+  }
+  .text-headline-md {
+    font-size: 1.25rem !important;
+    line-height: 1.75rem !important;
+  }
+  .text-title-lg {
+    font-size: 1.125rem !important;
+    line-height: 1.5rem !important;
+  }
+
   /* Collapse multi-column grids to single column on small mobile */
   .grid-cols-2:not(.keep-grid):not(.mobile-grid-2),
   .grid-cols-3:not(.keep-grid),
@@ -445,11 +477,6 @@ body {
   /* Force 2-column grid on mobile (opt-in with .mobile-grid-2) */
   .mobile-grid-2 {
     grid-template-columns: repeat(2, 1fr) !important;
-  }
-
-  /* Touch-friendly horizontal scroll */
-  .overflow-x-auto {
-    -webkit-overflow-scrolling: touch;
   }
 
   /* Improve touch targets for interactive elements */
@@ -469,6 +496,19 @@ body {
   input, select, textarea {
     max-width: 100% !important;
     box-sizing: border-box !important;
+  }
+
+  /* Card padding reduction on mobile */
+  .p-xl {
+    padding: 1.25rem !important;
+  }
+  .p-lg {
+    padding: 1rem !important;
+  }
+
+  /* Prevent horizontal overflow for scrollable containers */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
   }
 }
 

@@ -399,16 +399,9 @@ const StudentDashboard = ({ activeSection = 'dashboard-murid', onNavigate }) => 
         return (
           <div className="bg-surface rounded-xl border border-outline-variant/30 p-md">
             {/* Welcome Message */}
-            <div className="bg-gradient-to-br from-primary to-[#5a4fcf] rounded-2xl p-xl text-white text-center mb-lg"> 
-              background: 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-              borderRadius: '16px',
-              padding: '1.5rem',
-              color: 'white',
-              marginBottom: '1.5rem',
-              textAlign: 'center'
-            }}>
-              <h2 style={{ margin: '0 0 0.5rem 0', fontSize: '1.25rem' }}>📢 Pengumuman</h2>
-              <p style={{ margin: 0, fontSize: '0.95rem', opacity: 0.9 }}>
+            <div className="bg-gradient-to-br from-primary to-[#5a4fcf] rounded-2xl p-xl text-white text-center mb-lg">
+              <h2 className="m-0 mb-2 text-title-lg">📢 Pengumuman</h2>
+              <p className="m-0 text-body-md opacity-90">
                 Ikuti informasi dan pengumuman penting dari sekolah.
               </p>
             </div>
