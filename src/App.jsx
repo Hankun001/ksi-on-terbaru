@@ -283,7 +283,7 @@ const DashboardLayout = ({ role, user, profile, onSignOut }) => {
       )}
       
       {/* Main Content Area */}
-      <main className={`flex-1 ml-0 min-h-screen flex flex-col bg-surface-bright transition-all duration-300 pb-[68px] lg:pb-0 ${
+      <main className={`flex-1 ml-0 min-h-screen flex flex-col bg-surface-bright transition-all duration-300 ${
           sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-sidebar-width'
         }`}>
         {/* Desktop Top Bar - with hamburger toggle for all sizes */}

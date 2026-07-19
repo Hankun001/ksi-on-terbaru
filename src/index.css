@@ -427,39 +427,34 @@ body {
 
 /* ===== Responsive Mobile Utilities ===== */
 
-/* True mobile (below sm breakpoint) */
+/* True mobile (below sm breakpoint - 639px) */
 @media (max-width: 639px) {
-  /* Ensure main content doesn't overflow */
+  /* Fix content padding on mobile */
   .p-margin-mobile {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
+    padding-left: 14px !important;
+    padding-right: 14px !important;
   }
 
-  /* Fix grid columns on small mobile - force single column */
+  /* Collapse multi-column grids to single column on small mobile */
   .grid-cols-2:not(.keep-grid):not(.mobile-grid-2),
   .grid-cols-3:not(.keep-grid),
   .grid-cols-4:not(.keep-grid) {
     grid-template-columns: 1fr !important;
   }
 
-  /* Override for cases where grid is explicitly needed on mobile */
+  /* Force 2-column grid on mobile (opt-in with .mobile-grid-2) */
   .mobile-grid-2 {
     grid-template-columns: repeat(2, 1fr) !important;
   }
-  .mobile-grid-3 {
-    grid-template-columns: repeat(3, 1fr) !important;
-  }
 
-  /* Fix horizontal scroll on tables */
+  /* Touch-friendly horizontal scroll */
   .overflow-x-auto {
     -webkit-overflow-scrolling: touch;
-    max-width: 100vw;
   }
 
-  /* Improve touch targets */
+  /* Improve touch targets for interactive elements */
   button, 
-  a, 
-  .btn,
+  a,
   select,
   input[type="submit"] {
     min-height: 44px;
@@ -470,14 +465,14 @@ body {
     max-height: 85vh;
   }
 
-  /* Fix form elements width on mobile */
+  /* Form elements constrained to container */
   input, select, textarea {
     max-width: 100% !important;
     box-sizing: border-box !important;
   }
 }
 
-/* Tablet/small desktop (sm to lg breakpoint) */
+/* Tablet (sm to lg: 640px - 1023px) */
 @media (min-width: 640px) and (max-width: 1023px) {
   .grid-cols-3:not(.keep-grid),
   .grid-cols-4:not(.keep-grid) {
