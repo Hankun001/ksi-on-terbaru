@@ -164,10 +164,10 @@ const StudentEvaluation = () => {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 90) return '#10b981'; // green
-    if (score >= 80) return '#3b82f6'; // blue
-    if (score >= 70) return '#f59e0b'; // orange
-    return '#ef4444'; // red
+    if (score >= 90) return '#2563eb'; // primary dark
+    if (score >= 80) return '#3b82f6'; // primary
+    if (score >= 70) return '#60a5fa'; // primary light
+    return '#93c5fd'; // primary lighter
   };
 
   const getAspectLabel = (aspectValue) => {
@@ -185,20 +185,20 @@ const StudentEvaluation = () => {
           <style>
             body { font-family: Arial, sans-serif; margin: 40px; }
             .header { text-align: center; margin-bottom: 30px; }
-            .header h1 { color: #8b5cf6; margin-bottom: 5px; }
+            .header h1 { color: #3b82f6; margin-bottom: 5px; }
             .info { margin-bottom: 20px; }
             .info p { margin: 5px 0; }
             .score-display { 
               text-align: center; 
               margin: 30px 0; 
               padding: 20px;
-              border: 3px solid #8b5cf6;
+              border: 3px solid #3b82f6;
               border-radius: 10px;
             }
             .score-display .score { 
               font-size: 48px; 
               font-weight: bold; 
-              color: #8b5cf6;
+              color: #3b82f6;
             }
             .score-display .aspect { 
               font-size: 18px; 
@@ -206,7 +206,7 @@ const StudentEvaluation = () => {
               margin-top: 10px;
             }
             .section { margin-top: 20px; }
-            .section-title { font-weight: bold; border-bottom: 2px solid #8b5cf6; padding-bottom: 5px; }
+            .section-title { font-weight: bold; border-bottom: 2px solid #3b82f6; padding-bottom: 5px; }
             .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
           </style>
         </head>
@@ -423,8 +423,8 @@ const StudentEvaluation = () => {
               </span>
 
               {evaluation.note && (
-                <div className="mt-3 bg-warning-container/30 p-3 rounded-lg">
-                  <p className="text-body-sm text-on-warning-container flex items-start gap-1.5">
+                <div className="mt-3 bg-primary-container/20 p-3 rounded-lg">
+                  <p className="text-body-sm text-on-primary-container flex items-start gap-1.5">
                     <FileText className="w-4 h-4 shrink-0 mt-0.5" />
                     {evaluation.note.substring(0, 100)}
                   </p>
@@ -459,7 +459,7 @@ const StudentEvaluation = () => {
                 </button>
                 <button
                   onClick={() => handleDelete(evaluation.id)}
-                  className="p-2 rounded-full bg-error-container text-on-error-container hover:bg-error-container/80 transition-colors"
+                  className="p-2 rounded-full bg-error text-on-primary hover:bg-primary/90 transition-colors"
                   title="Hapus"
                 >
                   <Trash2 size={16} />

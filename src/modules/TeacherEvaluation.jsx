@@ -189,10 +189,10 @@ const TeacherEvaluation = () => {
   };
 
   const getScoreColor = (score) => {
-    if (score >= 5) return '#10b981';
+    if (score >= 5) return '#2563eb';
     if (score >= 4) return '#3b82f6';
-    if (score >= 3) return '#f59e0b';
-    return '#ef4444';
+    if (score >= 3) return '#60a5fa';
+    return '#93c5fd';
   };
 
   const getAvgScore = (ev) => {
@@ -227,16 +227,16 @@ const TeacherEvaluation = () => {
           <style>
             body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
             .header { text-align: center; margin-bottom: 30px; }
-            .header h1 { color: #8b5cf6; margin-bottom: 5px; }
+            .header h1 { color: #3b82f6; margin-bottom: 5px; }
             .header p { color: #666; margin: 3px 0; }
             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
             th, td { border: 1px solid #ddd; padding: 8px 10px; text-align: left; font-size: 13px; }
-            th { background-color: #f5f3ff; color: #7c3aed; font-weight: bold; }
+            th { background-color: #eff6ff; color: #3b82f6; font-weight: bold; }
             tr:nth-child(even) { background-color: #fafafa; }
-            .score-good { color: #10b981; font-weight: bold; }
-            .score-avg { color: #f59e0b; font-weight: bold; }
-            .score-low { color: #ef4444; font-weight: bold; }
-            .section-title { background: #8b5cf6; color: white; padding: 8px 12px; margin: 25px 0 10px; border-radius: 4px; }
+            .score-good { color: #2563eb; font-weight: bold; }
+            .score-avg { color: #60a5fa; font-weight: bold; }
+            .score-low { color: #93c5fd; font-weight: bold; }
+            .section-title { background: #3b82f6; color: white; padding: 8px 12px; margin: 25px 0 10px; border-radius: 4px; }
             .footer { margin-top: 40px; text-align: center; color: #999; font-size: 11px; border-top: 1px solid #eee; padding-top: 15px; }
             .criteria-grid { display: flex; gap: 8px; flex-wrap: wrap; }
             .criteria-badge { padding: 2px 8px; border-radius: 4px; font-size: 11px; }
@@ -250,11 +250,11 @@ const TeacherEvaluation = () => {
           </div>
           
           <div style="display: flex; gap: 20px; margin-bottom: 25px;">
-            <div style="flex: 1; background: linear-gradient(135deg, #8b5cf6, #7c3aed); color: white; padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="flex: 1; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 15px; border-radius: 8px; text-align: center;">
               <div style="font-size: 28px; font-weight: bold;">${Object.keys(grouped).length}</div>
               <div style="font-size: 13px; opacity: 0.9;">Total Guru</div>
             </div>
-            <div style="flex: 1; background: linear-gradient(135deg, #10b981, #059669); color: white; padding: 15px; border-radius: 8px; text-align: center;">
+            <div style="flex: 1; background: linear-gradient(135deg, #3b82f6, #2563eb); color: white; padding: 15px; border-radius: 8px; text-align: center;">
               <div style="font-size: 28px; font-weight: bold;">${evaluations.length}</div>
               <div style="font-size: 13px; opacity: 0.9;">Total Sesi Evaluasi</div>
             </div>
@@ -506,27 +506,27 @@ const TeacherEvaluation = () => {
                 description="Kemampuan memimpin, menginspirasi, dan mengambil inisiatif"
               />
 
-              <div className="bg-warning-container/30 p-4 rounded-xl">
-                <label className="text-label-lg font-semibold text-on-warning-container block mb-2">📝 Catatan Tambahan (Opsional)</label>
+              <div className="bg-primary-container/20 p-4 rounded-xl">
+                <label className="text-label-lg font-semibold text-on-primary-container block mb-2">📝 Catatan Tambahan (Opsional)</label>
                 <textarea
                   name="notes"
                   value={formData.notes}
                   onChange={handleFormChange}
                   rows={2}
                   placeholder="Catatan umum untuk sesi evaluasi ini..."
-                  className="w-full px-3 py-2 rounded-xl border border-warning/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-sm resize-none"
+                  className="w-full px-3 py-2 rounded-xl border border-primary/30 bg-surface text-on-surface focus:outline-none focus:ring-2 focus:ring-primary transition-all text-body-sm resize-none"
                 />
               </div>
 
-              <div className="bg-success-container/30 p-4 rounded-xl text-center">
-                <p className="text-label-lg font-semibold text-on-success-container mb-3">📊 Ringkasan Nilai</p>
+              <div className="bg-primary-container/20 p-4 rounded-xl text-center">
+                <p className="text-label-lg font-semibold text-on-primary-container mb-3">📊 Ringkasan Nilai</p>
                 <div className="flex flex-wrap justify-center gap-x-5 gap-y-2 text-body-sm">
                   <span>📚 Pedagogi: <strong style={{ color: getScoreColor(formData.pedagogy_score) }} className="text-title-sm">{formData.pedagogy_score}</strong></span>
                   <span>👔 Profesionalisme: <strong style={{ color: getScoreColor(formData.professionalism_score) }} className="text-title-sm">{formData.professionalism_score}</strong></span>
                   <span>😊 Kepribadian: <strong style={{ color: getScoreColor(formData.personality_score) }} className="text-title-sm">{formData.personality_score}</strong></span>
                   <span>🎯 Kepemimpinan: <strong style={{ color: getScoreColor(formData.leadership_score) }} className="text-title-sm">{formData.leadership_score}</strong></span>
                   <span className="md:border-l md:border-outline-variant md:pl-5">
-                    Rata-rata: <strong className="text-title-md text-success">
+                    Rata-rata: <strong className="text-title-md text-primary">
                       {((parseInt(formData.pedagogy_score) + parseInt(formData.professionalism_score) + parseInt(formData.personality_score) + parseInt(formData.leadership_score)) / 4).toFixed(1)}
                     </strong>
                   </span>
@@ -553,7 +553,7 @@ const TeacherEvaluation = () => {
           <div className="text-headline-sm font-bold">{evaluations.length}</div>
           <div className="text-label-sm opacity-80">Total Sesi Evaluasi</div>
         </div>
-        <div className="bg-gradient-to-br from-success to-success-container text-white rounded-xl p-4 text-center shadow-sm">
+        <div className="bg-gradient-to-br from-primary to-primary-container text-white rounded-xl p-4 text-center shadow-sm">
           <div className="text-headline-sm font-bold">
             {evaluations.length > 0 
               ? (evaluations.reduce((sum, ev) => sum + parseFloat(getAvgScore(ev)), 0) / evaluations.length).toFixed(1)
@@ -561,7 +561,7 @@ const TeacherEvaluation = () => {
           </div>
           <div className="text-label-sm opacity-80">Rata-rata Nilai</div>
         </div>
-        <div className="bg-gradient-to-br from-warning to-warning-container text-white rounded-xl p-4 text-center shadow-sm">
+        <div className="bg-gradient-to-br from-primary to-primary-container text-white rounded-xl p-4 text-center shadow-sm">
           <div className="text-headline-sm font-bold">{teachers.length}</div>
           <div className="text-label-sm opacity-80">Total Guru</div>
         </div>
@@ -633,7 +633,7 @@ const TeacherEvaluation = () => {
                         <button onClick={() => openEditForm(ev)} className="p-1.5 rounded-full bg-primary-container/50 text-on-primary-container hover:bg-primary-container/80 transition-colors" title="Edit">
                           <Edit2 className="w-4 h-4" />
                         </button>
-                        <button onClick={() => handleDelete(ev.id)} className="p-1.5 rounded-full bg-error-container/50 text-on-error-container hover:bg-error-container/80 transition-colors" title="Hapus">
+                        <button onClick={() => handleDelete(ev.id)} className="p-1.5 rounded-full bg-primary-container/30 text-on-primary hover:bg-primary/80 transition-colors" title="Hapus">
                           <Trash2 className="w-4 h-4" />
                         </button>
                       </div>

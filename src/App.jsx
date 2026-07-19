@@ -11,7 +11,7 @@ import { ForgotPasswordPage, ResetPasswordPage } from './pages/AuthPages';
 import LoginPage from './pages/LoginPage';
 import ErrorBoundary from './components/common/ErrorBoundary';
 import LoadingSpinner from './components/common/LoadingSpinner';
-import { Construction, Bell, HelpCircle, RefreshCw, X, LogOut, User, ChevronDown, CheckSquare } from 'lucide-react';
+import { Construction, Bell, HelpCircle, RefreshCw, X, LogOut, User, ChevronDown, CheckSquare, Menu } from 'lucide-react';
 
 function App() {
   const { user, role, loading, signOut, profile } = useAuth();
@@ -58,6 +58,7 @@ const DashboardLayout = ({ role, user, profile, onSignOut }) => {
   const [activeSection, setActiveSection] = useState('dashboard-' + role);
   const [currentCourseId, setCurrentCourseId] = useState(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
   const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
   const [showHelpModal, setShowHelpModal] = useState(false);
@@ -262,22 +263,41 @@ const DashboardLayout = ({ role, user, profile, onSignOut }) => {
   return (
     <div className="min-h-screen flex bg-background">
       {/* Sidebar */}
+      {/* Sidebar */}
       <Sidebar 
         role={role} 
         onNavigate={handleSidebarNavigation} 
         activeSection={activeSection}
         sidebarCollapsed={sidebarCollapsed}
         setSidebarCollapsed={setSidebarCollapsed}
+        mobileSidebarOpen={mobileSidebarOpen}
+        setMobileSidebarOpen={setMobileSidebarOpen}
       />
       
+      {/* Overlay when mobile sidebar is open - hides desktop navbar */}
+      {mobileSidebarOpen && (
+        <div 
+          className="fixed inset-0 z-[90] lg:hidden bg-black/30 backdrop-blur-sm animate-fadeIn"
+          onClick={() => setMobileSidebarOpen(false)}
+        />
+      )}
+      
       {/* Main Content Area */}
-      <main className={`flex-1 ml-0 min-h-screen flex flex-col bg-surface-bright transition-all duration-300 ${
-          sidebarCollapsed ? 'md:ml-[72px]' : 'md:ml-sidebar-width'
+      <main className={`flex-1 ml-0 min-h-screen flex flex-col bg-surface-bright transition-all duration-300 pb-[68px] lg:pb-0 ${
+          sidebarCollapsed ? 'lg:ml-[72px]' : 'lg:ml-sidebar-width'
         }`}>
-        {/* Desktop Top Bar */}
-        <header className="hidden md:flex bg-surface/70 backdrop-blur-md justify-between items-center px-margin-desktop py-xs w-full z-40 shadow-sm sticky top-0 border-b border-outline-variant">
-          {/* Breadcrumb */}
+        {/* Desktop Top Bar - with hamburger toggle for all sizes */}
+        <header className="hidden lg:flex bg-surface/70 backdrop-blur-md justify-between items-center px-margin-desktop py-xs w-full z-40 shadow-sm sticky top-0 border-b border-outline-variant">
+          {/* Breadcrumb with toggle */}
           <div className="flex items-center gap-sm">
+            <button
+              onClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+              className="p-sm rounded-full hover:bg-surface-container-high transition-colors text-on-surface-variant hidden xl:block"
+              title={sidebarCollapsed ? 'Perluas sidebar' : 'Ciutkan sidebar'}
+            >
+              {sidebarCollapsed ? <Menu size={18} /> : <Menu size={18} />}
+            </button>
+            <div className="h-4 w-px bg-outline-variant hidden xl:block"></div>
             <span className="text-body-sm text-on-surface-variant font-body">
               {getSectionTitle()}
             </span>

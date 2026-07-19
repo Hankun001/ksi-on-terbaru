@@ -185,17 +185,17 @@ const StudentAttendance = () => {
           <style>
             body { font-family: Arial, sans-serif; margin: 40px; }
             .header { text-align: center; margin-bottom: 30px; }
-            .header h1 { color: #8b5cf6; margin-bottom: 5px; }
+            .header h1 { color: #3b82f6; margin-bottom: 5px; }
             .info { margin-bottom: 20px; }
             .info p { margin: 5px 0; }
             table { width: 100%; border-collapse: collapse; margin-top: 20px; }
             th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
             th { background-color: #f5f3ff; }
-            .status-hadir { color: #10b981; font-weight: bold; }
-            .status-absent { color: #ef4444; font-weight: bold; }
-            .status-sick { color: #f59e0b; font-weight: bold; }
+            .status-hadir { color: #2563eb; font-weight: bold; }
+            .status-absent { color: #60a5fa; font-weight: bold; }
+            .status-sick { color: #93c5fd; font-weight: bold; }
             .status-permit { color: #3b82f6; font-weight: bold; }
-            .status-late { color: #8b5cf6; font-weight: bold; }
+            .status-late { color: #bfdbfe; font-weight: bold; }
             .footer { margin-top: 40px; text-align: center; color: #666; font-size: 12px; }
           </style>
         </head>
@@ -346,7 +346,7 @@ const StudentAttendance = () => {
       {selectedJournal && (
         <div className="mb-xl">
           {/* Session Banner */}
-          <div className="bg-gradient-to-r from-tertiary to-secondary rounded-2xl p-4 md:p-6 text-white shadow-md mb-xl">
+          <div className="bg-gradient-to-r from-primary to-primary-container rounded-2xl p-4 md:p-6 text-white shadow-md mb-xl">
             <div className="flex items-center justify-between">
               <div>
                 <h2 className="text-title-md font-semibold flex items-center gap-sm">
@@ -464,7 +464,7 @@ const StudentAttendance = () => {
                     <p className="text-body-sm text-on-surface-variant/70 mt-1 line-clamp-2">{journal.material}</p>
                   )}
                   <div className="mt-2">
-                    <span className="inline-flex items-center gap-1 text-label-xs text-success bg-success-container/50 px-2 py-0.5 rounded-full">
+                    <span className="inline-flex items-center gap-1 text-label-xs text-primary bg-primary-container/50 px-2 py-0.5 rounded-full">
                       <CheckCircle className="w-3 h-3" />
                       {journal.student_attendance?.length || 0} siswa
                     </span>

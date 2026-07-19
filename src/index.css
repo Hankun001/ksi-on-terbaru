@@ -425,6 +425,66 @@ body {
   padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 
+/* ===== Responsive Mobile Utilities ===== */
+
+/* True mobile (below sm breakpoint) */
+@media (max-width: 639px) {
+  /* Ensure main content doesn't overflow */
+  .p-margin-mobile {
+    padding-left: 16px !important;
+    padding-right: 16px !important;
+  }
+
+  /* Fix grid columns on small mobile - force single column */
+  .grid-cols-2:not(.keep-grid):not(.mobile-grid-2),
+  .grid-cols-3:not(.keep-grid),
+  .grid-cols-4:not(.keep-grid) {
+    grid-template-columns: 1fr !important;
+  }
+
+  /* Override for cases where grid is explicitly needed on mobile */
+  .mobile-grid-2 {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+  .mobile-grid-3 {
+    grid-template-columns: repeat(3, 1fr) !important;
+  }
+
+  /* Fix horizontal scroll on tables */
+  .overflow-x-auto {
+    -webkit-overflow-scrolling: touch;
+    max-width: 100vw;
+  }
+
+  /* Improve touch targets */
+  button, 
+  a, 
+  .btn,
+  select,
+  input[type="submit"] {
+    min-height: 44px;
+  }
+
+  /* Ensure modal content fits on small screens */
+  .max-h-\[90vh\] {
+    max-height: 85vh;
+  }
+
+  /* Fix form elements width on mobile */
+  input, select, textarea {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Tablet/small desktop (sm to lg breakpoint) */
+@media (min-width: 640px) and (max-width: 1023px) {
+  .grid-cols-3:not(.keep-grid),
+  .grid-cols-4:not(.keep-grid) {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
+}
+
 /* ===== Touch-friendly ===== */
 @media (hover: none) and (pointer: coarse) {
   a:hover,

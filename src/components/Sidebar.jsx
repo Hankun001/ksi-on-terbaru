@@ -10,11 +10,10 @@ import {
   Menu, ChevronLeft, ChevronRight
 } from 'lucide-react';
 
-const Sidebar = ({ role, onNavigate, activeSection, sidebarCollapsed, setSidebarCollapsed }) => {
+const Sidebar = ({ role, onNavigate, activeSection, sidebarCollapsed, setSidebarCollapsed, mobileSidebarOpen, setMobileSidebarOpen }) => {
   const { signOut, profile, user } = useAuth();
   const [isMobile, setIsMobile] = useState(false);
   const [showMoreMenu, setShowMoreMenu] = useState(false);
-  const [mobileSidebarOpen, setMobileSidebarOpen] = useState(false);
 
   // Detect mobile screen size
   useEffect(() => {
@@ -210,7 +209,7 @@ const Sidebar = ({ role, onNavigate, activeSection, sidebarCollapsed, setSidebar
 
   // ====== DESKTOP SIDEBAR ======
   const renderDesktopSidebar = () => (
-    <aside className={`hidden md:flex ${sidebarCollapsed ? 'w-[72px]' : 'w-sidebar-width'} h-screen fixed left-0 top-0 bg-surface flex-col border-r border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.05)] z-50 overflow-y-auto transition-all duration-300`}>
+    <aside className={`hidden lg:flex ${sidebarCollapsed ? 'w-[72px]' : 'w-sidebar-width'} h-screen fixed left-0 top-0 bg-surface flex-col border-r border-outline-variant shadow-[0px_4px_20px_rgba(0,0,0,0.05)] z-50 overflow-y-auto transition-all duration-300`}>
       {/* Logo Area + Toggle */}
       <div className="px-lg py-lg border-b border-outline-variant/30 flex items-center shrink-0 justify-between">
         <div className={`flex items-center gap-sm ${sidebarCollapsed ? 'justify-center w-full' : ''}`}>
@@ -290,27 +289,31 @@ const Sidebar = ({ role, onNavigate, activeSection, sidebarCollapsed, setSidebar
   // ====== MOBILE BOTTOM NAV ======
   const renderMobileBottomNav = () => (
     <>
-      {/* Mobile Top Bar */}
-      <header className="md:hidden flex items-center justify-between px-md py-sm bg-surface/80 backdrop-blur-md sticky top-0 z-40 border-b border-outline-variant/50">
+      {/* Mobile Top Bar - visible on all screens < lg */}
+      <header className="lg:hidden flex items-center justify-between px-md py-sm bg-surface/80 backdrop-blur-md sticky top-0 z-40 border-b border-outline-variant/50">
         <button
           onClick={() => setMobileSidebarOpen(true)}
           className="p-xs rounded-full hover:bg-surface-container-high transition-colors text-primary"
+          aria-label="Buka menu navigasi"
         >
           <Menu size={24} />
         </button>
         <div className="flex items-center gap-sm">
-          <School className="text-primary" size={20} />
-          <span className="text-title-md font-title font-semibold text-primary">KSI-ON</span>
-        </div>
-        <div className="flex items-center gap-xs">
-          <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-label-sm font-bold">
-            {getUserInitials()}
+          <div className="w-7 h-7 rounded-lg bg-primary/10 flex items-center justify-center p-1">
+            <img src="/logo.png" alt="KSI-ON" className="w-full h-full object-contain" />
           </div>
+          <span className="text-title-md font-title font-semibold text-primary">KSI-ON LMS</span>
         </div>
+        <button
+          onClick={() => handleNavigation('profile-' + role)}
+          className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary text-label-sm font-bold"
+        >
+          {getUserInitials()}
+        </button>
       </header>
 
-      {/* Mobile Bottom Navigation */}
-      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant/50 px-xs pb-[env(safe-area-inset-bottom,0px)] z-50 flex justify-around safe-area-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
+      {/* Mobile Bottom Navigation - visible on all screens < lg */}
+      <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-surface border-t border-outline-variant/50 px-xs pb-[env(safe-area-inset-bottom,0px)] z-50 flex justify-around safe-area-bottom shadow-[0_-2px_10px_rgba(0,0,0,0.05)]">
         {primaryMenuItems.map((item, index) => {
           const isActive = activeSection === item.action;
           return (
@@ -354,14 +357,14 @@ const Sidebar = ({ role, onNavigate, activeSection, sidebarCollapsed, setSidebar
         </button>
       </div>
 
-      {/* Mobile Slide-out Sidebar */}
+      {/* Mobile/Tablet Slide-out Sidebar - works on ALL screen sizes */}
       {mobileSidebarOpen && (
-        <div className="fixed inset-0 z-[100] md:hidden">
+        <div className="fixed inset-0 z-[100] lg:hidden">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setMobileSidebarOpen(false)}
           />
-          <aside className="absolute left-0 top-0 bottom-0 w-[280px] bg-surface shadow-2xl flex flex-col animate-slideInLeft">
+          <aside className="absolute left-0 top-0 bottom-0 w-[300px] bg-surface shadow-2xl flex flex-col animate-slideInLeft">
             <div className="px-lg py-lg border-b border-outline-variant/30 flex items-center gap-sm">
               <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
                 <School className="text-primary" size={22} />
@@ -435,7 +438,7 @@ const Sidebar = ({ role, onNavigate, activeSection, sidebarCollapsed, setSidebar
 
       {/* More Menu Modal */}
       {showMoreMenu && (
-        <div className="fixed inset-0 z-[100] flex items-center justify-center p-md md:hidden">
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-md lg:hidden">
           <div
             className="absolute inset-0 bg-black/40 backdrop-blur-sm"
             onClick={() => setShowMoreMenu(false)}
